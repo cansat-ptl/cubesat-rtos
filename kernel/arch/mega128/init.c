@@ -7,8 +7,12 @@
 
 #include <types.h>
 #include <arch/mega128/uart.h>
+#include <arch/mega128/mega128.h>
 
 void arch_platformInit()
 {
 	uart_init();
+	arch_setupSystickTimer();
+	arch_startSystickTimer();
+	arch_ENABLE_INTERRUPTS();
 }

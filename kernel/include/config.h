@@ -12,6 +12,8 @@
 	#define CFG_NUMBER_OF_PRIORITIES 8
 	#define CFG_TICKS_PER_TASK 5
 
+	#define CFG_MIN_TASK_STACK_SIZE 60
+
 	//Memory protection settings
 	#define CFG_MEMORY_PROTECTION_MODE 3
 	#define CFG_ALLOW_STATIC_TASK_ALLOCATION 0

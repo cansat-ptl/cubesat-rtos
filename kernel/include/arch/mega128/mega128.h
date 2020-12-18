@@ -12,6 +12,8 @@
 #include <avr/io.h>
 #include <avr/iom128.h>
 
+#include <types.h>
+
 #ifndef F_CPU
 #define F_CPU 16000000L						//CPU frequency
 #endif
@@ -37,5 +39,10 @@ void arch_startSystickTimer();
 void arch_stopSystickTimer();
 
 void arch_platformInit();
+
+kStatusRegister_t arch_startAtomicOperation();
+void arch_endAtomicOperation(kStatusRegister_t sreg);
+
+void __attribute__ (( naked, noinline )) arch_yield(void);
 
 #endif /* MEGA128_H_ */

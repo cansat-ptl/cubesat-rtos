@@ -34,7 +34,7 @@ typedef uint16_t kStackSize_t;
 typedef uint16_t kTaskTicks_t;
 typedef uint16_t kPid_t;
 
-typedef enum {KSTATE_UNINIT, KSTATE_SUSPENDED, KSTATE_BLOCKED, KSTATE_READY} kTaskState_t;
+typedef enum {KSTATE_UNINIT, KSTATE_SUSPENDED, KSTATE_BLOCKED, KSTATE_READY, KSTATE_SLEEPING} kTaskState_t;
 typedef enum {KEVENT_UNINIT, KEVENT_NONE, KEVENT_FIRED} kEventState_t;
 typedef enum {KTASK_UNINIT, KTASK_NORMAL_STATIC, KTASK_CRITICAL_STATIC, KTASK_NORMAL, KTASK_CRITICAL} kTaskType_t;
 typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;

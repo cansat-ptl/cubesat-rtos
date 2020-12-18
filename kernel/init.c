@@ -10,6 +10,7 @@
 
 void kernel_init()
 {
+	
 	arch_platformInit();
 	uart_puts("Hello from OS init!\r\n");
 }

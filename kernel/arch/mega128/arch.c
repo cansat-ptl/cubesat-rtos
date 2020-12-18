@@ -10,33 +10,11 @@
 #include <config.h>
 #include <arch/mega128/stack.h>
 #include <arch/mega128/mega128.h>
+#include <tasks/scheduler.h>
 
-extern kTaskHandle_t kCurrentTask;
+extern struct kSchedCPUStateStruct_t kSchedCPUState;
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
 kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-1];
-
-void tasks_tick();
-void tasks_switchTask();
-
-void __attribute__ (( naked, noinline )) arch_yield(void)
-{
-	arch_SAVE_CONTEXT();
-
-	tasks_switchTask();
-
-	arch_RESTORE_CONTEXT();
-	arch_RET();
-}
-
-void __attribute__ (( naked, noinline )) arch_tick()
-{
-	arch_SAVE_CONTEXT();
-
-	tasks_tick();
-
-	arch_RESTORE_CONTEXT();
-	arch_RET();
-}
 
 kStatusRegister_t arch_startAtomicOperation()
 {
