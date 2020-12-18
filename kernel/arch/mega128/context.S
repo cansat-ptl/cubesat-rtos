@@ -12,12 +12,15 @@
 .extern kSchedCPUState
 .extern kReservedMemory
 .extern kStackPointer
+.extern tasks_tick
+.extern tasks_switchTask
 
 .text
-.global _arch_save_context
 .global _arch_restore_context
+.global _arch_save_context
+.global arch_tick
 
-_arch_restore_context:
+.macro _arch_restore_context_m
 ;-------------------Context-Restore-------------------
 	lds r0, SPL					; load current stack pointer
 	sts kStackPointer, r0		; and save it into kStackPointer
@@ -65,8 +68,9 @@ _arch_restore_context:
 	sts SREG, r0
 	pop r0						; load the actual r0 register
 ;-----------------------------------------------------
+.endm
 
-_arch_save_context:
+.macro _arch_save_context_m
 ;--------------------Context-Save---------------------
 	push r0						; do everything from _arch_restore_context
 	lds r0, SREG				; but in reverse
@@ -115,3 +119,17 @@ _arch_save_context:
 	lds r0, kStackPointer+1
 	sts SPH, r0
 ;-----------------------------------------------------
+.endm
+
+arch_tick:
+	_arch_save_context_m
+	call tasks_tick
+	_arch_restore_context_m
+	ret
+
+arch_yield:
+	_arch_save_context_m
+	call tasks_switchTask
+	_arch_restore_context_m
+	ret
+
