@@ -12,12 +12,14 @@
 #include <arch/arch.h>
 #include <tasks/tasks.h>
 #include <tasks/scheduler.h>
+#include <tasks/dispatcher.h>
 
 struct kSchedCPUStateStruct_t kSchedCPUState;
 
-void tasks_initScheduler()
+void tasks_initScheduler(kTaskHandle_t idle)
 {
-
+	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
+	kSchedCPUState.kReadyTaskList[9].tail = &(idle->activeTaskListItem);
 }
 
 void tasks_rescheduleTask(kTaskHandle_t task, kTaskState_t state)
@@ -70,12 +72,12 @@ static inline void tasks_search()
 		if (kSchedCPUState.kReadyTaskList[i].head != NULL) {
 
 			#if CFG_MEMORY_PROTECTION_MODE != 0
-			if (memory_pointerSanityCheck((void*)kSchedCPUState.kReadyTaskList[i].head) != 0) {
+			//if (memory_pointerSanityCheck((void*)kSchedCPUState.kReadyTaskList[i].head) != 0) {
 				//kernel_panic(PSTR("Memory access violation in scheduler: priorityQueues.head is out of bounds\r\n"));
-			}
+			//}
 			#endif
 
-			tasks_setNextTask(kSchedCPUState.kReadyTaskList[i].head);
+			tasks_setNextTask(kSchedCPUState.kReadyTaskList[i].head->data);
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
 			volatile struct kListItemStruct_t* temp = kSchedCPUState.kReadyTaskList[i].head;

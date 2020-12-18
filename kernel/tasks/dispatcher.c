@@ -87,12 +87,15 @@ void tasks_sleep(kTaskTicks_t sleep)
 	arch_yield();
 }
 
+void tasks_switchTask()
+{
+	tasks_runScheduler();
+	if (kSchedCPUState.kNextTask != kSchedCPUState.kCurrentTask) tasks_switchContext();
+}
+
 void tasks_tick()
 {
-	//tasks_runScheduler();
-	//if (kNextTask != kCurrentTask) tasks_switchContext();
+	tasks_switchTask();
 
 	//kernel_timerService();
-
-	uart_puts("ISR\r\n");
 }

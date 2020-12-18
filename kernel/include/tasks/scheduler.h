@@ -27,7 +27,7 @@ struct kSchedCPUStateStruct_t
 	volatile struct kLinkedListStruct_t kSuspendedTaskList;
 };
 
-void tasks_initScheduler();
+void tasks_initScheduler(kTaskHandle_t idle);
 
 void tasks_rescheduleTask(kTaskHandle_t task, kTaskState_t state);
 

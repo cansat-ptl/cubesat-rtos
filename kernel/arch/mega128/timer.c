@@ -16,7 +16,7 @@ void arch_setupSystickTimer()
 	arch_DISABLE_INTERRUPTS();
 	TCCR0 |= (CFG_KERNEL_TIMER_PRESCALER << CS00); // prescaler 64 cs11 & cs10 = 1
 	TCNT0 = 0;
-	OCR0 = CFG_TIMER_COMPARE_VALUE; //Corrected accordingly to ISR execution time
+	OCR0 = 250;//CFG_TIMER_COMPARE_VALUE; Corrected accordingly to ISR execution time
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
 }

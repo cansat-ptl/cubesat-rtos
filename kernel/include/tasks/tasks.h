@@ -10,6 +10,7 @@
 #define TASKS_H_
 
 #include <types.h>
+#include <common.h>
 
 struct kLockStruct_t;
 
@@ -45,7 +46,7 @@ struct kTaskStruct_t
 	//	uint8_t savedContext[CFG_REGISTER_RESERVED_SPACE];
 };
 
-kReturnValue_t tasks_init(kTask_t idle);
+kReturnValue_t tasks_init();
 
 kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name);
 kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name);

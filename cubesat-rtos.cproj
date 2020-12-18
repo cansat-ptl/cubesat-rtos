@@ -199,6 +199,9 @@
     <Compile Include="kernel\mem\heap1.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="kernel\mem\protection.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="kernel\tasks\dispatcher.c">
       <SubType>compile</SubType>
     </Compile>

@@ -10,15 +10,40 @@
 #include <config.h>
 #include <common.h>
 #include <tasks/tasks.h>
+#include <tasks/scheduler.h>
+#include <tasks/dispatcher.h>
 #include <mem/heap.h>
 #include <mem/protection.h>
+#include <arch/arch.h>
 
 static volatile uint16_t kGlobalPid = 0;
 
-kReturnValue_t tasks_init(kTask_t idle)
+byte kIdleMem[150];
+
+void idle0() {
+	while(1) {
+		;
+	}
+}
+
+kReturnValue_t tasks_init()
 {
+	memory_heapInit();
+	kTaskHandle_t idleTask;
+	tasks_createTaskStatic(kIdleMem, &idleTask, idle0, NULL, 64, 0, KTASK_CRITICAL_STATIC, "idle");
+
+	if (idleTask == NULL) {
+		//debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n"));
+		while(1);
+	}
+
+	tasks_initScheduler(idleTask);
+	tasks_setCurrentTask(idleTask);
+	tasks_setNextTask(idleTask);
+
 	return 0;
 }
+
 
 kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name)
 {

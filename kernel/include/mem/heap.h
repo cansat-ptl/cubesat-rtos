@@ -18,6 +18,8 @@ struct kMemoryBlockStruct_t
 	uint8_t state;
 };
 
+void memory_heapInit();
+
 void* memory_heapAlloc(size_t size);
 void memory_heapFree(void* pointer);
 

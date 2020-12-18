@@ -10,6 +10,7 @@
 #include <common.h>
 #include <arch/arch.h>
 #include <tasks/tasks.h>
+#include <tasks/scheduler.h>
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 {
