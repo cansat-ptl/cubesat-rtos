@@ -77,7 +77,7 @@
 	cli
 	push r0
 	push r1
-	clr r1						; huh? do I need this? TODO: check gcc docs
+	clr r1						; r1 needs to always be 0
 	push r2
 	push r3
 	push r4

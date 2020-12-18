@@ -39,7 +39,7 @@ int main(void)
 {
     kernel_init();
 	tasks_createTaskDynamic(&test, test_task, NULL, 100, 3, KTASK_NORMAL, "test1");
-	tasks_createTaskDynamic(&test2, test_task2, NULL, 100, 3, KTASK_NORMAL, "test2");
+	//tasks_createTaskDynamic(&test2, test_task2, NULL, 100, 3, KTASK_NORMAL, "test2");
     while (1)
     {
 		uart_puts("Idling in mah main\r\n");
