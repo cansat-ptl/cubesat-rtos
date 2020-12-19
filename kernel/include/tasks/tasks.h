@@ -32,8 +32,8 @@ struct kTaskStruct_t
 	kTaskState_t state;
 	kTaskTicks_t sleepTime;
 	kTaskType_t type;
-	uint8_t priority;
-	uint8_t flags;
+	kBaseType_t priority;
+	byte flags;
 	kPid_t pid;
 	char* name;
 
@@ -42,14 +42,12 @@ struct kTaskStruct_t
 
 	volatile struct kListItemStruct_t activeTaskListItem;
 	volatile struct kListItemStruct_t globalTaskListItem;
-
-	//	uint8_t savedContext[CFG_REGISTER_RESERVED_SPACE];
 };
 
 kReturnValue_t tasks_init();
 
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name);
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name);
+kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
+kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
 

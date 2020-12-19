@@ -19,7 +19,10 @@ struct kSchedCPUStateStruct_t
 	kTaskHandle_t kCurrentTask;
 	kTaskHandle_t kNextTask;
 
-	volatile uint8_t kTickRate;
+	kSpinlock_t kTaskOpSpinlock;
+
+	volatile kBaseType_t kCriticalNestingCounter;
+	volatile kBaseType_t kTickRate;
 	volatile kTaskTicks_t kTaskActiveTicks;
 
 	volatile struct kLinkedListStruct_t kReadyTaskList[CFG_NUMBER_OF_PRIORITIES];
@@ -29,7 +32,7 @@ struct kSchedCPUStateStruct_t
 
 void tasks_initScheduler(kTaskHandle_t idle);
 
-void tasks_rescheduleTask(kTaskHandle_t task, kTaskState_t state);
+void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state);
 
 void tasks_runScheduler();
 

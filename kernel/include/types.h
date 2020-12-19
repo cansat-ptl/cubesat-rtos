@@ -23,6 +23,8 @@ typedef volatile uint8_t kSpinlock_t;
 
 typedef volatile uint8_t* kStackPtr_t;
 
+typedef uint8_t kBaseType_t;
+
 typedef int16_t kIterator_t;
 typedef int16_t kReturnValue_t;
 typedef int16_t kError_t;
@@ -40,7 +42,6 @@ typedef enum {KTASK_UNINIT, KTASK_NORMAL_STATIC, KTASK_CRITICAL_STATIC, KTASK_NO
 typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
 
 struct kTaskStruct_t;
-
 typedef volatile struct kTaskStruct_t* kTaskHandle_t;
 
 #endif /* TYPES_H_ */

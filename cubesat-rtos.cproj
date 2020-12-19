@@ -211,9 +211,6 @@
     <Compile Include="kernel\tasks\scheduler.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="kernel\tasks\states.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="kernel\tasks\tasks.c">
       <SubType>compile</SubType>
     </Compile>

@@ -44,8 +44,41 @@ kReturnValue_t tasks_init()
 	return 0;
 }
 
+void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
+{
+	kStatusRegister_t sreg = arch_startAtomicOperation();
 
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name)
+	if (task != NULL) {
+		tasks_updateSchedulingList(task, state);
+		task->state = state;
+	}
+
+	arch_endAtomicOperation(sreg);
+}
+
+kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
+{
+	kReturnValue_t kresult = KRESULT_ERR_NULLPTR;
+	kStatusRegister_t sreg = arch_startAtomicOperation();
+
+	if (task != NULL) {
+		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
+			task->priority = priority;
+			if (task->state == KSTATE_READY) {
+				tasks_updateSchedulingList(task, KSTATE_READY);
+			}
+			kresult = KRESULT_SUCCESS;
+		}
+		else {
+			kresult = CFG_NUMBER_OF_PRIORITIES;
+		}
+	}
+
+	arch_endAtomicOperation(sreg);
+	return kresult;
+}
+
+kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
 
@@ -102,7 +135,7 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 	return kresult;
 }
 
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, uint8_t priority, kTaskType_t type, char* name)
+kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
 

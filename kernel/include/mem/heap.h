@@ -9,13 +9,13 @@
 #ifndef HEAP_H_
 #define HEAP_H_
 
-#include <stddef.h>
+#include <types.h>
 
 struct kMemoryBlockStruct_t
 {
 	struct kMemoryBlockStruct_t* next;
 	size_t blockSize;
-	uint8_t state;
+	kBaseType_t state;
 };
 
 void memory_heapInit();
