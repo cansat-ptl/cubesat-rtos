@@ -11,8 +11,6 @@
 
 #include <types.h>
 
-kReturnValue_t memory_heapPointerSanityCheck(void* pointer);
-
 void memory_prepareProtectionRegion(void* pointer, size_t size);
 kReturnValue_t memory_checkProtectionRegion(void* pointer, size_t size);
 

@@ -40,6 +40,21 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <AAFDebugger>
+      <AAFDebugFiles xmlns="">
+        <DebugFile>
+          <path>\Debug\cubesat-rtos.lss</path>
+          <AAFSetting>
+            <Label>Lss Files</Label>
+            <Extention>.lss</Extention>
+            <Regex>^\s*(?&lt;address&gt;[a-f0-9]*):\s*.*$</Regex>
+            <DebugEnabled>true</DebugEnabled>
+            <RegexGroups>address</RegexGroups>
+            <DebuggerExpression>$pc</DebuggerExpression>
+          </AAFSetting>
+        </DebugFile>
+      </AAFDebugFiles>
+    </AAFDebugger>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -130,22 +145,16 @@
     <Compile Include="include\kernel.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="kernel\arch\mega128\arch.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="kernel\arch\mega128\context.S">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="kernel\arch\mega128\init.c">
+    <Compile Include="kernel\arch\mega128\arch.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="kernel\arch\mega128\interrupts.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="kernel\arch\mega128\stack.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="kernel\arch\mega128\timer.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="kernel\arch\mega128\uart.c">

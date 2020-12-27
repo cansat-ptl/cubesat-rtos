@@ -12,9 +12,10 @@
 #include <arch/arch.h>
 #include <tasks/tasks.h>
 #include <tasks/scheduler.h>
-#include <arch/mega128/uart.h>
 
 extern struct kSchedCPUStateStruct_t kSchedCPUState;
+
+void __attribute__ (( naked, noinline )) arch_yield(void);
 
 static void tasks_switchContext()
 {
@@ -96,6 +97,4 @@ void tasks_switchTask()
 void tasks_tick()
 {
 	tasks_switchTask();
-
-	//kernel_timerService();
 }

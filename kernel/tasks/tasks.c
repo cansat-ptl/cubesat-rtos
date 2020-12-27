@@ -18,6 +18,8 @@
 
 static volatile uint16_t kGlobalPid = 0;
 
+static kSpinlock_t kTaskOpSpinlock;
+
 byte kIdleMem[150];
 
 void idle0() {
@@ -46,35 +48,37 @@ kReturnValue_t tasks_init()
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 {
-	kStatusRegister_t sreg = arch_startAtomicOperation();
-
 	if (task != NULL) {
+		arch_enterCriticalSection();
+
 		tasks_updateSchedulingList(task, state);
 		task->state = state;
-	}
 
-	arch_endAtomicOperation(sreg);
+		arch_exitCriticalSection();
+	}
 }
 
 kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
 {
 	kReturnValue_t kresult = KRESULT_ERR_NULLPTR;
-	kStatusRegister_t sreg = arch_startAtomicOperation();
 
 	if (task != NULL) {
 		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
+			arch_enterCriticalSection();
+
 			task->priority = priority;
 			if (task->state == KSTATE_READY) {
 				tasks_updateSchedulingList(task, KSTATE_READY);
 			}
 			kresult = KRESULT_SUCCESS;
+
+			arch_exitCriticalSection();
 		}
 		else {
 			kresult = CFG_NUMBER_OF_PRIORITIES;
 		}
 	}
 
-	arch_endAtomicOperation(sreg);
 	return kresult;
 }
 
@@ -82,8 +86,7 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
 
-	//TODO: Replace with spinlocks
-	//kStatusRegister_t sreg = threads_startAtomicOperation();
+	arch_spinlockAcquire(&kTaskOpSpinlock);
 
 	if (entry != NULL) {
 		if (taskMemory != NULL) {
@@ -131,7 +134,7 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 		}
 	}
 
-	//threads_endAtomicOperation(sreg);
+	arch_spinlockRelease(&kTaskOpSpinlock);
 	return kresult;
 }
 

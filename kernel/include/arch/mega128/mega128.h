@@ -18,8 +18,6 @@
 #define F_CPU 16000000L						//CPU frequency
 #endif
 
-#define CFG_KERNEL_STACK_FRAME_REGISTER_OFFSET -6  //Memory offset, from which General Purpose Registers are stored during stack initialization
-#define CFG_KERNEL_STACK_FRAME_END_OFFSET -31 //Last GPR position on stack
 #define CFG_TIMER_COMPARE_VALUE 250
 #define CFG_KERNEL_TIMER_PRESCALER 3
 
@@ -30,6 +28,12 @@
 #define arch_ENABLE_INTERRUPTS() asm volatile ("sei"::)
 #define arch_STATUS_REG SREG
 #define arch_NOP() asm volatile ("nop"::)
+#define arch_enterCriticalSection() asm volatile (	"lds __tmp_reg__, __SREG__ \n\t" \
+													"cli\n\t" \
+													"push	__tmp_reg__ \n\t" ::)
+#define arch_exitCriticalSection() asm volatile (	"pop __tmp_reg__ \n\t"	\
+													"sei \n\t" \
+													"sts __SREG__, __tmp_reg__ \n\t" ::)
 
 #define arch_RET() asm volatile ("ret \n\t" ::)
 #define arch_RETI() asm volatile ("reti \n\t" ::)
@@ -40,9 +44,8 @@ void arch_stopSystickTimer();
 
 void arch_platformInit();
 
-kStatusRegister_t arch_startAtomicOperation();
-void arch_endAtomicOperation(kStatusRegister_t sreg);
+void arch_spinlockAcquire(kSpinlock_t* spinlock);
+void arch_spinlockRelease(kSpinlock_t* spinlock);
 
-void __attribute__ (( naked, noinline )) arch_yield(void);
 
 #endif /* MEGA128_H_ */

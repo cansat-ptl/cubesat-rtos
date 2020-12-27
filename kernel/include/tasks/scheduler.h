@@ -19,9 +19,6 @@ struct kSchedCPUStateStruct_t
 	kTaskHandle_t kCurrentTask;
 	kTaskHandle_t kNextTask;
 
-	kSpinlock_t kTaskOpSpinlock;
-
-	volatile kBaseType_t kCriticalNestingCounter;
 	volatile kBaseType_t kTickRate;
 	volatile kTaskTicks_t kTaskActiveTicks;
 

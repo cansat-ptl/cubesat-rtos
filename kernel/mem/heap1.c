@@ -22,6 +22,8 @@ static struct kMemoryBlockStruct_t* kHeapEnd;
 static size_t kFreeMemory = 0;
 static size_t kMinimumFreeMemory = 0;
 
+kReturnValue_t memory_heapPointerSanityCheck(void* pointer);
+
 size_t memory_getFreeHeap()
 {
 	return kFreeMemory;
@@ -112,7 +114,7 @@ void* memory_heapAlloc(size_t size)
 	void* returnAddress = NULL;
 	struct kMemoryBlockStruct_t *block, *newBlock, *previousBlock;
 
-	kStatusRegister_t sreg = arch_startAtomicOperation();
+	arch_enterCriticalSection();
 
 	if (size > 0 && (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK) != 0x00) { //-V560
 		size += (CFG_PLATFORM_BYTE_ALIGNMENT - (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK));
@@ -154,7 +156,7 @@ void* memory_heapAlloc(size_t size)
 		}
 	}
 
-	arch_endAtomicOperation(sreg);
+	arch_exitCriticalSection();
 	return returnAddress;
 }
 
@@ -163,7 +165,7 @@ void memory_heapFree(void* pointer)
 	byte* pointer_casted = (byte*)pointer;
 	struct kMemoryBlockStruct_t* block;
 
-	kStatusRegister_t sreg = arch_startAtomicOperation();
+	arch_enterCriticalSection();
 
 	if (memory_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
 		pointer_casted -= kHeapStructSize;
@@ -177,7 +179,8 @@ void memory_heapFree(void* pointer)
 			}
 		}
 	}
-	arch_endAtomicOperation(sreg);
+
+	arch_exitCriticalSection();
 	return;
 }
 
