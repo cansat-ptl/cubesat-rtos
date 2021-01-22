@@ -6,22 +6,26 @@ rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, 
 
 TARG = yktsat-rtos
  
-CC = "D:\BuildTools\avr-gcc-9.2.0-x64-mingw\bin\avr-gcc.exe"
-OBJCOPY = "D:\BuildTools\avr-gcc-9.2.0-x64-mingw\bin\avr-objcopy.exe"
-OBJDUMP = "D:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe"
-ATMEL_DFP = "D:\Program Files (x86)\Atmel\Studio\7.0\Packs\Atmel\ATmega_DFP\1.4.346\include"
+CC = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
+ASM = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
+OBJCOPY = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe"
+OBJDUMP = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe"
+ATMEL_DFP = "C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\ATmega_DFP\1.6.364\include"
 
-AVR_SIZE_CMD = "D:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe" "$(TARG).elf"
+AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe" "$(TARG).elf"
  
-INC = -I"include"
-SRCDIR = kernel
-SRCS = $(call rwildcard, $(SRCDIR)/,*.c)
- 
-OBJS = $(SRCS:.c=.o)
+INC = -I"./include" -I"./kernel/include"
+SRCDIR = ./kernel
+SRCS = $(call rwildcard, $(SRCDIR)/,*.c) main.c
+ASM_SRCS = $(call rwildcard, $(SRCDIR)/,*.S)
+
+OBJS = $(SRCS:.c=.o) $(ASM_SRCS:.S=.o)
 
 MCU=atmega128
  
 CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG	-I$(ATMEL_DFP) $(INC) -O2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99
+
+ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG	-I$(ATMEL_DFP) $(INC) -O2 -mrelax -g2 -mmcu=$(MCU) 
 
 LDFLAGS = -Wl,-static -Wl,-Map="yktsat-rtos.map" -Wl,-u,vfprintf -Wl,--start-group -Wl,-lm	-Wl,--end-group -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000   -mmcu=$(MCU)	 -Wl,-u,vfprintf -lprintf_flt -lm
 
@@ -46,8 +50,11 @@ $(TARG): $(OBJS)
 	$(OBJCOPY)  $(OBJCOPY_SIGN_FLAGS) "$(TARG).elf" "$(TARG).usersignatures" || exit 0
 	$(AVR_SIZE_CMD)
  
-%.o: %.c
+.c.o:
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+.S.o:
+	$(ASM) $(ASMFLAGS) -c -o $@ $<
  
 clean:
 	rm -f $(TARG).elf $(TARG).bin $(TARG).hex  $(OBJS) $(TARG).map $(TARG).usersignatures $(TARG).srec $(TARG).lss $(TARG).eep 
