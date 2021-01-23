@@ -9,9 +9,8 @@ TARG = yktsat-rtos
 CC = avr-gcc
 ASM = avr-gcc
 OBJCOPY = avr-objcopy
-OBJDUMP = avr-objdump.exe
-ATMEL_DFP = "C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\ATmega_DFP\1.6.364\include"
-RM = rm.exe -f
+OBJDUMP = avr-objdump
+RM = rm -f
 
 AVR_SIZE_CMD = avr-size "$(TARG).elf"
  
@@ -24,9 +23,9 @@ OBJS = $(SRCS:.c=.o) $(ASM_SRCS:.S=.o)
 
 MCU=atmega128
  
-CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG	-I$(ATMEL_DFP) $(INC) -O2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99
+CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG $(INC) -O2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99
 
-ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG	-I$(ATMEL_DFP) $(INC) -O2 -mrelax -g2 -mmcu=$(MCU) 
+ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INC) -O2 -mrelax -g2 -mmcu=$(MCU) 
 
 LDFLAGS = -Wl,-static -Wl,-Map="yktsat-rtos.map" -Wl,-u,vfprintf -Wl,--start-group -Wl,-lm	-Wl,--end-group -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000   -mmcu=$(MCU)	 -Wl,-u,vfprintf -lprintf_flt -lm
 
