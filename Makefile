@@ -6,13 +6,14 @@ rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, 
 
 TARG = yktsat-rtos
  
-CC = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
-ASM = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
-OBJCOPY = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe"
-OBJDUMP = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe"
+CC = avr-gcc
+ASM = avr-gcc
+OBJCOPY = avr-objcopy
+OBJDUMP = avr-objdump.exe
 ATMEL_DFP = "C:\Program Files (x86)\Atmel\Studio\7.0\packs\atmel\ATmega_DFP\1.6.364\include"
+RM = rm.exe -f
 
-AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe" "$(TARG).elf"
+AVR_SIZE_CMD = avr-size "$(TARG).elf"
  
 INC = -I"./include" -I"./kernel/include"
 SRCDIR = ./kernel
@@ -57,4 +58,4 @@ $(TARG): $(OBJS)
 	$(ASM) $(ASMFLAGS) -c -o $@ $<
  
 clean:
-	rm -f $(TARG).elf $(TARG).bin $(TARG).hex  $(OBJS) $(TARG).map $(TARG).usersignatures $(TARG).srec $(TARG).lss $(TARG).eep 
+	$(RM) $(TARG).elf $(TARG).bin $(TARG).hex  $(OBJS) $(TARG).map $(TARG).usersignatures $(TARG).srec $(TARG).lss $(TARG).eep 
