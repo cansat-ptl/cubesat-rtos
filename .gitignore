@@ -45,13 +45,19 @@
 *.su
 *.idb
 *.pdb
+*.atsln
+*.cproj
+*.componentinfo.xml
 /Debug
 /.vs
+/.vscode
 
 # Kernel Module Compile Results
 *.mod*
 *.cmd
 .tmp_versions/
+/build
+/bin
 modules.order
 Module.symvers
 Mkfile.old
