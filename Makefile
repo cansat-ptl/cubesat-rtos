@@ -26,6 +26,7 @@ AVR_SIZE_CMD = avr-size
 # Host platform settings
 RM_CMD = C:\Tools\Coreutils\bin\rm -f
 MKDIR_CMD = C:\Tools\Coreutils\bin\mkdir.exe -p
+COPY_CMD = C:\Tools\Coreutils\bin\cp.exe
  
 # Compiler & linker flags
 CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG $(INCLUDES) -O2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99
@@ -70,6 +71,8 @@ $(TARG): $(OBJS)
 	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).srec"
 	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).usersignatures" || exit 0
 	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TARG).elf"
+	$(COPY_CMD) "$(TARGDIR)/$(TARG).elf" "./$(TARG).elf"
+
 
 # Compile objects
 $(BUILDDIR)/%.o: %.c
@@ -86,4 +89,4 @@ cleanmisc:
 	$(RM_CMD) $(TARGDIR)/$(TARG).map $(TARGDIR)/$(TARG).usersignatures $(TARGDIR)/$(TARG).srec $(TARGDIR)/$(TARG).lss $(TARGDIR)/$(TARG).eep
 
 clean: cleanobjs cleanmisc
-	$(RM_CMD) $(TARGDIR)/$(TARG).elf $(TARGDIR)/$(TARG).bin $(TARGDIR)/$(TARG).hex
+	$(RM_CMD) $(TARGDIR)/$(TARG).elf $(TARG).elf $(TARGDIR)/$(TARG).bin $(TARGDIR)/$(TARG).hex
