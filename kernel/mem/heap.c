@@ -1,5 +1,5 @@
 /*
- * heap1.c
+ * heap.c
  *
  * Created: 18.12.2020 6:21:51
  *  Author: Admin
@@ -11,6 +11,8 @@
 #include <common.h>
 #include <arch/arch.h>
 #include <mem/heap.h>
+#include <tasks/dispatcher.h>
+#include <tasks/objects.h>
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
@@ -32,6 +34,33 @@ size_t memory_getFreeHeap()
 size_t memory_getFreeHeapMin()
 {
 	return kMinimumFreeMemory;
+}
+
+static inline uint8_t memory_calculateChecksum(struct kMemoryBlockStruct_t* block) 
+{
+	return ((uint8_t)(block -> blockSize) ^ (uint8_t)(block -> next) ^ (uint8_t)(block -> state) ^ (uint8_t)(block -> magic1) ^ (uint8_t)(block -> magic2));
+}
+
+static inline void memory_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
+{
+	block -> magic1 = 0xDEAD;
+	block -> magic2 = 0xC0DE;
+	block -> checksum = memory_calculateChecksum(block);
+}
+
+static inline uint8_t memory_checkBlockValid(struct kMemoryBlockStruct_t* block) 
+{
+	uint8_t result = 0;
+
+	if (block -> magic1 == 0xDEAD) {
+		if (block -> magic2 == 0xC0DE) {
+			if (!(block -> checksum ^ memory_calculateChecksum(block))) {
+				result = 1;
+			}
+		}
+	}
+
+	return result;
 }
 
 void memory_heapInit()
@@ -68,6 +97,10 @@ void memory_heapInit()
 	firstFreeBlock -> blockSize = heapAddress - (size_t)firstFreeBlock;
 	firstFreeBlock -> next = kHeapEnd;
 	firstFreeBlock -> state = 0;
+
+	#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
+		memory_prepareBlockMagic(firstFreeBlock);
+	#endif
 
 	kMinimumFreeMemory = firstFreeBlock -> blockSize;
 	kFreeMemory = firstFreeBlock -> blockSize;
@@ -132,7 +165,7 @@ void* memory_heapAlloc(size_t size)
 		}
 
 		if (block != kHeapEnd) {
-			returnAddress = (void*)(((byte*)previousBlock -> next) + kHeapStructSize); //Parenthesis hell
+			returnAddress = (void*)(((byte*)previousBlock -> next) + kHeapStructSize);
 
 			previousBlock -> next = block -> next;
 
@@ -153,6 +186,19 @@ void* memory_heapAlloc(size_t size)
 
 			block -> state = 1;
 			block -> next = NULL;
+
+			#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
+				memory_prepareBlockMagic(block);
+			#endif
+
+			#if CFG_CHECK_MEMORY_BLOCK_OWNERS == 1
+				kTaskHandle_t currentTask = tasks_getCurrentTask();
+				if (currentTask != NULL) {
+					block -> owner = currentTask;
+					block -> ownListItem.data = returnAddress;
+					tasks_addOwnedHeapBlock(currentTask, &(block -> ownListItem));
+				}
+			#endif
 		}
 	}
 
@@ -171,14 +217,41 @@ void memory_heapFree(void* pointer)
 		pointer_casted -= kHeapStructSize;
 
 		block = (void*)pointer_casted;
-		if (block -> state != 0) {
-			if (block -> next == NULL) {
-				block -> state = 0;
-				kFreeMemory += block -> blockSize;
-				memory_insertFreeBlock((struct kMemoryBlockStruct_t*)block);
+
+		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 //TODO: fix weird #if
+		if (memory_checkBlockValid(block)) {
+			block -> magic1 = 0;
+			block -> magic2 = 0;
+			block -> checksum = 0;
+		#endif
+
+			if (block -> state != 0) {
+				if (block -> next == NULL) {
+					tasks_removeOwnedHeapBlock(block -> owner, &(block -> ownListItem));
+					block -> ownListItem.data = NULL;
+					block -> owner = NULL;
+
+					block -> state = 0;
+					kFreeMemory += block -> blockSize;
+					memory_insertFreeBlock((struct kMemoryBlockStruct_t*)block);
+				}
 			}
+
+		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 //TODO: fix weird #if
 		}
+		#endif
 	}
+
+	arch_exitCriticalSection();
+	return;
+}
+
+void memory_heapFreeSafe(void** pointer)
+{
+	arch_enterCriticalSection();
+
+	memory_heapFree(*pointer);
+	*pointer = NULL;
 
 	arch_exitCriticalSection();
 	return;

@@ -21,6 +21,7 @@ void memory_prepareProtectionRegion(void* pointer, size_t size)
 kReturnValue_t memory_checkProtectionRegion(void* pointer, size_t size)
 {
 	kReturnValue_t kresult = KRESULT_SUCCESS;
+
 	if (pointer != NULL) {
 		for (size_t i = 0; i < size; i++) {
 			if (*(byte*)((byte*)pointer + i) != 0xFE) {
@@ -29,5 +30,6 @@ kReturnValue_t memory_checkProtectionRegion(void* pointer, size_t size)
 			}
 		}
 	}
+	
 	return kresult;
 }

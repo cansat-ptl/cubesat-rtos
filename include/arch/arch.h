@@ -2,7 +2,7 @@
  * arch.h
  *
  * Created: 17.12.2020 21:23:02
- *  Author: Admin
+ * Author: ThePetrovich
  */
 
 

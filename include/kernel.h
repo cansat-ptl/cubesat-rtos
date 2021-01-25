@@ -1,8 +1,8 @@
 /*
  * kernel.h
- *
- * Created: 17.12.2020 21:42:27
- *  Author: Admin
+ * 
+ * Created: 24.01.2021 08:31:50
+ * Author: ThePetrovich
  */
 
 

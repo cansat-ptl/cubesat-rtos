@@ -42,6 +42,14 @@ struct kTaskStruct_t
 
 	volatile struct kListItemStruct_t activeTaskListItem;
 	volatile struct kListItemStruct_t globalTaskListItem;
+
+	#if CFG_CHECK_MEMORY_BLOCK_OWNERS == 1
+		volatile struct kLinkedListStruct_t ownedHeapBlocks;
+	#endif
+
+	#if CFG_CHECK_TASK_HELD_LOCKS == 1
+		volatile struct kLinkedListStruct_t heldLocks;
+	#endif
 };
 
 kReturnValue_t tasks_init();
