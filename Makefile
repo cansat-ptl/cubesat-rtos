@@ -15,13 +15,13 @@ BUILDDIR = build
 TARGDIR = bin
 
 # Compiler & linker settings
-CC = avr-gcc
-ASM = avr-gcc
+CC = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
+ASM = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
 
 # AVR-specific tool settings
-OBJCOPY_CMD = avr-objcopy
-OBJDUMP_CMD = avr-objdump
-AVR_SIZE_CMD = avr-size 
+OBJCOPY_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe"
+OBJDUMP_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe"
+AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe"
 
 # Host platform settings
 RM_CMD = C:\Tools\Coreutils\bin\rm -f

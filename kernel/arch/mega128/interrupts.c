@@ -14,7 +14,7 @@
 
 void __attribute__ (( naked, noinline )) arch_tick();
 
-ISR(TIMER0_COMP_vect, ISR_NAKED)
+ISR(TIMER0_COMP_vect, ISR_NAKED) 
 {
 	arch_tick();
 	arch_RETI();

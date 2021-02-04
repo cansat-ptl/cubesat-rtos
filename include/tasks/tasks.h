@@ -17,7 +17,7 @@ struct kLockStruct_t;
 struct kEventStruct_t
 {
 	kEventState_t state;
-	uint16_t eventFlags;
+	kBaseType_t eventFlags;
 };
 
 struct kTaskStruct_t
@@ -37,17 +37,16 @@ struct kTaskStruct_t
 	kPid_t pid;
 	char* name;
 
-	volatile void* activeLock;
 	volatile struct kEventStruct_t notification;
 
 	volatile struct kListItemStruct_t activeTaskListItem;
 	volatile struct kListItemStruct_t globalTaskListItem;
 
-	#if CFG_CHECK_MEMORY_BLOCK_OWNERS == 1
+	//#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
 		volatile struct kLinkedListStruct_t ownedHeapBlocks;
-	#endif
+	//#endif
 
-	#if CFG_CHECK_TASK_HELD_LOCKS == 1
+	#if CFG_TRACK_TASK_HELD_LOCKS == 1
 		volatile struct kLinkedListStruct_t heldLocks;
 	#endif
 };
@@ -58,5 +57,11 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
+kTaskState_t tasks_getTaskState(kTaskHandle_t task);
+void tasks_blockTask(kTaskHandle_t task, volatile struct kLinkedListStruct_t* blockList);
+void tasks_unblockTask(kTaskHandle_t task);
+
+kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority);
+kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 
 #endif /* TASKS_H_ */

@@ -12,7 +12,7 @@
 #include <arch/arch.h>
 #include <mem/heap.h>
 #include <tasks/dispatcher.h>
-#include <tasks/objects.h>
+#include <tasks/taskobjects.h>
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
@@ -36,9 +36,9 @@ size_t memory_getFreeHeapMin()
 	return kMinimumFreeMemory;
 }
 
-static inline uint8_t memory_calculateChecksum(struct kMemoryBlockStruct_t* block) 
+static inline uint8_t memory_calculateChecksum(struct kMemoryBlockStruct_t* block) //This is stoopid
 {
-	return ((uint8_t)(block -> blockSize) ^ (uint8_t)(block -> next) ^ (uint8_t)(block -> state) ^ (uint8_t)(block -> magic1) ^ (uint8_t)(block -> magic2));
+	return ((uint8_t)(block -> blockSize) ^ (uint8_t)(block -> next) ^ (uint8_t)(block -> state) ^ (uint8_t)(block -> magic1) ^ (uint8_t)(block -> magic2)); //TODO: fix checksum calc warnings
 }
 
 static inline void memory_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
@@ -191,12 +191,12 @@ void* memory_heapAlloc(size_t size)
 				memory_prepareBlockMagic(block);
 			#endif
 
-			#if CFG_CHECK_MEMORY_BLOCK_OWNERS == 1
+			#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
 				kTaskHandle_t currentTask = tasks_getCurrentTask();
 				if (currentTask != NULL) {
 					block -> owner = currentTask;
 					block -> ownListItem.data = returnAddress;
-					tasks_addOwnedHeapBlock(currentTask, &(block -> ownListItem));
+					tasks_addTaskOwnedHeapBlock(currentTask, &(block -> ownListItem));
 				}
 			#endif
 		}
@@ -227,9 +227,11 @@ void memory_heapFree(void* pointer)
 
 			if (block -> state != 0) {
 				if (block -> next == NULL) {
-					tasks_removeOwnedHeapBlock(block -> owner, &(block -> ownListItem));
-					block -> ownListItem.data = NULL;
-					block -> owner = NULL;
+					#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
+						tasks_removeTaskOwnedHeapBlock(block -> owner, &(block -> ownListItem));
+						block -> ownListItem.data = NULL;
+						block -> owner = NULL;
+					#endif
 
 					block -> state = 0;
 					kFreeMemory += block -> blockSize;

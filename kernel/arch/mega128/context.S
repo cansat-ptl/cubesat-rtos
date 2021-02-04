@@ -19,6 +19,7 @@
 .global _arch_restore_context
 .global _arch_save_context
 .global arch_tick
+.global arch_yield
 
 .macro _arch_restore_context_m
 ;-------------------Context-Restore-------------------

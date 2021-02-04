@@ -48,6 +48,8 @@
 *.atsln
 *.cproj
 *.componentinfo.xml
+*.pdsprj
+*.pdsbak
 /Debug
 /.vs
 /.vscode

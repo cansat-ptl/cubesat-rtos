@@ -44,4 +44,6 @@ typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
 struct kTaskStruct_t;
 typedef volatile struct kTaskStruct_t* kTaskHandle_t;
 
+struct kLockStruct_t;
+
 #endif /* TYPES_H_ */

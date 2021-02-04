@@ -26,7 +26,7 @@ struct kMemoryBlockStruct_t
 		uint8_t checksum;
 	#endif
 
-	#if CFG_CHECK_MEMORY_BLOCK_OWNERS == 1
+	#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
 		kTaskHandle_t owner;
 		volatile struct kListItemStruct_t ownListItem;
 	#endif
