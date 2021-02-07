@@ -9,7 +9,7 @@
 #include <types.h>
 #include <config.h>
 #include <arch/mega128/uart.h>
-#include <arch/mega128/mega128.h>
+#include <arch/mega128/arch.h>
 
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
 kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-1];

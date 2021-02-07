@@ -1,16 +1,17 @@
 /*
- * scheduler.h
- *
- * Created: 18.12.2020 6:48:16
- *  Author: Admin
+ * sched.h
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef SCHEDULER_H_
-#define SCHEDULER_H_
+#ifndef KERNEL_SCHEDULER_H_
+#define KERNEL_SCHEDULER_H_
 
 #include <types.h>
 #include <common.h>
+#include <config.h>
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
 

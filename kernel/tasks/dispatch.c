@@ -9,9 +9,9 @@
 #include <types.h>
 #include <config.h>
 #include <common.h>
-#include <arch/arch.h>
 #include <tasks/tasks.h>
-#include <tasks/scheduler.h>
+#include <tasks/sched.h>
+#include <arch/module.h>
 
 extern struct kSchedCPUStateStruct_t kSchedCPUState;
 

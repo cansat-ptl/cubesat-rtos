@@ -12,22 +12,19 @@
 #include <ipc/ipc.h>
 #include <ipc/mutex.h>
 #include <ipc/semaphore.h>
-#include <tasks/tasks.h>
-#include <tasks/dispatcher.h>
-#include <arch/arch.h>
 
-void ipc_mutexInit(struct kLockStruct_t *mutex)
+void ipc_mutexInit(kMutexHandle_t mutex)
 {
 	ipc_semaphoreInit(mutex, 1);
 	mutex->type = KLOCK_MUTEX;
 }
 
-void ipc_mutexLock(volatile struct kLockStruct_t* mutex)
+void ipc_mutexLock(kMutexHandle_t mutex)
 {
 	ipc_semaphoreWait(mutex);
 }
 
-void ipc_mutexUnlock(volatile struct kLockStruct_t* mutex)
+void ipc_mutexUnlock(kMutexHandle_t mutex)
 {
 	ipc_semaphoreSignal(mutex);
 }

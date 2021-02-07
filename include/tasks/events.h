@@ -1,12 +1,12 @@
 /*
  * events.h
- *
- * Created: 18.12.2020 6:10:40
- *  Author: Admin
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef EVENTS_H_
-#define EVENTS_H_
+#ifndef KERNEL_EVENTS_H_
+#define KERNEL_EVENTS_H_
 
 #endif /* EVENTS_H_ */

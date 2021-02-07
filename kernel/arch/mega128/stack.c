@@ -7,7 +7,7 @@
 
 
 #include <types.h>
-#include <arch/mega128/mega128.h>
+#include <arch/mega128/stack.h>
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, kTask_t taskPointer, void* args)
 {

@@ -10,11 +10,11 @@
 #include <config.h>
 #include <common.h>
 #include <tasks/tasks.h>
-#include <tasks/scheduler.h>
-#include <tasks/dispatcher.h>
-#include <mem/heap.h>
-#include <mem/protection.h>
-#include <arch/arch.h>
+#include <tasks/sched.h>
+#include <tasks/dispatch.h>
+#include <tasks/taskctrl.h>
+#include <mem/module.h>
+#include <arch/module.h>
 
 byte kIdleMem[150];
 

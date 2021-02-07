@@ -16,8 +16,8 @@
 typedef volatile struct kLockStruct_t kSemaphore_t;
 typedef volatile struct kLockStruct_t* kSemaphoreHandle_t;
 
-void ipc_semaphoreInit(struct kLockStruct_t *semaphore, uint8_t resourceAmount);
-void ipc_semaphoreWait(volatile struct kLockStruct_t* semaphore);
-void ipc_semaphoreSignal(volatile struct kLockStruct_t* semaphore);
+void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, uint8_t resourceAmount);
+void ipc_semaphoreWait(kSemaphoreHandle_t semaphore);
+void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore);
 
 #endif

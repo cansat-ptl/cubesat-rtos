@@ -1,13 +1,13 @@
 /*
  * heap.h
- *
- * Created: 18.12.2020 6:19:32
- *  Author: Admin
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef HEAP_H_
-#define HEAP_H_
+#ifndef KERNEL_HEAP_H_
+#define KERNEL_HEAP_H_
 
 #include <types.h>
 #include <config.h>

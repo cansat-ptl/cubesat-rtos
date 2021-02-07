@@ -9,10 +9,9 @@
 #include <types.h>
 #include <config.h>
 #include <common.h>
-#include <arch/arch.h>
 #include <mem/heap.h>
-#include <tasks/dispatcher.h>
-#include <tasks/taskobjects.h>
+#include <arch/module.h>
+#include <tasks/module.h>
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 

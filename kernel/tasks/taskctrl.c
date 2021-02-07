@@ -10,15 +10,72 @@
 #include <config.h>
 #include <common.h>
 #include <tasks/tasks.h>
-#include <tasks/scheduler.h>
-#include <tasks/dispatcher.h>
-#include <mem/heap.h>
-#include <mem/protection.h>
-#include <arch/arch.h>
+#include <tasks/sched.h>
+#include <tasks/dispatch.h>
+#include <mem/module.h>
+#include <arch/module.h>
 
 static kSpinlock_t kTaskOpSpinlock;
 
 static volatile uint16_t kGlobalPid = 0;
+
+void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		tasks_updateSchedulingList(task, state);
+		task->state = state;
+
+		arch_exitCriticalSection();
+	}
+}
+
+kTaskState_t tasks_getTaskState(kTaskHandle_t task) 
+{
+	kTaskState_t state = KSTATE_UNINIT;
+
+	if (task != NULL) {
+		state = task->state;
+	}
+
+	return state;
+}
+
+kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
+{
+	kReturnValue_t kresult = KRESULT_ERR_NULLPTR;
+
+	if (task != NULL) {
+		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
+			arch_enterCriticalSection();
+
+			task->priority = priority;
+			if (task->state == KSTATE_READY) {
+				tasks_updateSchedulingList(task, KSTATE_READY);
+			}
+			kresult = KRESULT_SUCCESS;
+
+			arch_exitCriticalSection();
+		}
+		else {
+			kresult = CFG_NUMBER_OF_PRIORITIES;
+		}
+	}
+
+	return kresult;
+}
+
+kBaseType_t tasks_getTaskPriority(kTaskHandle_t task) 
+{
+	kBaseType_t priority = 0;
+
+	if (task != NULL) {
+		priority = task->priority;
+	}
+
+	return priority;
+}
 
 kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
@@ -121,3 +178,4 @@ void tasks_unblockTask(kTaskHandle_t task)
 {
     tasks_setTaskState(task, KSTATE_READY);
 }
+

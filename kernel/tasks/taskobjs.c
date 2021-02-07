@@ -10,8 +10,9 @@
 #include <config.h>
 #include <common.h>
 #include <tasks/tasks.h>
-#include <tasks/taskobjects.h>
-#include <arch/arch.h>
+#include <tasks/taskobjs.h>
+#include <mem/module.h>
+#include <arch/module.h>
 
 void tasks_addTaskOwnedHeapBlock(kTaskHandle_t task, volatile struct kListItemStruct_t* blockItem)
 {

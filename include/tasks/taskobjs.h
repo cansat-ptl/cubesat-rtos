@@ -1,13 +1,13 @@
 /*
- * objects.h
+ * taskobjs.h
  * 
  * Created: 25.01.2021 08:44:34
  * Author: ThePetrovich
  */
 
 
-#ifndef KOBJECTS_H_
-#define KOBJECTS_H_
+#ifndef KERNEL_OBJECTS_H_
+#define KERNEL_OBJECTS_H_
 
 #include <types.h>
 #include <common.h>

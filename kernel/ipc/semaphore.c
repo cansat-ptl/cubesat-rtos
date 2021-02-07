@@ -11,13 +11,12 @@
 #include <common.h>
 #include <ipc/ipc.h>
 #include <ipc/semaphore.h>
-#include <tasks/tasks.h>
-#include <tasks/dispatcher.h>
-#include <arch/arch.h>
+#include <tasks/module.h>
+#include <arch/module.h>
 
 kSpinlock_t semaphoreOpLock = 0;
 
-void ipc_semaphoreInit(struct kLockStruct_t *semaphore, uint8_t resourceAmount)
+void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, uint8_t resourceAmount)
 {
 	if (semaphore != NULL) {
 		semaphore->type = KLOCK_SEMAPHORE;
@@ -29,7 +28,7 @@ void ipc_semaphoreInit(struct kLockStruct_t *semaphore, uint8_t resourceAmount)
 	}
 }
 
-void ipc_semaphoreWait(volatile struct kLockStruct_t* semaphore)
+void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 {
 	if (semaphore != NULL) {
 		while (1) {
@@ -65,7 +64,7 @@ void ipc_semaphoreWait(volatile struct kLockStruct_t* semaphore)
 	return;
 }
 
-void ipc_semaphoreSignal(volatile struct kLockStruct_t* semaphore)
+void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 {
 	if (semaphore != NULL) {
 		arch_spinlockAcquire(&semaphoreOpLock);

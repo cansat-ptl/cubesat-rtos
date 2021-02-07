@@ -1,13 +1,13 @@
 /*
- * mega128.h
- *
- * Created: 17.12.2020 21:23:51
- *  Author: Admin
+ * arch.h
+ * 
+ * Created: 08.02.2021 03:33:04
+ * Author: ThePetrovich
  */
 
 
-#ifndef MEGA128_H_
-#define MEGA128_H_
+#ifndef KERNEL_MEGA128_H_
+#define KERNEL_MEGA128_H_
 
 #include <avr/io.h>
 #include <avr/iom128.h>
@@ -47,5 +47,4 @@ void arch_platformInit();
 void arch_spinlockAcquire(kSpinlock_t* spinlock);
 void arch_spinlockRelease(kSpinlock_t* spinlock);
 
-
-#endif /* MEGA128_H_ */
+#endif

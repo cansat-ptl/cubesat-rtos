@@ -1,16 +1,16 @@
 /*
  * uart.h
- *
- * Created: 17.12.2020 21:16:24
- *  Author: Admin
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef UART_H_
-#define UART_H_
+#ifndef KERNEL_UART_H_
+#define KERNEL_UART_H_
 
 void uart_init();
 void uart_putc(char c);
 void uart_puts(char* msg);
 
-#endif /* UART_H_ */
+#endif

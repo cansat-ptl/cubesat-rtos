@@ -16,7 +16,7 @@
 typedef volatile struct kLockStruct_t kMutex_t;
 typedef volatile struct kLockStruct_t* kMutexHandle_t;
 
-void ipc_mutexInit(struct kLockStruct_t *mutex);
-void ipc_mutexLock(volatile struct kLockStruct_t* mutex);
-void ipc_mutexUnlock(volatile struct kLockStruct_t* mutex);
+void ipc_mutexInit(kMutexHandle_t mutex);
+void ipc_mutexLock(kMutexHandle_t mutex);
+void ipc_mutexUnlock(kMutexHandle_t mutex);
 #endif

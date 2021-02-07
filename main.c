@@ -11,8 +11,7 @@
 #include <kernel.h>
 #include <arch/mega128/uart.h>
 #include <types.h>
-#include <tasks/tasks.h>
-#include <tasks/dispatcher.h>
+#include <tasks/module.h>
 #include <ipc/mutex.h>
 
 kTaskHandle_t test;

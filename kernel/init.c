@@ -6,8 +6,8 @@
  */
 
 #include <types.h>
-#include <tasks/tasks.h>
-#include <arch/arch.h>
+#include <tasks/module.h>
+#include <arch/module.h>
 
 void kernel_init()
 {

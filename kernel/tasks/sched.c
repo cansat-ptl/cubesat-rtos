@@ -9,10 +9,10 @@
 #include <types.h>
 #include <config.h>
 #include <common.h>
-#include <arch/arch.h>
 #include <tasks/tasks.h>
-#include <tasks/scheduler.h>
-#include <tasks/dispatcher.h>
+#include <tasks/sched.h>
+#include <tasks/dispatch.h>
+#include <arch/module.h>
 
 struct kSchedCPUStateStruct_t kSchedCPUState;
 

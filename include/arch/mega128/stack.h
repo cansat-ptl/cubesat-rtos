@@ -1,13 +1,13 @@
 /*
- * context.h
- *
- * Created: 17.12.2020 22:18:37
- *  Author: Admin
+ * stack.h
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef CONTEXT_H_
-#define CONTEXT_H_
+#ifndef KERNEL_STACK_H_
+#define KERNEL_STACK_H_
 
 #include <avr/io.h>
 #include <avr/iom128.h>
@@ -17,4 +17,4 @@
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, kTask_t taskPointer, void* args);
 
-#endif /* CONTEXT_H_ */
+#endif

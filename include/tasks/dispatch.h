@@ -1,13 +1,13 @@
 /*
- * dispatcher.h
- *
- * Created: 18.12.2020 23:31:37
- *  Author: Admin
+ * dispatch.h
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef DISPATCHER_H_
-#define DISPATCHER_H_
+#ifndef KERNEL_DISPATCHER_H_
+#define KERNEL_DISPATCHER_H_
 
 #include <types.h>
 
@@ -18,5 +18,9 @@ kTaskHandle_t tasks_getNextTask();
 void tasks_setNextTask(kTaskHandle_t taskHandle);
 
 void tasks_sleep(kTaskTicks_t sleep);
+
+void tasks_switchTask();
+
+void tasks_tick();
 
 #endif /* DISPATCHER_H_ */

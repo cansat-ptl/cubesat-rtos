@@ -1,13 +1,13 @@
 /*
- * memory.h
- *
- * Created: 18.12.2020 6:19:21
- *  Author: Admin
+ * protection.h
+ * 
+ * Created: 02.01.2021 11:58:18
+ * Author: ThePetrovich
  */
 
 
-#ifndef MEMORY_H_
-#define MEMORY_H_
+#ifndef KERNEL_MEMORY_H_
+#define KERNEL_MEMORY_H_
 
 #include <types.h>
 
