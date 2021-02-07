@@ -189,15 +189,6 @@ void* memory_heapAlloc(size_t size)
 			#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
 				memory_prepareBlockMagic(block);
 			#endif
-
-			#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
-				kTaskHandle_t currentTask = tasks_getCurrentTask();
-				if (currentTask != NULL) {
-					block -> owner = currentTask;
-					block -> ownListItem.data = returnAddress;
-					tasks_addTaskOwnedHeapBlock(currentTask, &(block -> ownListItem));
-				}
-			#endif
 		}
 	}
 
@@ -226,12 +217,6 @@ void memory_heapFree(void* pointer)
 
 			if (block -> state != 0) {
 				if (block -> next == NULL) {
-					#if CFG_TRACK_MEMORY_BLOCK_OWNERS == 1
-						tasks_removeTaskOwnedHeapBlock(block -> owner, &(block -> ownListItem));
-						block -> ownListItem.data = NULL;
-						block -> owner = NULL;
-					#endif
-
 					block -> state = 0;
 					kFreeMemory += block -> blockSize;
 					memory_insertFreeBlock((struct kMemoryBlockStruct_t*)block);

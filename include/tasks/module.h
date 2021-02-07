@@ -12,8 +12,6 @@
 #include <tasks/dispatch.h>
 #include <tasks/events.h>
 #include <tasks/sched.h>
-#include <tasks/taskctrl.h>
-#include <tasks/taskobjs.h>
 #include <tasks/tasks.h>
 
 #endif

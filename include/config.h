@@ -22,8 +22,6 @@
 	#define CFG_STACK_GROWTH_DIRECTION 0 //0 - towards lower addresses, 1 - towards higher
 
 	#define CFG_PROTECT_FROM_INVALID_HEAP_FREE 1
-	#define CFG_TRACK_MEMORY_BLOCK_OWNERS 1
-	#define CFG_TRACK_TASK_HELD_LOCKS 1
 
 	#define CFG_KERNEL_PANIC_ACTION 1
 
