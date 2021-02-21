@@ -10,19 +10,27 @@
 #include <rtos/config.h>
 #include <rtos/tasks/tasks.h>
 #include <rtos/tasks/sched.h>
-#include <rtos/tasks/dispatch.h>
 #include <rtos/arch/arch.h>
 #include <rtos/common/lists.h>
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState;
 
+void __attribute__ (( naked, noinline )) arch_yield(void);
+
 void tasks_initScheduler(kTaskHandle_t idle)
 {
 	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
 	kSchedCPUState.kReadyTaskList[0].tail = &(idle->activeTaskListItem);
+	kSchedCPUState.kNextTask = idle;
+	kSchedCPUState.kCurrentTask = idle;
 }
 
-void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state)
+kTaskHandle_t tasks_getCurrentTask()
+{
+	return kSchedCPUState.kCurrentTask;
+}
+
+void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state) /* TODO: think about better implementation. This is super dumb. */
 {
 	if (task != NULL) {
 		common_listDeleteAny(task->activeTaskListItem.list, &(task->activeTaskListItem));
@@ -44,39 +52,38 @@ void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state)
 	}
 }
 
-/* WHAT THE HELL AM I DOING SOMEBODY PLEASE HELP ME */
 static inline void tasks_tickTasks()
 {
-	kLinkedListItem_t* temp = kSchedCPUState.kSleepingTaskList.head;
+	kLinkedListItem_t* head = kSchedCPUState.kSleepingTaskList.head;
 
-	while (temp != NULL) {
-		if (((kTaskHandle_t)(temp->data))->sleepTime) {
-			((kTaskHandle_t)(temp->data))->sleepTime--;
+	while (head != NULL) {
+		if (((kTaskHandle_t)(head->data))->sleepTime) {
+			((kTaskHandle_t)(head->data))->sleepTime--;
 		}
 		else {
-			tasks_updateSchedulingList((kTaskHandle_t)temp->data, KSTATE_READY);
-			((kTaskHandle_t)(temp->data))->state = KSTATE_READY;
+			tasks_updateSchedulingList((kTaskHandle_t)head->data, KSTATE_READY);
+			((kTaskHandle_t)(head->data))->state = KSTATE_READY;
 		}
-		temp = temp->next;
+		head = head->next;
 	}
 }
 
 static inline void tasks_search()
 {
 	for (kIterator_t i = CFG_NUMBER_OF_PRIORITIES-1; i >= 0; i--) {
-		if (kSchedCPUState.kReadyTaskList[i].head != NULL) {
-			kSchedCPUState.kNextTask = kSchedCPUState.kReadyTaskList[i].head->data;
+		kLinkedListItem_t* head = kSchedCPUState.kReadyTaskList[i].head;
+		if (head != NULL) {
+			kSchedCPUState.kNextTask = (kTaskHandle_t)head->data;
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
-			kLinkedListItem_t* temp = kSchedCPUState.kReadyTaskList[i].head;
 			common_listDropFront((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i]);
-			common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i], temp);
+			common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i], head);
 			break;
 		}
 	}
 }
 
-void tasks_runScheduler()
+static inline void tasks_runScheduler()
 {
 	if (!kSchedCPUState.kTickRate) {
 		tasks_tickTasks();
@@ -93,4 +100,33 @@ void tasks_runScheduler()
 		tasks_search();
 	}
 	return;
+}
+
+static void tasks_switchContext()
+{
+	/* TODO: task protection checks */
+	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;
+}
+
+void tasks_switchTask()
+{
+	tasks_runScheduler();
+	if (kSchedCPUState.kNextTask != kSchedCPUState.kCurrentTask) tasks_switchContext();
+}
+
+void tasks_tick()
+{
+	/* TODO: timekeeping */
+	tasks_switchTask();
+}
+
+void tasks_sleep(kTaskTicks_t sleep)
+{
+	kSchedCPUState.kTaskActiveTicks = 0;
+
+	if (sleep != 0) {
+		tasks_setTaskState(kSchedCPUState.kCurrentTask, KSTATE_SLEEPING);
+		kSchedCPUState.kCurrentTask->sleepTime = sleep;
+	}
+	arch_yield();
 }

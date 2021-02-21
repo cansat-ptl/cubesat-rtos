@@ -34,28 +34,18 @@ size_t common_getFreeHeapMin()
 	return kMinimumFreeMemory;
 }
 
-static inline uint8_t common_calculateChecksum(struct kMemoryBlockStruct_t* block) /* This is stoopid */
-{
-	return ((uint8_t)(block->blockSize) ^ (uint8_t)(block->next) ^ (uint8_t)(block->state) ^ (uint8_t)(block->magic1) ^ (uint8_t)(block->magic2)); /* TODO: fix checksum calc warnings */
-}
-
 static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
 {
 	block->magic1 = 0xDEAD;
 	block->magic2 = 0xC0DE;
-	block->checksum = common_calculateChecksum(block);
 }
 
 static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t* block) 
 {
 	uint8_t result = 0;
 
-	if (block->magic1 == 0xDEAD) {
-		if (block->magic2 == 0xC0DE) {
-			if (!(block->checksum ^ common_calculateChecksum(block))) {
-				result = 1;
-			}
-		}
+	if (block->magic1 == 0xDEAD && block->magic2 == 0xC0DE) {
+		result = 1;
 	}
 
 	return result;

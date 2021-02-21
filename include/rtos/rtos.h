@@ -16,7 +16,6 @@
 #include <rtos/tasks/tasks.h>
 #include <rtos/tasks/sched.h>
 #include <rtos/tasks/heap.h>
-#include <rtos/tasks/dispatch.h>
 
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/mutex.h>

@@ -13,7 +13,6 @@
 #include <rtos/arch/arch.h>
 #include <rtos/tasks/tasks.h>
 #include <rtos/tasks/sched.h>
-#include <rtos/tasks/dispatch.h>
 
 kSpinlock_t semaphoreOpLock = 0;
 

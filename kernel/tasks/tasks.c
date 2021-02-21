@@ -10,7 +10,6 @@
 #include <rtos/config.h>
 #include <rtos/tasks/tasks.h>
 #include <rtos/tasks/sched.h>
-#include <rtos/tasks/dispatch.h>
 #include <rtos/common/heap.h>
 #include <rtos/common/lists.h>
 #include <rtos/arch/arch.h>
@@ -19,7 +18,7 @@ byte kIdleMem[150];
 
 static kSpinlock_t kTaskOpSpinlock;
 
-static volatile uint16_t kGlobalPid = 0;
+static kPid_t kGlobalPid = 0;
 
 void idle0() {
 	while(1) {
@@ -39,8 +38,6 @@ kReturnValue_t tasks_init()
 	}
 
 	tasks_initScheduler(idleTask);
-	tasks_setCurrentTask(idleTask);
-	tasks_setNextTask(idleTask);
 
 	return 0;
 }

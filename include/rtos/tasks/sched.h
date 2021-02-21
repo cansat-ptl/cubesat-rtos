@@ -32,6 +32,11 @@ void tasks_initScheduler(kTaskHandle_t idle);
 
 void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state);
 
-void tasks_runScheduler();
+kTaskHandle_t tasks_getCurrentTask();
+
+void tasks_sleep(kTaskTicks_t sleep);
+
+void tasks_switchTask();
+void tasks_tick();
 
 #endif
