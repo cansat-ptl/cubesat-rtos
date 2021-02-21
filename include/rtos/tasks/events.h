@@ -9,4 +9,4 @@
 #ifndef KERNEL_EVENTS_H_
 #define KERNEL_EVENTS_H_
 
-#endif /* EVENTS_H_ */
+#endif

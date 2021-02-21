@@ -9,8 +9,8 @@
 #ifndef KERNEL_TASKS_H_
 #define KERNEL_TASKS_H_
 
-#include <types.h>
-#include <common.h>
+#include <rtos/types.h>
+#include <rtos/common/lists.h>
 
 struct kLockStruct_t;
 
@@ -37,10 +37,16 @@ struct kTaskStruct_t
 	kPid_t pid;
 	char* name;
 
-	volatile struct kEventStruct_t notification;
+	volatile struct kEventStruct_t event;
 
-	volatile struct kListItemStruct_t activeTaskListItem;
-	volatile struct kListItemStruct_t globalTaskListItem;
+	struct kLinkedListStruct_t allocList;
+	struct kLinkedListStruct_t lockList;
+
+	struct kListItemStruct_t activeTaskListItem;
+	struct kListItemStruct_t globalTaskListItem;
+
+	struct kLinkedListStruct_t childList;
+	struct kListItemStruct_t childListItem;
 };
 
 kReturnValue_t tasks_init();
@@ -54,7 +60,7 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
 kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
 
-void tasks_blockTask(kTaskHandle_t task, volatile struct kLinkedListStruct_t* blockList);
+void tasks_blockTask(kTaskHandle_t task, struct kLinkedListStruct_t* blockList);
 void tasks_unblockTask(kTaskHandle_t task);
 
-#endif /* TASKS_H_ */
+#endif

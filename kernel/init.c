@@ -5,9 +5,7 @@
  *  Author: ThePetrovich
  */
 
-#include <types.h>
-#include <tasks/module.h>
-#include <arch/module.h>
+#include <rtos/types.h>
 
 void kernel_init()
 {

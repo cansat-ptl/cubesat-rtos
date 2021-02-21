@@ -1,4 +1,4 @@
-/*
+/*f
  * scheduler.c
  *
  * Created: 18.12.2020 6:27:24
@@ -6,13 +6,13 @@
  */
 
 
-#include <types.h>
-#include <config.h>
-#include <common.h>
-#include <tasks/tasks.h>
-#include <tasks/sched.h>
-#include <tasks/dispatch.h>
-#include <arch/module.h>
+#include <rtos/types.h>
+#include <rtos/config.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
+#include <rtos/tasks/dispatch.h>
+#include <rtos/arch/arch.h>
+#include <rtos/common/lists.h>
 
 struct kSchedCPUStateStruct_t kSchedCPUState;
 

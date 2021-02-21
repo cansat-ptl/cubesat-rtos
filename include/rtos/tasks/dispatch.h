@@ -9,7 +9,7 @@
 #ifndef KERNEL_DISPATCHER_H_
 #define KERNEL_DISPATCHER_H_
 
-#include <types.h>
+#include <rtos/types.h>
 
 kTaskHandle_t tasks_getCurrentTask();
 void tasks_setCurrentTask(kTaskHandle_t taskHandle);
@@ -23,4 +23,4 @@ void tasks_switchTask();
 
 void tasks_tick();
 
-#endif /* DISPATCHER_H_ */
+#endif

@@ -6,8 +6,8 @@
  */
 
 
-#include <types.h>
-#include <arch/mega128/stack.h>
+#include <rtos/types.h>
+#include <rtos/arch/mega128/stack.h>
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, kTask_t taskPointer, void* args)
 {
@@ -52,4 +52,29 @@ kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackS
 	*(stackPointer--) = 0x1F;							// R31
 
 	return stackPointer;
+}
+
+void arch_prepareProtectionRegion(void* pointer, size_t size)
+{
+	if (pointer != NULL) {
+		for (size_t i = 0; i < size; i++) {
+			*(byte*)((byte*)pointer + i) = 0xFE;
+		}
+	}
+}
+
+kReturnValue_t arch_checkProtectionRegion(void* pointer, size_t size)
+{
+	kReturnValue_t kresult = KRESULT_SUCCESS;
+
+	if (pointer != NULL) {
+		for (size_t i = 0; i < size; i++) {
+			if (*(byte*)((byte*)pointer + i) != 0xFE) {
+				kresult = KRESULT_ERR_MEMORY_VIOLATION;
+				break;
+			}
+		}
+	}
+	
+	return kresult;
 }

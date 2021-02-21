@@ -6,13 +6,11 @@
  */
 
 
-#include <types.h>
-#include <config.h>
-#include <common.h>
-#include <ipc/ipc.h>
-#include <ipc/semaphore.h>
-#include <tasks/module.h>
-#include <arch/module.h>
+#include <rtos/types.h>
+#include <rtos/config.h>
+#include <rtos/ipc/ipc.h>
+#include <rtos/ipc/semaphore.h>
+#include <rtos/arch/arch.h>
 
 kSpinlock_t semaphoreOpLock = 0;
 
@@ -69,7 +67,7 @@ void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 	if (semaphore != NULL) {
 		arch_spinlockAcquire(&semaphoreOpLock);
 
-		volatile struct kListItemStruct_t* temp = semaphore->blockedTasks.head;
+		struct kListItemStruct_t* temp = semaphore->blockedTasks.head;
 
 		if (semaphore->type == KLOCK_MUTEX) {
 			if (tasks_getTaskPriority(semaphore->lockOwner) != semaphore->basePriority) {

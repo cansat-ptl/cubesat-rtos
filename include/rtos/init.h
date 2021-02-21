@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_H_
-#define KERNEL_H_
+#ifndef KERNEL_INIT_H_
+#define KERNEL_INIT_H_
 
 void kernel_init();
 

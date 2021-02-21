@@ -9,8 +9,8 @@
 #include <avr/io.h>
 #include <avr/iom128.h>
 
-#include <types.h>
-#include <arch/mega128/uart.h>
+#include <rtos/types.h>
+#include <rtos/arch/mega128/uart.h>
 
 void uart_init()
 {

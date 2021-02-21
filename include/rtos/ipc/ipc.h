@@ -6,11 +6,11 @@
  */
 
 
-#ifndef IPC_H_
-#define IPC_H_
+#ifndef KERNEL_IPC_H_
+#define KERNEL_IPC_H_
 
-#include <types.h>
-#include <common.h>
+#include <rtos/types.h>
+#include <rtos/common/lists.h>
 
 struct kLockStruct_t
 {

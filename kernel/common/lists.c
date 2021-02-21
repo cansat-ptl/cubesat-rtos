@@ -6,10 +6,10 @@
  */
 
 
-#include <types.h>
-#include <common.h>
+#include <rtos/types.h>
+#include <rtos/common/lists.h>
 
-void common_listAddBack(volatile struct kLinkedListStruct_t* list, volatile struct kListItemStruct_t* item)
+void common_listAddBack(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item)
 {
 	if (list != NULL && item != NULL) {
 		item->next = NULL;
@@ -30,11 +30,11 @@ void common_listAddBack(volatile struct kLinkedListStruct_t* list, volatile stru
 	return;
 }
 
-void common_listDropBack(volatile struct kLinkedListStruct_t* list)
+void common_listDropBack(struct kLinkedListStruct_t* list)
 {
 	if (list != NULL) {
 		if (list->tail != NULL) {
-			volatile struct kListItemStruct_t* next;
+			struct kListItemStruct_t* next;
 
 			next = list->tail;
 			list->tail = list->tail->prev;
@@ -53,7 +53,7 @@ void common_listDropBack(volatile struct kLinkedListStruct_t* list)
 	return;
 }
 
-void common_listAddFront(volatile struct kLinkedListStruct_t* list, volatile struct kListItemStruct_t* item)
+void common_listAddFront(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item)
 {
 	if (list != NULL && item != NULL) {
 		item->next = list->head;
@@ -74,11 +74,11 @@ void common_listAddFront(volatile struct kLinkedListStruct_t* list, volatile str
 	return;
 }
 
-void common_listDropFront(volatile struct kLinkedListStruct_t* list)
+void common_listDropFront(struct kLinkedListStruct_t* list)
 {
 	if (list != NULL) {
 		if (list->head != NULL) {
-			volatile struct kListItemStruct_t* prev;
+			struct kListItemStruct_t* prev;
 
 			prev = list->head;
 			list->head = list->head->next;
@@ -97,7 +97,7 @@ void common_listDropFront(volatile struct kLinkedListStruct_t* list)
 	return;
 }
 
-void common_listDeleteAny(volatile struct kLinkedListStruct_t* list, volatile struct kListItemStruct_t* item)
+void common_listDeleteAny(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item)
 {
 	if (list != NULL && item != NULL) {
 		if (list->head == item) {
@@ -115,9 +115,9 @@ void common_listDeleteAny(volatile struct kLinkedListStruct_t* list, volatile st
 				if (item->prev != NULL) {
 					item->prev->next = item->next;
 				}
-				item->list = NULL;
 			}
 		}
+		item->list = NULL;
 	}
 
 	return;

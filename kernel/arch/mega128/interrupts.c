@@ -9,7 +9,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/iom128.h>
-#include <arch/mega128/arch.h>
+#include <rtos/arch/mega128/arch.h>
 
 void __attribute__ (( naked, noinline )) arch_tick();
 

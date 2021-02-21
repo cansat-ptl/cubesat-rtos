@@ -6,12 +6,11 @@
  */
 
 
-#ifndef SEMAPHORE_H_
-#define SEMAPHORE_H_
+#ifndef KERNEL_SEMAPHORE_H_
+#define KERNEL_SEMAPHORE_H_
 
-#include <types.h>
-#include <common.h>
-#include <ipc/ipc.h>
+#include <rtos/types.h>
+#include <rtos/ipc/ipc.h>
 
 typedef volatile struct kLockStruct_t kSemaphore_t;
 typedef volatile struct kLockStruct_t* kSemaphoreHandle_t;

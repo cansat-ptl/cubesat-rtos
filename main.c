@@ -8,11 +8,10 @@
 #define F_CPU 16000000L
 
 #include <avr/io.h>
-#include <kernel.h>
-#include <arch/mega128/uart.h>
-#include <types.h>
-#include <tasks/module.h>
-#include <ipc/mutex.h>
+#include <rtos/rtos.h>
+#include <rtos/arch/mega128/uart.h>
+#include <rtos/types.h>
+#include <rtos/ipc/mutex.h>
 
 kTaskHandle_t test;
 kTaskHandle_t test2;

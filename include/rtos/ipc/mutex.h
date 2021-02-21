@@ -6,12 +6,11 @@
  */
 
 
-#ifndef MUTEX_H_
-#define MUTEX_H_
+#ifndef KERNEL_MUTEX_H_
+#define KERNEL_MUTEX_H_
 
-#include <types.h>
-#include <common.h>
-#include <ipc/ipc.h>
+#include <rtos/types.h>
+#include <rtos/ipc/ipc.h>
 
 typedef volatile struct kLockStruct_t kMutex_t;
 typedef volatile struct kLockStruct_t* kMutexHandle_t;

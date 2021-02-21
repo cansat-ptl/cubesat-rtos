@@ -9,9 +9,9 @@
 #ifndef KERNEL_SCHEDULER_H_
 #define KERNEL_SCHEDULER_H_
 
-#include <types.h>
-#include <common.h>
-#include <config.h>
+#include <rtos/types.h>
+#include <rtos/common/lists.h>
+#include <rtos/config.h>
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
 
@@ -34,4 +34,4 @@ void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state);
 
 void tasks_runScheduler();
 
-#endif /* SCHEDULER_H_ */
+#endif

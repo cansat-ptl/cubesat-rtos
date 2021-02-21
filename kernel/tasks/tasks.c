@@ -6,14 +6,14 @@
  */
 
 
-#include <types.h>
-#include <config.h>
-#include <common.h>
-#include <tasks/tasks.h>
-#include <tasks/sched.h>
-#include <tasks/dispatch.h>
-#include <mem/module.h>
-#include <arch/module.h>
+#include <rtos/types.h>
+#include <rtos/config.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
+#include <rtos/tasks/dispatch.h>
+#include <rtos/common/heap.h>
+#include <rtos/common/lists.h>
+#include <rtos/arch/arch.h>
 
 byte kIdleMem[150];
 
@@ -29,7 +29,7 @@ void idle0() {
 
 kReturnValue_t tasks_init()
 {
-	memory_heapInit();
+	common_heapInit();
 	kTaskHandle_t idleTask;
 	tasks_createTaskStatic(kIdleMem, &idleTask, idle0, NULL, 64, 0, KTASK_CRITICAL_STATIC, "idle");
 
@@ -60,9 +60,9 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 				#if CFG_STACK_GROWTH_DIRECTION == 0
 					stackInitialPtr += CFG_STACK_SAFETY_MARGIN;
-					memory_prepareProtectionRegion((void*)(stackInitialPtr), CFG_STACK_SAFETY_MARGIN);
+					common_prepareProtectionRegion((void*)(stackInitialPtr), CFG_STACK_SAFETY_MARGIN);
 				#else
-					memory_prepareProtectionRegion((void*)(stackInitialPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
+					common_prepareProtectionRegion((void*)(stackInitialPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
 				#endif
 			#endif
 
@@ -114,12 +114,12 @@ kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, voi
 		allocationSize += CFG_STACK_SAFETY_MARGIN;
 	#endif
 
-	kStackPtr_t stackPointer = (kStackPtr_t)memory_heapAlloc(allocationSize);
+	kStackPtr_t stackPointer = (kStackPtr_t)common_heapAlloc(allocationSize, NULL);
 	kresult = tasks_createTaskStatic(stackPointer, NULL, entry, args, stackSize, priority, type, name);
 
 	if (kresult != KRESULT_SUCCESS) {
-		memory_heapFree((void*)stackPointer);
-		if (memory_getFreeHeap() < allocationSize) {
+		common_heapFree((void*)stackPointer);
+		if (common_getFreeHeap() < allocationSize) {
 			kresult = KRESULT_ERR_OUT_OF_MEMORY;
 		}
 	}
@@ -188,7 +188,7 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task)
 	return priority;
 }
 
-void tasks_blockTask(kTaskHandle_t task, volatile struct kLinkedListStruct_t* blockList) 
+void tasks_blockTask(kTaskHandle_t task, struct kLinkedListStruct_t* blockList)
 {
     if (task != NULL) {
         if (blockList != NULL) {

@@ -6,11 +6,22 @@
  */
 
 
-#ifndef TYPES_H_
-#define TYPES_H_
+#ifndef KERNEL_TYPES_H_
+#define KERNEL_TYPES_H_
 
 #include <stdint.h>
 #include <stddef.h>
+
+#define KRESULT_SUCCESS 0
+#define KRESULT_ERR_GENERIC -1
+#define KRESULT_ERR_NULLPTR -2
+#define KRESULT_ERR_MEMORY_VIOLATION -3
+#define KRESULT_ERR_OUT_OF_MEMORY -4
+
+#define KOSSTATUS_INIT 0
+#define KOSSTATUS_RUNNING 1
+#define KOSSTATUS_HALTED 2
+#define KOSSTATUS_ERRORED 3
 
 typedef void kTask;
 typedef void (*kTask_t)(void*);

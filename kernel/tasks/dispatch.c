@@ -6,12 +6,11 @@
  */
 
 
-#include <types.h>
-#include <config.h>
-#include <common.h>
-#include <tasks/tasks.h>
-#include <tasks/sched.h>
-#include <arch/module.h>
+#include <rtos/types.h>
+#include <rtos/config.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
+#include <rtos/arch/arch.h>
 
 extern struct kSchedCPUStateStruct_t kSchedCPUState;
 

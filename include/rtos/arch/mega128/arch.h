@@ -12,7 +12,7 @@
 #include <avr/io.h>
 #include <avr/iom128.h>
 
-#include <types.h>
+#include <rtos/types.h>
 
 #ifndef F_CPU
 #define F_CPU 16000000L						//CPU frequency
