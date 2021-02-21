@@ -9,14 +9,14 @@
 #include <rtos/types.h>
 #include <rtos/arch/mega128/stack.h>
 
-kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, kTask_t taskPointer, void* args)
+kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void* args)
 {
 	/* TODO: 3-byte PC support */
 	stackPointer += stackSize-1;
 	*(stackPointer--) = 0; /* (uint16_t)kernel_taskReturnHook & 0xFF; */	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
 	*(stackPointer--) = 0; /* (uint16_t)kernel_taskReturnHook >> 8;  */
-	*(stackPointer--) = (uint16_t)taskPointer & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
-	*(stackPointer--) = (uint16_t)taskPointer >> 8;		/* Upper 8 bits */
+	*(stackPointer--) = (uint16_t)entry & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
+	*(stackPointer--) = (uint16_t)entry >> 8;		/* Upper 8 bits */
 	*(stackPointer--) = 0;								/* R0 initial value, overwritten by SREG during context switch, should be initialized separately */
 	*(stackPointer--) = 0x80;							/* SREG initial value - interrupts enabled */
 	*(stackPointer--) = 0x00;							/* R1, needs to be 0 in gcc */

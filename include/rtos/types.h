@@ -23,9 +23,6 @@
 #define KOSSTATUS_HALTED 2
 #define KOSSTATUS_ERRORED 3
 
-typedef void kTask;
-typedef void (*kTask_t)(void*);
-
 typedef uint8_t byte;
 
 /* TODO: move to arch */
@@ -52,9 +49,9 @@ typedef enum {KEVENT_UNINIT, KEVENT_NONE, KEVENT_FIRED} kEventState_t;
 typedef enum {KTASK_UNINIT, KTASK_NORMAL_STATIC, KTASK_CRITICAL_STATIC, KTASK_NORMAL, KTASK_CRITICAL} kTaskType_t;
 typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
 
-struct kTaskStruct_t;
-typedef volatile struct kTaskStruct_t* kTaskHandle_t;
+typedef struct kTaskStruct_t kTask_t;
+typedef kTask_t* kTaskHandle_t;
 
-struct kLockStruct_t;
+typedef struct kLockStruct_t kLock_t;
 
 #endif /* TYPES_H_ */

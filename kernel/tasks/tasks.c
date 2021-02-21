@@ -46,7 +46,7 @@ kReturnValue_t tasks_init()
 }
 
 /* TODO: change how memory size is passed */
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
+kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
 
@@ -54,7 +54,7 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 
 	if (entry != NULL) {
 		if (taskMemory != NULL) {
-			((kTaskHandle_t)taskMemory)->activeTaskListItem.data = taskMemory;
+			((kTaskHandle_t)taskMemory)->activeTaskListItem.data = (void*)taskMemory;
 
 			kStackPtr_t stackInitialPtr = taskMemory + sizeof(struct kTaskStruct_t);
 
@@ -101,7 +101,7 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 	return kresult;
 }
 
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
+kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
 

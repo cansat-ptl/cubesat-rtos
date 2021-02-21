@@ -12,7 +12,7 @@
 #include <rtos/tasks/sched.h>
 #include <rtos/arch/arch.h>
 
-extern struct kSchedCPUStateStruct_t kSchedCPUState;
+extern volatile struct kSchedCPUStateStruct_t kSchedCPUState;
 
 void __attribute__ (( naked, noinline )) arch_yield(void);
 

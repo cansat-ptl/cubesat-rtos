@@ -26,7 +26,7 @@ struct kTaskStruct_t
 	kStackPtr_t stackBegin;
 	kStackSize_t stackSize;
 
-	kTask_t entry;
+	void (*entry)(void);
 	void* args;
 
 	kTaskState_t state;
@@ -57,8 +57,8 @@ kTaskState_t tasks_getTaskState(kTaskHandle_t task);
 kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority);
 kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
+kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
+kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
 
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList);
 void tasks_unblockTask(kTaskHandle_t task);

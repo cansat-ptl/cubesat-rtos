@@ -9,6 +9,7 @@
 #include <rtos/types.h>
 #include <rtos/common/heap.h>
 #include <rtos/tasks/tasks.h>
+#include <rtos/tasks/dispatch.h>
 #include <rtos/arch/arch.h>
 
 void* tasks_malloc(size_t size) 

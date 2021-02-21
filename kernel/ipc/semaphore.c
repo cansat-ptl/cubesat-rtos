@@ -11,6 +11,9 @@
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/semaphore.h>
 #include <rtos/arch/arch.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
+#include <rtos/tasks/dispatch.h>
 
 kSpinlock_t semaphoreOpLock = 0;
 
@@ -52,7 +55,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 					}
 				}
 
-				tasks_blockTask(currentTask, &(semaphore->blockedTasks));
+				tasks_blockTask(currentTask, (kLinkedList_t*)&(semaphore->blockedTasks));
 				arch_spinlockRelease(&semaphoreOpLock);
 				tasks_sleep(0);
 			}

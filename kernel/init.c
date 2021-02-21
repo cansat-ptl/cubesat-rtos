@@ -5,7 +5,10 @@
  *  Author: ThePetrovich
  */
 
+
 #include <rtos/types.h>
+#include <rtos/arch/arch.h>
+#include <rtos/tasks/tasks.h>
 
 void kernel_init()
 {

@@ -9,9 +9,7 @@
 
 #include <avr/io.h>
 #include <rtos/rtos.h>
-#include <rtos/arch/mega128/uart.h>
-#include <rtos/types.h>
-#include <rtos/ipc/mutex.h>
+#include <rtos/arch/arch.h>
 
 kTaskHandle_t test;
 kTaskHandle_t test2;

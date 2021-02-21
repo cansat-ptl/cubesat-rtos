@@ -6,3 +6,20 @@
  */
 
 
+#ifndef KERNEL_RTOS_H_
+#define KERNEL_RTOS_H_
+
+#include <rtos/types.h>
+#include <rtos/config.h>
+#include <rtos/init.h>
+
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
+#include <rtos/tasks/heap.h>
+#include <rtos/tasks/dispatch.h>
+
+#include <rtos/ipc/ipc.h>
+#include <rtos/ipc/mutex.h>
+#include <rtos/ipc/semaphore.h>
+
+#endif

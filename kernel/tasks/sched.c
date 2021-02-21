@@ -14,7 +14,7 @@
 #include <rtos/arch/arch.h>
 #include <rtos/common/lists.h>
 
-struct kSchedCPUStateStruct_t kSchedCPUState;
+volatile struct kSchedCPUStateStruct_t kSchedCPUState;
 
 void tasks_initScheduler(kTaskHandle_t idle)
 {
@@ -29,13 +29,13 @@ void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state)
 
 		switch (state) {
 			case KSTATE_SUSPENDED:
-				common_listAddBack(&kSchedCPUState.kSuspendedTaskList, &(task->activeTaskListItem));
+				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kSuspendedTaskList, &(task->activeTaskListItem));
 			break;
 			case KSTATE_SLEEPING:
-				common_listAddBack(&kSchedCPUState.kSleepingTaskList, &(task->activeTaskListItem));
+				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kSleepingTaskList, &(task->activeTaskListItem));
 			break;
 			case KSTATE_READY:
-				common_listAddBack(&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
+				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
 			default:
 				/* Do nothing */
@@ -69,8 +69,8 @@ static inline void tasks_search()
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
 			kLinkedListItem_t* temp = kSchedCPUState.kReadyTaskList[i].head;
-			common_listDropFront(&kSchedCPUState.kReadyTaskList[i]);
-			common_listAddBack(&kSchedCPUState.kReadyTaskList[i], temp);
+			common_listDropFront((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i]);
+			common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i], temp);
 			break;
 		}
 	}
