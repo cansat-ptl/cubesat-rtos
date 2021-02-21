@@ -12,26 +12,29 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define common_LISTITEM_STRUCT_SIZE (sizeof(struct kListItemStruct_t)
+typedef struct kLinkedListStruct_t kLinkedList_t;
+typedef struct kLinkedListItemStruct_t kLinkedListItem_t;
 
 struct kLinkedListStruct_t
 {
-	struct kListItemStruct_t* head;
-	struct kListItemStruct_t* tail;
+	kLinkedListItem_t* head;
+	kLinkedListItem_t* tail;
 };
 
-struct kListItemStruct_t
+struct kLinkedListItemStruct_t
 {
-	struct kLinkedListStruct_t* list;
-	struct kListItemStruct_t* next;
-	struct kListItemStruct_t* prev;
+	kLinkedList_t* list;
+	kLinkedListItem_t* next;
+	kLinkedListItem_t* prev;
 	void* data;
 };
 
-void common_listAddBack(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item);
-void common_listAddFront(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item);
-void common_listDropBack(struct kLinkedListStruct_t* list);
-void common_listDropFront(struct kLinkedListStruct_t* list);
-void common_listDeleteAny(struct kLinkedListStruct_t* list, struct kListItemStruct_t* item);
+#define common_LISTITEM_STRUCT_SIZE (sizeof(kLinkedListItem_t))
+
+void common_listAddBack(kLinkedList_t* list, kLinkedListItem_t* item);
+void common_listAddFront(kLinkedList_t* list, kLinkedListItem_t* item);
+void common_listDropBack(kLinkedList_t* list);
+void common_listDropFront(kLinkedList_t* list);
+void common_listDeleteAny(kLinkedList_t* list, kLinkedListItem_t* item);
 
 #endif

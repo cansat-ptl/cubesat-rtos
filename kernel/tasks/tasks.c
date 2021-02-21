@@ -34,7 +34,7 @@ kReturnValue_t tasks_init()
 	tasks_createTaskStatic(kIdleMem, &idleTask, idle0, NULL, 64, 0, KTASK_CRITICAL_STATIC, "idle");
 
 	if (idleTask == NULL) {
-		//debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n"));
+		/* debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n")); */
 		while(1);
 	}
 
@@ -45,6 +45,7 @@ kReturnValue_t tasks_init()
 	return 0;
 }
 
+/* TODO: change how memory size is passed */
 kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, kTask_t entry, void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
@@ -188,15 +189,13 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task)
 	return priority;
 }
 
-void tasks_blockTask(kTaskHandle_t task, struct kLinkedListStruct_t* blockList)
+void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
 {
-    if (task != NULL) {
-        if (blockList != NULL) {
-            if (task->activeTaskListItem.list != blockList) {
-                tasks_setTaskState(task, KSTATE_BLOCKED);
-                common_listAddBack(blockList, &(task->activeTaskListItem));
-            }
-        }
+    if (task != NULL && blockList != NULL) {
+		if (task->activeTaskListItem.list != blockList) {
+			tasks_setTaskState(task, KSTATE_BLOCKED);
+			common_listAddBack(blockList, &(task->activeTaskListItem));
+		}
     }
 }
 

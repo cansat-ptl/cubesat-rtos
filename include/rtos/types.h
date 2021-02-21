@@ -28,7 +28,7 @@ typedef void (*kTask_t)(void*);
 
 typedef uint8_t byte;
 
-//TODO: move to arch
+/* TODO: move to arch */
 
 typedef volatile uint8_t kSpinlock_t;
 

@@ -67,7 +67,7 @@ void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 	if (semaphore != NULL) {
 		arch_spinlockAcquire(&semaphoreOpLock);
 
-		struct kListItemStruct_t* temp = semaphore->blockedTasks.head;
+		kLinkedListItem_t* temp = semaphore->blockedTasks.head;
 
 		if (semaphore->type == KLOCK_MUTEX) {
 			if (tasks_getTaskPriority(semaphore->lockOwner) != semaphore->basePriority) {

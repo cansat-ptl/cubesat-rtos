@@ -14,7 +14,7 @@
 void* tasks_malloc(size_t size) 
 {
     kTaskHandle_t currentTask = tasks_getCurrentTask();
-    struct kLinkedListStruct_t* allocList = NULL;
+    kLinkedList_t* allocList = NULL;
 
     if (currentTask != NULL) {
         allocList = &(currentTask->allocList);
@@ -33,7 +33,7 @@ void tasks_freeAll(kTaskHandle_t task)
     arch_enterCriticalSection();
 
     if (task != NULL) {
-        struct kListItemStruct_t* temp = task->allocList.head;
+        kLinkedListItem_t* temp = task->allocList.head;
         
         while(temp != NULL) {
 			common_heapFree(temp->data);

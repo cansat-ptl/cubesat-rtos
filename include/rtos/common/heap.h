@@ -26,12 +26,12 @@ struct kMemoryBlockStruct_t
 		uint8_t checksum;
 	#endif
 
-	struct kListItemStruct_t allocListItem;
+	kLinkedListItem_t allocListItem;
 };
 
 void common_heapInit();
 
-void* common_heapAlloc(size_t size, struct kLinkedListStruct_t* allocList);
+void* common_heapAlloc(size_t size, kLinkedList_t* allocList);
 void common_heapFree(void* pointer);
 
 size_t common_getFreeHeap();

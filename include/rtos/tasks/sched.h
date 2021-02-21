@@ -23,9 +23,9 @@ struct kSchedCPUStateStruct_t
 	volatile kBaseType_t kTickRate;
 	volatile kTaskTicks_t kTaskActiveTicks;
 
-	volatile struct kLinkedListStruct_t kReadyTaskList[CFG_NUMBER_OF_PRIORITIES];
-	volatile struct kLinkedListStruct_t kSleepingTaskList;
-	volatile struct kLinkedListStruct_t kSuspendedTaskList;
+	volatile kLinkedList_t kReadyTaskList[CFG_NUMBER_OF_PRIORITIES];
+	volatile kLinkedList_t kSleepingTaskList;
+	volatile kLinkedList_t kSuspendedTaskList;
 };
 
 void tasks_initScheduler(kTaskHandle_t idle);

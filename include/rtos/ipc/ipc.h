@@ -13,12 +13,15 @@
 #include <rtos/common/lists.h>
 
 struct kLockStruct_t
-{
+{	
+	kLockType_t type;
+
 	uint8_t lockCount;
 	uint8_t basePriority;
-	kLockType_t type;
+	
 	kTaskHandle_t lockOwner;
-	struct kLinkedListStruct_t blockedTasks;
+
+	kLinkedList_t blockedTasks;
 };
 
 #endif

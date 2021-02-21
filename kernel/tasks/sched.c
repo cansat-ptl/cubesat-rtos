@@ -38,16 +38,16 @@ void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state)
 				common_listAddBack(&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
 			default:
-				// Do nothing
+				/* Do nothing */
 			break;
 		}
 	}
 }
 
-//WHAT THE HELL AM I DOING SOMEBODY PLEASE HELP ME
+/* WHAT THE HELL AM I DOING SOMEBODY PLEASE HELP ME */
 static inline void tasks_tickTasks()
 {
-	volatile struct kListItemStruct_t* temp = kSchedCPUState.kSleepingTaskList.head;
+	kLinkedListItem_t* temp = kSchedCPUState.kSleepingTaskList.head;
 
 	while (temp != NULL) {
 		if (((kTaskHandle_t)(temp->data))->sleepTime) {
@@ -68,7 +68,7 @@ static inline void tasks_search()
 			kSchedCPUState.kNextTask = kSchedCPUState.kReadyTaskList[i].head->data;
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
-			volatile struct kListItemStruct_t* temp = kSchedCPUState.kReadyTaskList[i].head;
+			kLinkedListItem_t* temp = kSchedCPUState.kReadyTaskList[i].head;
 			common_listDropFront(&kSchedCPUState.kReadyTaskList[i]);
 			common_listAddBack(&kSchedCPUState.kReadyTaskList[i], temp);
 			break;

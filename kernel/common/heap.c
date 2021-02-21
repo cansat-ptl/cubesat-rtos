@@ -14,7 +14,7 @@
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
-static const size_t kHeapStructSize	= (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); //What the hell is this I shouldn't have copied FreeRTOS code
+static const size_t kHeapStructSize	= (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* What the hell is this I shouldn't have copied FreeRTOS code */
 
 static struct kMemoryBlockStruct_t kHeapStart;
 static struct kMemoryBlockStruct_t* kHeapEnd;
@@ -34,9 +34,9 @@ size_t common_getFreeHeapMin()
 	return kMinimumFreeMemory;
 }
 
-static inline uint8_t common_calculateChecksum(struct kMemoryBlockStruct_t* block) //This is stoopid
+static inline uint8_t common_calculateChecksum(struct kMemoryBlockStruct_t* block) /* This is stoopid */
 {
-	return ((uint8_t)(block->blockSize) ^ (uint8_t)(block->next) ^ (uint8_t)(block->state) ^ (uint8_t)(block->magic1) ^ (uint8_t)(block->magic2)); //TODO: fix checksum calc warnings
+	return ((uint8_t)(block->blockSize) ^ (uint8_t)(block->next) ^ (uint8_t)(block->state) ^ (uint8_t)(block->magic1) ^ (uint8_t)(block->magic2)); /* TODO: fix checksum calc warnings */
 }
 
 static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
@@ -70,7 +70,7 @@ void common_heapInit()
 
 	heapAddress = (size_t)kHeapRegion;
 
-	if ((heapAddress & CFG_PLATFORM_BYTE_ALIGNMENT_MASK) != 0) { //-V547
+	if ((heapAddress & CFG_PLATFORM_BYTE_ALIGNMENT_MASK) != 0) {
 		heapAddress += (CFG_PLATFORM_BYTE_ALIGNMENT - 1);
 		heapAddress &= ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK);
 		heapSize -= heapAddress - (size_t)kHeapRegion;
@@ -109,7 +109,7 @@ static void common_insertFreeBlock(struct kMemoryBlockStruct_t* blockToInsert)
 	struct kMemoryBlockStruct_t* blockIterator;
 	byte* pointer_casted;
 
-	for (blockIterator = &kHeapStart; blockIterator->next < blockToInsert; blockIterator = blockIterator->next) {;} //What
+	for (blockIterator = &kHeapStart; blockIterator->next < blockToInsert; blockIterator = blockIterator->next) {;}
 
 	pointer_casted = (byte*)blockIterator;
 
@@ -140,14 +140,14 @@ static void common_insertFreeBlock(struct kMemoryBlockStruct_t* blockToInsert)
 	return;
 }
 
-void* common_heapAlloc(size_t size, struct kLinkedListStruct_t* allocList)
+void* common_heapAlloc(size_t size, kLinkedList_t* allocList)
 {
 	void* returnAddress = NULL;
 	struct kMemoryBlockStruct_t *block, *newBlock, *previousBlock;
 
 	arch_enterCriticalSection();
 
-	if (size > 0 && (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK) != 0x00) { //-V560
+	if (size > 0 && (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK) != 0x00) {
 		size += (CFG_PLATFORM_BYTE_ALIGNMENT - (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK));
 	}
 
@@ -215,7 +215,7 @@ void common_heapFree(void* pointer)
 
 		block = (void*)pointer_casted;
 
-		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 //TODO: fix weird #if
+		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 /* TODO: fix weird #if */
 		if (common_checkBlockValid(block)) {
 			block->magic1 = 0;
 			block->magic2 = 0;
@@ -234,7 +234,7 @@ void common_heapFree(void* pointer)
 				}
 			}
 
-		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 //TODO: fix weird #if
+		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 /* TODO: fix weird #if */
 		}
 		#endif
 	}

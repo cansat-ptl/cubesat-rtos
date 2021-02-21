@@ -15,7 +15,7 @@
 #include <rtos/types.h>
 
 #ifndef F_CPU
-#define F_CPU 16000000L						//CPU frequency
+#define F_CPU 16000000L						/* CPU frequency */
 #endif
 
 #define CFG_TIMER_COMPARE_VALUE 250
