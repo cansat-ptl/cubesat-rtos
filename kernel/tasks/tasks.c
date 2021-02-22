@@ -14,7 +14,7 @@
 #include <rtos/common/lists.h>
 #include <rtos/arch/arch.h>
 
-byte kIdleMem[150];
+byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY];
 
 static kSpinlock_t kTaskOpSpinlock;
 
@@ -29,8 +29,7 @@ void idle0() {
 kReturnValue_t tasks_init()
 {
 	common_heapInit();
-	kTaskHandle_t idleTask;
-	tasks_createTaskStatic(kIdleMem, &idleTask, idle0, NULL, 64, 0, KTASK_CRITICAL_STATIC, "idle");
+	kTaskHandle_t idleTask = tasks_createTaskStatic((void*)kIdleMem, CFG_KERNEL_IDLE_TASK_MEMORY, idle0, NULL, 0, KTASK_CRITICAL_STATIC, "idle");
 
 	if (idleTask == NULL) {
 		/* debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n")); */
@@ -42,18 +41,18 @@ kReturnValue_t tasks_init()
 	return 0;
 }
 
-/* TODO: change how memory size is passed */
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
+kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
-	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
+	kTaskHandle_t returnHandle = NULL;
 
 	arch_spinlockAcquire(&kTaskOpSpinlock);
 
-	if (entry != NULL) {
-		if (taskMemory != NULL) {
+	if (taskMemory != NULL) {
+		if (entry != NULL) {
 			((kTaskHandle_t)taskMemory)->activeTaskListItem.data = (void*)taskMemory;
 
-			kStackPtr_t stackInitialPtr = taskMemory + sizeof(struct kTaskStruct_t);
+			kStackPtr_t baseStackPtr = taskMemory + sizeof(struct kTaskStruct_t);
+			size_t stackSize = memorySize - sizeof(struct kTaskStruct_t) - 1;
 
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 				#if CFG_STACK_GROWTH_DIRECTION == 0
@@ -64,8 +63,8 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 				#endif
 			#endif
 
-			((kTaskHandle_t)taskMemory)->stackPtr = arch_prepareStackFrame(stackInitialPtr, stackSize, entry, args);
-			((kTaskHandle_t)taskMemory)->stackBegin = stackInitialPtr;
+			((kTaskHandle_t)taskMemory)->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
+			((kTaskHandle_t)taskMemory)->stackBegin = baseStackPtr;
 			((kTaskHandle_t)taskMemory)->stackSize = stackSize;
 			((kTaskHandle_t)taskMemory)->entry = entry;
 			((kTaskHandle_t)taskMemory)->args = args;
@@ -83,49 +82,31 @@ kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* han
 			tasks_setTaskState((kTaskHandle_t)taskMemory, KSTATE_READY);
 
 			kGlobalPid++;
-			kresult = KRESULT_SUCCESS;
 
-			if (handle != NULL) {
-				*handle = (kTaskHandle_t)taskMemory;
-			}
-		}
-		else {
-			kresult = KRESULT_ERR_NULLPTR;
+			returnHandle = (kTaskHandle_t)taskMemory;
 		}
 	}
 
 	arch_spinlockRelease(&kTaskOpSpinlock);
-	return kresult;
+
+	return returnHandle;
 }
 
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name)
+kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
-	kReturnValue_t kresult = KRESULT_ERR_GENERIC;
-
 	if (stackSize < CFG_MIN_TASK_STACK_SIZE) {
 		stackSize = CFG_MIN_TASK_STACK_SIZE;
 	}
 
-	size_t allocationSize = stackSize + sizeof(struct kTaskStruct_t);
+	size_t memorySize = stackSize + sizeof(struct kTaskStruct_t);
 
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 		allocationSize += CFG_STACK_SAFETY_MARGIN;
 	#endif
 
-	kStackPtr_t stackPointer = (kStackPtr_t)common_heapAlloc(allocationSize, NULL);
-	kresult = tasks_createTaskStatic(stackPointer, NULL, entry, args, stackSize, priority, type, name);
-
-	if (kresult != KRESULT_SUCCESS) {
-		common_heapFree((void*)stackPointer);
-		if (common_getFreeHeap() < allocationSize) {
-			kresult = KRESULT_ERR_OUT_OF_MEMORY;
-		}
-	}
-	else {
-		*handle = (kTaskHandle_t)(stackPointer);
-	}
-
-	return kresult;
+	void* taskMemory = common_heapAlloc(memorySize, NULL);
+	
+	return tasks_createTaskStatic(taskMemory, memorySize, entry, args, priority, type, name);
 }
 
 kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)

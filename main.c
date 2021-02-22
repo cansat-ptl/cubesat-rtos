@@ -45,8 +45,8 @@ void test_task2() {
 int main(void)
 {
     kernel_init();
-	tasks_createTaskDynamic(&test, test_task, NULL, 100, 1, KTASK_NORMAL, "test1");
-	tasks_createTaskDynamic(&test2, test_task2, NULL, 100, 3, KTASK_NORMAL, "test2");
+	test = tasks_createTaskDynamic(100, test_task, NULL, 1, KTASK_NORMAL, "test1");
+	test2 = tasks_createTaskDynamic(100, test_task2, NULL, 3, KTASK_NORMAL, "test2");
 	ipc_mutexInit(&mutex);
     while (1)
     {

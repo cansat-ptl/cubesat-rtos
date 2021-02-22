@@ -9,6 +9,7 @@
 #ifndef KERNEL_TASKS_H_
 #define KERNEL_TASKS_H_
 
+#include <stddef.h>
 #include <rtos/types.h>
 #include <rtos/common/lists.h>
 
@@ -24,7 +25,7 @@ struct kTaskStruct_t
 {
 	kStackPtr_t stackPtr;
 	kStackPtr_t stackBegin;
-	kStackSize_t stackSize;
+	size_t stackSize;
 
 	void (*entry)(void);
 	void* args;
@@ -57,8 +58,8 @@ kTaskState_t tasks_getTaskState(kTaskHandle_t task);
 kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority);
 kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 
-kReturnValue_t tasks_createTaskStatic(kStackPtr_t taskMemory, kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
-kReturnValue_t tasks_createTaskDynamic(kTaskHandle_t* handle, void (*entry)(void), void* args, kStackSize_t stackSize, kBaseType_t priority, kTaskType_t type, char* name);
+kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
+kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
 
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList);
 void tasks_unblockTask(kTaskHandle_t task);
