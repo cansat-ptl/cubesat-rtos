@@ -1,8 +1,8 @@
-/*f
- * scheduler.c
- *
- * Created: 18.12.2020 6:27:24
- *  Author: Admin
+/*
+ * sched.c
+ * 
+ * Created: 02.01.2021 11:58:19
+ * Author: ThePetrovich
  */
 
 
