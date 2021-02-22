@@ -28,19 +28,3 @@ void tasks_free(void* pointer)
 {
     common_heapFree(pointer);
 }
-
-void tasks_freeAll(kTaskHandle_t task)
-{
-    arch_enterCriticalSection();
-
-    if (task != NULL) {
-        kLinkedListItem_t* temp = task->allocList.head;
-        
-        while(temp != NULL) {
-			common_heapFree(temp->data);
-			temp = temp->next;
-		}
-    }
-
-    arch_exitCriticalSection();
-}

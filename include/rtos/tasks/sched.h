@@ -13,8 +13,6 @@
 #include <rtos/common/lists.h>
 #include <rtos/config.h>
 
-void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
-
 struct kSchedCPUStateStruct_t
 {
 	kTaskHandle_t kCurrentTask;
@@ -30,7 +28,8 @@ struct kSchedCPUStateStruct_t
 
 void tasks_initScheduler(kTaskHandle_t idle);
 
-void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state);
+void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state);
+void tasks_unscheduleTask(kTaskHandle_t task);
 
 kTaskHandle_t tasks_getCurrentTask();
 

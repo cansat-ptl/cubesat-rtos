@@ -14,17 +14,20 @@
 #include <rtos/common/lists.h>
 #include <rtos/arch/arch.h>
 
+kLinkedList_t kGlobalTaskList;
+
 byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY];
 
 static kSpinlock_t kTaskOpSpinlock;
-
 static kPid_t kGlobalPid = 0;
 
-void idle0() {
+void idle0() 
+{
 	while(1) {
-		;
+		;/* Do nothing */
 	}
 }
+
 
 kReturnValue_t tasks_init()
 {
@@ -41,6 +44,10 @@ kReturnValue_t tasks_init()
 	return 0;
 }
 
+/*----------------------------------------------------------------------------------*/
+/*                             Task creation & deletion                             */
+/*----------------------------------------------------------------------------------*/
+
 kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kTaskHandle_t returnHandle = NULL;
@@ -49,11 +56,12 @@ kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (
 
 	if (taskMemory != NULL) {
 		if (entry != NULL) {
-			((kTaskHandle_t)taskMemory)->activeTaskListItem.data = (void*)taskMemory;
+			returnHandle = (kTaskHandle_t)taskMemory;
 
 			kStackPtr_t baseStackPtr = taskMemory + sizeof(struct kTaskStruct_t);
 			size_t stackSize = memorySize - sizeof(struct kTaskStruct_t) - 1;
 
+			/* TODO: task memory protection */
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 				#if CFG_STACK_GROWTH_DIRECTION == 0
 					stackInitialPtr += CFG_STACK_SAFETY_MARGIN;
@@ -63,27 +71,36 @@ kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (
 				#endif
 			#endif
 
-			((kTaskHandle_t)taskMemory)->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
-			((kTaskHandle_t)taskMemory)->stackBegin = baseStackPtr;
-			((kTaskHandle_t)taskMemory)->stackSize = stackSize;
-			((kTaskHandle_t)taskMemory)->entry = entry;
-			((kTaskHandle_t)taskMemory)->args = args;
-			((kTaskHandle_t)taskMemory)->type = type;
-			((kTaskHandle_t)taskMemory)->pid = kGlobalPid;
-			((kTaskHandle_t)taskMemory)->name = name;
+			returnHandle->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
+			returnHandle->stackBegin = baseStackPtr;
+			returnHandle->stackSize = stackSize;
+			returnHandle->entry = entry;
+			returnHandle->args = args;
+			returnHandle->type = type;
+			returnHandle->pid = kGlobalPid;
+			returnHandle->name = name;
+
+			returnHandle->activeTaskListItem.data = (void*)returnHandle;
+			returnHandle->childTaskListItem.data = (void*)returnHandle;
+			returnHandle->globalTaskListItem.data = (void*)returnHandle;
 
 			if (priority < CFG_NUMBER_OF_PRIORITIES) {
-				((kTaskHandle_t)taskMemory)->priority = priority;
+				returnHandle->priority = priority;
 			}
 			else {
-				((kTaskHandle_t)taskMemory)->priority = CFG_NUMBER_OF_PRIORITIES-1;
+				returnHandle->priority = CFG_NUMBER_OF_PRIORITIES-1;
 			}
 
-			tasks_setTaskState((kTaskHandle_t)taskMemory, KSTATE_READY);
+			common_listAddBack(&kGlobalTaskList, &(returnHandle->globalTaskListItem));
+
+			kTaskHandle_t currentTask = tasks_getCurrentTask();
+			if (currentTask != NULL) {
+				common_listAddBack(&(currentTask->childTaskList), &(returnHandle->childTaskListItem));
+			}
 
 			kGlobalPid++;
 
-			returnHandle = (kTaskHandle_t)taskMemory;
+			tasks_setTaskState(returnHandle, KSTATE_READY);
 		}
 	}
 
@@ -91,6 +108,7 @@ kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (
 
 	return returnHandle;
 }
+
 
 kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
@@ -100,61 +118,72 @@ kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), voi
 
 	size_t memorySize = stackSize + sizeof(struct kTaskStruct_t);
 
+	/* TODO: task memory protection */
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 		allocationSize += CFG_STACK_SAFETY_MARGIN;
 	#endif
 
 	void* taskMemory = common_heapAlloc(memorySize, NULL);
+	kTaskHandle_t returnHandle = tasks_createTaskStatic(taskMemory, memorySize, entry, args, priority, type, name);
 	
-	return tasks_createTaskStatic(taskMemory, memorySize, entry, args, priority, type, name);
+	returnHandle->flags |= KTASKFLAG_DYNAMIC;
+
+	return returnHandle;
 }
 
-kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
-{
-	kReturnValue_t kresult = KRESULT_ERR_NULLPTR;
 
-	if (task != NULL) {
-		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
-			arch_enterCriticalSection();
-
-			task->priority = priority;
-			if (task->state == KSTATE_READY) {
-				tasks_updateSchedulingList(task, KSTATE_READY);
-			}
-			kresult = KRESULT_SUCCESS;
-
-			arch_exitCriticalSection();
-		}
-		else {
-			kresult = CFG_NUMBER_OF_PRIORITIES;
-		}
-	}
-
-	return kresult;
-}
-
-void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
+void tasks_deleteTaskStatic(kTaskHandle_t task)
 {
 	if (task != NULL) {
 		arch_enterCriticalSection();
 
-		tasks_updateSchedulingList(task, state);
-		task->state = state;
+		tasks_setTaskState(task, KSTATE_UNINIT);
+
+		kLinkedListItem_t* head = task->childTaskList.head;
+
+		while (head != NULL) {
+			if (head->data != NULL) {
+				if (((kTaskHandle_t)(head->data))->flags & KTASKFLAG_DYNAMIC) {
+					tasks_deleteTaskDynamic((kTaskHandle_t)(head->data));
+				}
+				else {
+					tasks_deleteTaskStatic((kTaskHandle_t)(head->data));
+				}
+				
+			}
+			head = head->next;
+		}
+
+		head = task->allocList.head;
+        
+        while(head != NULL) {
+			common_heapFree(head->data);
+			head = head->next;
+		}
+
+		common_listDeleteAny(&kGlobalTaskList, &(task->globalTaskListItem));
+		common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
 
 		arch_exitCriticalSection();
 	}
 }
 
-kTaskState_t tasks_getTaskState(kTaskHandle_t task) 
+
+void tasks_deleteTaskDynamic(kTaskHandle_t task)
 {
-	kTaskState_t state = KSTATE_UNINIT;
-
 	if (task != NULL) {
-		state = task->state;
+		tasks_deleteTaskStatic(task);
+		if (task->flags & KTASKFLAG_DYNAMIC) {
+			common_heapFree((void*)task);
+		}
 	}
-
-	return state;
 }
+
+/*----------------------------------------------------------------------------------*/
+/*                                  Task fields                                     */
+/*----------------------------------------------------------------------------------*/
+/*----------------------------------- Priority -------------------------------------*/
+/*----------------------------------------------------------------------------------*/
 
 kBaseType_t tasks_getTaskPriority(kTaskHandle_t task) 
 {
@@ -167,6 +196,50 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task)
 	return priority;
 }
 
+
+void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
+{
+	if (task != NULL) {
+		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
+			arch_enterCriticalSection();
+
+			tasks_unscheduleTask(task);
+			task->priority = priority;
+			tasks_scheduleTask(task, task->state);
+
+			arch_exitCriticalSection();
+		}
+	}
+}
+
+/*------------------------------------ State ---------------------------------------*/
+/*----------------------------------------------------------------------------------*/
+
+kTaskState_t tasks_getTaskState(kTaskHandle_t task) 
+{
+	kTaskState_t state = KSTATE_UNINIT;
+
+	if (task != NULL) {
+		state = task->state;
+	}
+
+	return state;
+}
+
+
+void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		tasks_scheduleTask(task, state);
+		task->state = state;
+
+		arch_exitCriticalSection();
+	}
+}
+
+
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
 {
     if (task != NULL && blockList != NULL) {
@@ -177,7 +250,9 @@ void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
     }
 }
 
+
 void tasks_unblockTask(kTaskHandle_t task) 
 {
     tasks_setTaskState(task, KSTATE_READY);
 }
+

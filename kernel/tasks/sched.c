@@ -13,7 +13,7 @@
 #include <rtos/arch/arch.h>
 #include <rtos/common/lists.h>
 
-volatile struct kSchedCPUStateStruct_t kSchedCPUState;
+volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
 void __attribute__ (( naked, noinline )) arch_yield(void);
 
@@ -25,14 +25,11 @@ void tasks_initScheduler(kTaskHandle_t idle)
 	kSchedCPUState.kCurrentTask = idle;
 }
 
-kTaskHandle_t tasks_getCurrentTask()
-{
-	return kSchedCPUState.kCurrentTask;
-}
-
-void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state) /* TODO: think about better implementation. This is super dumb. */
-{
+void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
+{	
 	if (task != NULL) {
+		arch_enterCriticalSection();
+
 		common_listDeleteAny(task->activeTaskListItem.list, &(task->activeTaskListItem));
 
 		switch (state) {
@@ -45,11 +42,32 @@ void tasks_updateSchedulingList(kTaskHandle_t task, kTaskState_t state) /* TODO:
 			case KSTATE_READY:
 				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
+			case KSTATE_UNINIT:
+				/* Do nothing */
+			break;
 			default:
 				/* Do nothing */
 			break;
 		}
+		
+		arch_exitCriticalSection();
 	}
+}
+
+void tasks_unscheduleTask(kTaskHandle_t task)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		common_listDeleteAny(task->activeTaskListItem.list, &(task->activeTaskListItem));
+
+		arch_exitCriticalSection();
+	}
+}
+
+kTaskHandle_t tasks_getCurrentTask()
+{
+	return kSchedCPUState.kCurrentTask;
 }
 
 static inline void tasks_tickTasks()
@@ -61,8 +79,7 @@ static inline void tasks_tickTasks()
 			((kTaskHandle_t)(head->data))->sleepTime--;
 		}
 		else {
-			tasks_updateSchedulingList((kTaskHandle_t)head->data, KSTATE_READY);
-			((kTaskHandle_t)(head->data))->state = KSTATE_READY;
+			tasks_setTaskState(head->data, KSTATE_READY);
 		}
 		head = head->next;
 	}

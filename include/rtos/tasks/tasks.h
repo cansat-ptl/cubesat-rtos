@@ -13,6 +13,8 @@
 #include <rtos/types.h>
 #include <rtos/common/lists.h>
 
+#define KTASKFLAG_DYNAMIC ((byte)(0x01))
+
 struct kLockStruct_t;
 
 struct kEventStruct_t
@@ -45,9 +47,9 @@ struct kTaskStruct_t
 
 	kLinkedListItem_t activeTaskListItem;
 	kLinkedListItem_t globalTaskListItem;
+	kLinkedListItem_t childTaskListItem;
 
-	kLinkedList_t childList;
-	kLinkedListItem_t childListItem;
+	kLinkedList_t childTaskList;
 };
 
 kReturnValue_t tasks_init();
@@ -55,11 +57,13 @@ kReturnValue_t tasks_init();
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state);
 kTaskState_t tasks_getTaskState(kTaskHandle_t task);
 
-kReturnValue_t tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority);
+void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority);
 kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 
 kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
 kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
+void tasks_deleteTaskStatic(kTaskHandle_t task);
+void tasks_deleteTaskDynamic(kTaskHandle_t task);
 
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList);
 void tasks_unblockTask(kTaskHandle_t task);
