@@ -11,13 +11,12 @@
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/lifo.h>
 #include <rtos/ipc/fifo.h>
-#include <rtos/tasks/tasks.h>
-#include <rtos/tasks/sched.h>
+#include <rtos/ipc/mutex.h>
 #include <string.h> /* TODO: memcpy */
 
-void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize)
+void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
 {
-	ipc_fifoInit((kFIFOHandle_t)lifo, lifoBuffer, bufferSize, itemSize);
+	ipc_fifoInit((kFIFOHandle_t)lifo, lifoBuffer, bufferSize, itemSize, mutex);
 }
 
 size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
@@ -25,7 +24,7 @@ size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
     size_t bytesWritten = 0;
 
 	if (lifo != NULL) {
-        ipc_mutexLock(&(lifo->mutex));
+        ipc_mutexLock(lifo->mutex);
 
         if (ipc_lifoFreeSpace(lifo) != 0) {
             memcpy(lifo->pointer + lifo->currentPosition, input, lifo->itemSize);
@@ -34,7 +33,7 @@ size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
             bytesWritten += lifo->itemSize;
         }
 
-        ipc_mutexUnlock(&(lifo->mutex));
+        ipc_mutexUnlock(lifo->mutex);
 	}
 
 	return bytesWritten;
@@ -61,7 +60,7 @@ size_t ipc_lifoRead(kLIFOHandle_t lifo, void* output)
 	size_t bytesRead = 0;
 
 	if (lifo != NULL) {
-        ipc_mutexLock(&(lifo->mutex));
+        ipc_mutexLock(lifo->mutex);
 
         if (ipc_lifoAvailable(lifo) != 0) {
             memcpy(output, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
@@ -70,7 +69,7 @@ size_t ipc_lifoRead(kLIFOHandle_t lifo, void* output)
             bytesRead += lifo->itemSize;
         }
 
-        ipc_mutexLock(&(lifo->mutex));
+        ipc_mutexLock(lifo->mutex);
 	}
 
 	return bytesRead;

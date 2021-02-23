@@ -11,11 +11,12 @@
 
 #include <rtos/types.h>
 #include <rtos/ipc/ipc.h>
+#include <rtos/ipc/mutex.h>
 
 typedef volatile struct kIPCStruct_t kLIFO_t;
 typedef volatile struct kIPCStruct_t* kLIFOHandle_t;
 
-void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize);
+void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex);
 
 size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input);
 size_t ipc_lifoWriteBlocking(kLIFOHandle_t lifo, void* input);

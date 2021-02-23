@@ -13,7 +13,7 @@
 #include <rtos/ipc/mutex.h>
 #include <string.h> /* TODO: memcpy */
 
-void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize)
+void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
 {
 	if (fifoBuffer != NULL && bufferSize >= itemSize) {
         fifo->itemSize = itemSize;
@@ -22,7 +22,8 @@ void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_
         fifo->inputPosition = 0;
         fifo->outputPosition = 0;
         fifo->currentPosition = 0;
-		ipc_mutexInit(&fifo->mutex);
+		fifo->mutex = mutex;
+		ipc_mutexInit(fifo->mutex);
 	}
 }
 
@@ -31,7 +32,7 @@ size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input)
 	size_t bytesWritten = 0;
 
 	if (fifo != NULL) {
-		ipc_mutexLock(&(fifo->mutex));
+		ipc_mutexLock(fifo->mutex);
 
 		if (ipc_fifoFreeSpace(fifo)) {
 			memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
@@ -46,7 +47,7 @@ size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input)
 			bytesWritten += fifo->itemSize;
 		}
 
-		ipc_mutexUnlock(&(fifo->mutex));
+		ipc_mutexUnlock(fifo->mutex);
 	}
 
 	return bytesWritten;
@@ -73,7 +74,7 @@ size_t ipc_fifoRead(kFIFOHandle_t fifo, void* output)
 	size_t bytesRead = 0;
 
 	if (fifo != NULL) {
-		ipc_mutexLock(&(fifo->mutex));
+		ipc_mutexLock(fifo->mutex);
 
 		if (ipc_fifoAvailable(fifo) != 0) {
 			memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
@@ -88,7 +89,7 @@ size_t ipc_fifoRead(kFIFOHandle_t fifo, void* output)
 			bytesRead += fifo->itemSize;
 		}
 
-		ipc_mutexUnlock(&(fifo->mutex));
+		ipc_mutexUnlock(fifo->mutex);
 	}
 	
 	return bytesRead;

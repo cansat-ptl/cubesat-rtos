@@ -11,11 +11,12 @@
 
 #include <rtos/types.h>
 #include <rtos/ipc/ipc.h>
+#include <rtos/ipc/mutex.h>
 
 typedef volatile struct kIPCStruct_t kFIFO_t;
 typedef volatile struct kIPCStruct_t* kFIFOHandle_t;
 
-void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize);
+void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex);
 
 size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input);
 size_t ipc_fifoWriteBlocking(kFIFOHandle_t fifo, void* input);
