@@ -48,6 +48,7 @@ kReturnValue_t tasks_init()
 /*                             Task creation & deletion                             */
 /*----------------------------------------------------------------------------------*/
 
+/* TODO: proper architecture-independent structure size calculation */
 kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	kTaskHandle_t returnHandle = NULL;

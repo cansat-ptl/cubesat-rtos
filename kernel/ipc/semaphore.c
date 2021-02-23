@@ -16,7 +16,7 @@
 
 kSpinlock_t semaphoreOpLock = 0;
 
-void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, uint8_t resourceAmount)
+void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 {
 	if (semaphore != NULL) {
 		semaphore->type = KLOCK_SEMAPHORE;
@@ -64,6 +64,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 	return;
 }
 
+/* TODO: lock tracking */
 void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 {
 	if (semaphore != NULL) {

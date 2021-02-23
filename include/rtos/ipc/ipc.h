@@ -16,12 +16,22 @@ struct kLockStruct_t
 {	
 	kLockType_t type;
 
-	uint8_t lockCount;
-	uint8_t basePriority;
-	
+	kBaseType_t lockCount;
+	kBaseType_t basePriority;
+
 	kTaskHandle_t lockOwner;
 
 	kLinkedList_t blockedTasks;
+};
+
+struct kIPCStruct_t
+{
+	void* pointer;
+	size_t itemSize;
+	size_t bufferSize;
+	size_t inputPosition;
+	size_t outputPosition;
+	size_t currentPosition;
 };
 
 #endif

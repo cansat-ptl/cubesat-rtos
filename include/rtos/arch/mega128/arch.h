@@ -38,6 +38,8 @@
 #define arch_RET() asm volatile ("ret \n\t" ::)
 #define arch_RETI() asm volatile ("reti \n\t" ::)
 
+void __attribute__ (( naked, noinline )) arch_yield(void);
+
 void arch_setupSystickTimer();
 void arch_startSystickTimer();
 void arch_stopSystickTimer();

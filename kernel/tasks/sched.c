@@ -15,8 +15,6 @@
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
-void __attribute__ (( naked, noinline )) arch_yield(void);
-
 void tasks_initScheduler(kTaskHandle_t idle)
 {
 	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
@@ -49,7 +47,7 @@ void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
 				/* Do nothing */
 			break;
 		}
-		
+
 		arch_exitCriticalSection();
 	}
 }
