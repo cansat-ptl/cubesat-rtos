@@ -11,6 +11,8 @@
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/lifo.h>
 #include <rtos/ipc/fifo.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
 #include <string.h> /* TODO: memcpy */
 
 void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize)
@@ -23,12 +25,12 @@ size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
     size_t bytesWritten = 0;
 
 	if (lifo != NULL) {
-		if (ipc_lifoFreeSpace(lifo) != 0) {
-			memcpy(lifo->pointer + lifo->currentPosition, input, lifo->itemSize);
-			
-			lifo->currentPosition += lifo->itemSize;
-			bytesWritten += lifo->itemSize;
-		}
+        if (ipc_lifoFreeSpace(lifo) != 0) {
+            memcpy(lifo->pointer + lifo->currentPosition, input, lifo->itemSize);
+            
+            lifo->currentPosition += lifo->itemSize;
+            bytesWritten += lifo->itemSize;
+        }
 	}
 
 	return bytesWritten;
@@ -39,12 +41,28 @@ size_t ipc_lifoRead(kLIFOHandle_t lifo, void* item)
 	size_t bytesRead = 0;
 
 	if (lifo != NULL) {
-		if (ipc_lifoAvailable(lifo) != 0) {
-			memcpy(item, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
-			
-			lifo->currentPosition -= lifo->itemSize;
-			bytesRead += lifo->itemSize;		
-		} 
+        while (1) {
+            if (ipc_lifoAvailable(lifo) != 0) {
+                memcpy(item, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
+                
+                lifo->currentPosition -= lifo->itemSize;
+                bytesRead += lifo->itemSize;		
+
+                kLinkedListItem_t* head = lifo->blockedTasks.head;
+
+                while(head != NULL) {
+                    tasks_unblockTask((kTaskHandle_t)head->data);
+                    head = head->next;
+                }
+
+                break;
+            }
+            else {
+                kTaskHandle_t currentTask = tasks_getCurrentTask();
+                tasks_blockTask(currentTask, (kLinkedList_t*)&(lifo->blockedTasks));
+                tasks_sleep(0);
+            }
+        }
 	}
 
 	return bytesRead;

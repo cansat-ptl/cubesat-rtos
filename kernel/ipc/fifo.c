@@ -10,13 +10,13 @@
 #include <rtos/config.h>
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/fifo.h>
+#include <rtos/tasks/tasks.h>
+#include <rtos/tasks/sched.h>
 #include <string.h> /* TODO: memcpy */
 
-/* TODO: proper architecture-independent structure size calculation */
 void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize)
 {
 	if (fifoBuffer != NULL && bufferSize >= itemSize) {
-        fifo = (kFIFOHandle_t)fifoBuffer;
         fifo->itemSize = itemSize;
         fifo->bufferSize = bufferSize;
         fifo->pointer = fifoBuffer;
@@ -26,7 +26,6 @@ void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_
 	}
 }
 
-/* TODO: blocking FIFO writes & reads */
 size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input)
 {
 	size_t bytesWritten = 0;
@@ -54,17 +53,33 @@ size_t ipc_fifoRead(kFIFOHandle_t fifo, void* output)
 	size_t bytesRead = 0;
 
 	if (fifo != NULL) {
-		if (ipc_fifoAvailable(fifo) != 0) {
-			memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+		while (1) {
+			if (ipc_fifoAvailable(fifo) != 0) {
+				memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
 
-			fifo->outputPosition += fifo->itemSize;
+				fifo->outputPosition += fifo->itemSize;
 
-			if (fifo->outputPosition >= fifo->bufferSize) {
-				fifo->outputPosition = 0;
+				if (fifo->outputPosition >= fifo->bufferSize) {
+					fifo->outputPosition = 0;
+				}
+
+				fifo->currentPosition -= fifo->itemSize;
+				bytesRead += fifo->itemSize;
+
+				kLinkedListItem_t* head = fifo->blockedTasks.head;
+
+				while(head != NULL) {
+					tasks_unblockTask((kTaskHandle_t)head->data);
+					head = head->next;
+				}
+
+				break;
 			}
-
-			fifo->currentPosition -= fifo->itemSize;
-			bytesRead += fifo->itemSize;
+			else {
+				kTaskHandle_t currentTask = tasks_getCurrentTask();
+				tasks_blockTask(currentTask, (kLinkedList_t*)&(fifo->blockedTasks));
+				tasks_sleep(0);
+			}
 		}
 	}
 	

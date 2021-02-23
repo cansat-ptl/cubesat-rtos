@@ -20,5 +20,7 @@
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/mutex.h>
 #include <rtos/ipc/semaphore.h>
+#include <rtos/ipc/fifo.h>
+#include <rtos/ipc/lifo.h>
 
 #endif
