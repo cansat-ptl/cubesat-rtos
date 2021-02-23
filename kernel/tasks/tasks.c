@@ -142,8 +142,8 @@ static void tasks_deleteTaskStatic(kTaskHandle_t task)
 		}
 
 		head = task->allocList.head;
-        
-        while(head != NULL) {
+		
+		while(head != NULL) {
 			common_heapFree(head->data);
 			head = head->next;
 		}
@@ -216,16 +216,16 @@ void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
 {
-    if (task != NULL && blockList != NULL) {
+	if (task != NULL && blockList != NULL) {
 		if (task->activeTaskListItem.list != blockList) {
 			tasks_setTaskState(task, KSTATE_BLOCKED);
 			common_listAddBack(blockList, &(task->activeTaskListItem));
 		}
-    }
+	}
 }
 
 void tasks_unblockTask(kTaskHandle_t task) 
 {
-    tasks_setTaskState(task, KSTATE_READY);
+	tasks_setTaskState(task, KSTATE_READY);
 }
 

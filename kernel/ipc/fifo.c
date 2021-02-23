@@ -17,12 +17,12 @@
 void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
 {
 	if (fifoBuffer != NULL && bufferSize >= itemSize) {
-        fifo->itemSize = itemSize;
-        fifo->bufferSize = bufferSize;
-        fifo->pointer = fifoBuffer;
-        fifo->inputPosition = 0;
-        fifo->outputPosition = 0;
-        fifo->currentPosition = 0;
+		fifo->itemSize = itemSize;
+		fifo->bufferSize = bufferSize;
+		fifo->pointer = fifoBuffer;
+		fifo->inputPosition = 0;
+		fifo->outputPosition = 0;
+		fifo->currentPosition = 0;
 		fifo->mutex = mutex;
 		ipc_mutexInit(fifo->mutex);
 	}
@@ -114,7 +114,7 @@ size_t ipc_fifoReadBlocking(kFIFOHandle_t fifo, void* output)
 
 size_t ipc_fifoPeek(kFIFOHandle_t fifo, void* output)
 {
-    size_t bytesRead = 0;
+	size_t bytesRead = 0;
 
 	if (fifo != NULL) {
 		if (ipc_fifoAvailable(fifo) != 0) {

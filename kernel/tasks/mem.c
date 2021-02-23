@@ -15,27 +15,27 @@
 
 void* tasks_malloc(size_t size) 
 {
-    kTaskHandle_t currentTask = tasks_getCurrentTask();
-    kLinkedList_t* allocList = NULL;
+	kTaskHandle_t currentTask = tasks_getCurrentTask();
+	kLinkedList_t* allocList = NULL;
 
-    if (currentTask != NULL) {
-        allocList = &(currentTask->allocList);
-    }
+	if (currentTask != NULL) {
+		allocList = &(currentTask->allocList);
+	}
 
-    return common_heapAlloc(size, allocList);
+	return common_heapAlloc(size, allocList);
 }
 
 void tasks_free(void* pointer) 
 {
-    common_heapFree(pointer);
+	common_heapFree(pointer);
 }
 
 kReturnValue_t tasks_checkStackBounds(kTaskHandle_t task) {
 	kReturnValue_t exitcode = KRESULT_ERR_GENERIC;
 
-    if (task->stackPtr < task->stackBegin || task->stackBegin + task->stackSize < task->stackPtr) {
-        exitcode = KRESULT_SUCCESS;
-    }
+	if (task->stackPtr < task->stackBegin || task->stackBegin + task->stackSize < task->stackPtr) {
+		exitcode = KRESULT_SUCCESS;
+	}
 
 	return exitcode;
 }

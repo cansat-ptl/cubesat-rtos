@@ -82,15 +82,15 @@ void test_task()
 
 int main(void)
 {
-    kernel_init();
+	kernel_init();
 	ipc_fifoInit(&fifo, fifoBuffer, 31, 11, &mutex);
 	test = tasks_createTaskDynamic(100, test_task, NULL, 1, KTASK_NORMAL, "test1");
 	test2 = tasks_createTaskDynamic(100, test_task2, NULL, 1, KTASK_NORMAL, "test2");
 	test3 = tasks_createTaskDynamic(100, test_task3, NULL, 1, KTASK_NORMAL, "test3");
-    while (1)
-    {
+	while (1)
+	{
 		asm volatile("nop"::);
 		//uart_puts("Idling in mah main\r\n");
-    }
+	}
 }
 
