@@ -14,8 +14,6 @@
 #include <rtos/tasks/tasks.h>
 #include <rtos/tasks/sched.h>
 
-kSpinlock_t semaphoreOpLock = 0;
-
 void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 {
 	if (semaphore != NULL) {
@@ -25,6 +23,7 @@ void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 		semaphore->blockedTasks.head = NULL;
 		semaphore->blockedTasks.tail = NULL;
 		semaphore->lockOwner = NULL;
+		semaphore->spinlock = 0;
 	}
 }
 
@@ -32,7 +31,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 {
 	if (semaphore != NULL) {
 		while (1) {
-			arch_spinlockAcquire(&semaphoreOpLock);
+			arch_spinlockAcquire(&semaphore->spinlock);
 
 			if (semaphore->lockCount != 0) {
 				semaphore->lockCount--;
@@ -42,7 +41,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 					semaphore->basePriority = tasks_getTaskPriority(semaphore->lockOwner);
 				}
 
-				arch_spinlockRelease(&semaphoreOpLock);
+				arch_spinlockRelease(&semaphore->spinlock);
 				break;
 			}
 			else {
@@ -55,7 +54,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 				}
 
 				tasks_blockTask(currentTask, (kLinkedList_t*)&(semaphore->blockedTasks));
-				arch_spinlockRelease(&semaphoreOpLock);
+				arch_spinlockRelease(&semaphore->spinlock);
 				tasks_sleep(0);
 			}
 		}
@@ -68,7 +67,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 {
 	if (semaphore != NULL) {
-		arch_spinlockAcquire(&semaphoreOpLock);
+		arch_spinlockAcquire(&semaphore->spinlock);
 
 		kLinkedListItem_t* temp = semaphore->blockedTasks.head;
 
@@ -87,7 +86,7 @@ void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 
 		semaphore->lockCount++;
 
-		arch_spinlockRelease(&semaphoreOpLock);
+		arch_spinlockRelease(&semaphore->spinlock);
 	}
 
 	return;

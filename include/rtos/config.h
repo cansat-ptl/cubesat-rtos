@@ -20,7 +20,7 @@
 	#define CFG_STACK_SAFETY_MARGIN 16
 	#define CFG_KERNEL_RESERVED_MEMORY 100
 	#define CFG_KERNEL_IDLE_TASK_MEMORY 100
-	#define CFG_STACK_GROWTH_DIRECTION 0 /* 0 - towards lower addresses, 1 - towards higher */
+	#define CFG_STACK_GROWTH_DIRECTION -1 /* -1 - towards lower addresses, 1 - towards higher */
 
 	#define CFG_PROTECT_FROM_INVALID_HEAP_FREE 1
 

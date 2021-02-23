@@ -28,7 +28,6 @@ void idle0()
 	}
 }
 
-
 kReturnValue_t tasks_init()
 {
 	common_heapInit();
@@ -41,12 +40,8 @@ kReturnValue_t tasks_init()
 
 	tasks_initScheduler(idleTask);
 
-	return 0;
+	return 0; /* TODO: remove return */
 }
-
-/*----------------------------------------------------------------------------------*/
-/*                             Task creation & deletion                             */
-/*----------------------------------------------------------------------------------*/
 
 /* TODO: proper architecture-independent structure size calculation */
 kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
@@ -110,7 +105,6 @@ kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (
 	return returnHandle;
 }
 
-
 kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name)
 {
 	if (stackSize < CFG_MIN_TASK_STACK_SIZE) {
@@ -131,7 +125,6 @@ kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), voi
 
 	return returnHandle;
 }
-
 
 void tasks_deleteTaskStatic(kTaskHandle_t task)
 {
@@ -169,7 +162,6 @@ void tasks_deleteTaskStatic(kTaskHandle_t task)
 	}
 }
 
-
 void tasks_deleteTaskDynamic(kTaskHandle_t task)
 {
 	if (task != NULL) {
@@ -179,12 +171,6 @@ void tasks_deleteTaskDynamic(kTaskHandle_t task)
 		}
 	}
 }
-
-/*----------------------------------------------------------------------------------*/
-/*                                  Task fields                                     */
-/*----------------------------------------------------------------------------------*/
-/*----------------------------------- Priority -------------------------------------*/
-/*----------------------------------------------------------------------------------*/
 
 kBaseType_t tasks_getTaskPriority(kTaskHandle_t task) 
 {
@@ -196,7 +182,6 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task)
 
 	return priority;
 }
-
 
 void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
 {
@@ -213,9 +198,6 @@ void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
 	}
 }
 
-/*------------------------------------ State ---------------------------------------*/
-/*----------------------------------------------------------------------------------*/
-
 kTaskState_t tasks_getTaskState(kTaskHandle_t task) 
 {
 	kTaskState_t state = KSTATE_UNINIT;
@@ -226,7 +208,6 @@ kTaskState_t tasks_getTaskState(kTaskHandle_t task)
 
 	return state;
 }
-
 
 void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 {
@@ -240,7 +221,6 @@ void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 	}
 }
 
-
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
 {
     if (task != NULL && blockList != NULL) {
@@ -250,7 +230,6 @@ void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList)
 		}
     }
 }
-
 
 void tasks_unblockTask(kTaskHandle_t task) 
 {

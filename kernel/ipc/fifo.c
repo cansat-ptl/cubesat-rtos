@@ -13,7 +13,7 @@
 #include <string.h> /* TODO: memcpy */
 
 /* TODO: proper architecture-independent structure size calculation */
-void tipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize)
+void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize)
 {
 	if (fifoBuffer != NULL && bufferSize >= itemSize) {
         fifo = (kFIFOHandle_t)fifoBuffer;

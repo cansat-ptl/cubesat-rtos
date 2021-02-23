@@ -22,16 +22,21 @@ struct kLockStruct_t
 	kTaskHandle_t lockOwner;
 
 	kLinkedList_t blockedTasks;
+
+	kSpinlock_t spinlock;
 };
 
 struct kIPCStruct_t
 {
 	void* pointer;
+
 	size_t itemSize;
 	size_t bufferSize;
 	size_t inputPosition;
 	size_t outputPosition;
 	size_t currentPosition;
+
+	kLinkedList_t blockedTasks;
 };
 
 #endif

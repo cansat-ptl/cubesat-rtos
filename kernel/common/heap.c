@@ -12,9 +12,12 @@
 #include <rtos/common/heap.h>
 #include <rtos/common/lists.h>
 
+#define HEAP_SIGNATURE_FIRST16 0x4845
+#define HEAP_SIGNATURE_LAST16 0x4150
+
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
-static const size_t kHeapStructSize	= (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* What the hell is this I shouldn't have copied FreeRTOS code */
+static const size_t kHeapStructSize	= (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* makes sense lol */
 
 static struct kMemoryBlockStruct_t kHeapStart;
 static struct kMemoryBlockStruct_t* kHeapEnd;
@@ -36,15 +39,15 @@ size_t common_getFreeHeapMin()
 
 static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
 {
-	block->magic1 = 0xDEAD;
-	block->magic2 = 0xC0DE;
+	block->magic1 = HEAP_SIGNATURE_FIRST16;
+	block->magic2 = HEAP_SIGNATURE_LAST16;
 }
 
 static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t* block) 
 {
 	uint8_t result = 0;
 
-	if (block->magic1 == 0xDEAD && block->magic2 == 0xC0DE) {
+	if (block->magic1 == HEAP_SIGNATURE_FIRST16 && block->magic2 == HEAP_SIGNATURE_LAST16) {
 		result = 1;
 	}
 
