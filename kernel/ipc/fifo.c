@@ -6,11 +6,11 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/ipc/ipc.h>
-#include <rtos/ipc/fifo.h>
-#include <rtos/ipc/mutex.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/ipc/ipc.h>
+#include <kernel/ipc/fifo.h>
+#include <kernel/ipc/mutex.h>
 #include <string.h> /* TODO: memcpy */
 
 void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)

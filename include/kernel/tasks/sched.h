@@ -9,9 +9,9 @@
 #ifndef KERNEL_SCHEDULER_H_
 #define KERNEL_SCHEDULER_H_
 
-#include <rtos/types.h>
-#include <rtos/common/lists.h>
-#include <rtos/config.h>
+#include <kernel/types.h>
+#include <kernel/common/lists.h>
+#include <kernel/config.h>
 
 struct kSchedCPUStateStruct_t
 {

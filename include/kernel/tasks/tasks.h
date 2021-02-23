@@ -10,8 +10,8 @@
 #define KERNEL_TASKS_H_
 
 #include <stddef.h>
-#include <rtos/types.h>
-#include <rtos/common/lists.h>
+#include <kernel/types.h>
+#include <kernel/common/lists.h>
 
 #define KTASKFLAG_DYNAMIC ((byte)(0x01))
 

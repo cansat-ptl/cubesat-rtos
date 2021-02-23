@@ -9,8 +9,8 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-#include <rtos/rtos.h>
-#include <rtos/arch/arch.h>
+#include <kernel/kernel.h>
+#include <kernel/arch/arch.h>
 #include <string.h>
 
 kTaskHandle_t test;

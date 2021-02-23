@@ -9,9 +9,9 @@
 #ifndef KERNEL_HEAP_H_
 #define KERNEL_HEAP_H_
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/common/lists.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/common/lists.h>
 
 struct kMemoryBlockStruct_t
 {

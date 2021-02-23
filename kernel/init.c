@@ -6,9 +6,9 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/arch/arch.h>
-#include <rtos/tasks/tasks.h>
+#include <kernel/types.h>
+#include <kernel/arch/arch.h>
+#include <kernel/tasks/tasks.h>
 
 void kernel_init()
 {

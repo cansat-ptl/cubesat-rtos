@@ -6,13 +6,13 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/ipc/ipc.h>
-#include <rtos/ipc/semaphore.h>
-#include <rtos/arch/arch.h>
-#include <rtos/tasks/tasks.h>
-#include <rtos/tasks/sched.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/ipc/ipc.h>
+#include <kernel/ipc/semaphore.h>
+#include <kernel/arch/arch.h>
+#include <kernel/tasks/tasks.h>
+#include <kernel/tasks/sched.h>
 
 void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 {

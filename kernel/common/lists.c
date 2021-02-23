@@ -6,8 +6,8 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/common/lists.h>
+#include <kernel/types.h>
+#include <kernel/common/lists.h>
 
 void common_listAddBack(kLinkedList_t* list, kLinkedListItem_t* item)
 {

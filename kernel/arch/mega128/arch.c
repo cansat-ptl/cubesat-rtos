@@ -6,10 +6,10 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/arch/mega128/uart.h>
-#include <rtos/arch/mega128/arch.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/arch/mega128/uart.h>
+#include <kernel/arch/mega128/arch.h>
 
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
 kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-1];

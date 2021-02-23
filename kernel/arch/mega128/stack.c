@@ -6,8 +6,8 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/arch/mega128/stack.h>
+#include <kernel/types.h>
+#include <kernel/arch/mega128/stack.h>
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void* args)
 {

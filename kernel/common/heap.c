@@ -6,11 +6,11 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/arch/arch.h>
-#include <rtos/common/heap.h>
-#include <rtos/common/lists.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/arch/arch.h>
+#include <kernel/common/heap.h>
+#include <kernel/common/lists.h>
 
 #define HEAP_SIGNATURE_FIRST16 0x4845
 #define HEAP_SIGNATURE_LAST16 0x4150

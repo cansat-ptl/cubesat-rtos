@@ -13,7 +13,7 @@
 #include <avr/iom128.h>
 #include <avr/common.h>
 
-#include <rtos/types.h>
+#include <kernel/types.h>
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void* args);
 

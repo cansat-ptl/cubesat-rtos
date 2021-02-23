@@ -9,9 +9,9 @@
 #ifndef KERNEL_LIFO_H_
 #define KERNEL_LIFO_H_
 
-#include <rtos/types.h>
-#include <rtos/ipc/ipc.h>
-#include <rtos/ipc/mutex.h>
+#include <kernel/types.h>
+#include <kernel/ipc/ipc.h>
+#include <kernel/ipc/mutex.h>
 
 typedef volatile struct kIPCStruct_t kLIFO_t;
 typedef volatile struct kIPCStruct_t* kLIFOHandle_t;

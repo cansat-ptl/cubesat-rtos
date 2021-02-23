@@ -6,13 +6,13 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/tasks/tasks.h>
-#include <rtos/tasks/sched.h>
-#include <rtos/common/heap.h>
-#include <rtos/common/lists.h>
-#include <rtos/arch/arch.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/tasks/tasks.h>
+#include <kernel/tasks/sched.h>
+#include <kernel/common/heap.h>
+#include <kernel/common/lists.h>
+#include <kernel/arch/arch.h>
 
 kLinkedList_t kGlobalTaskList;
 

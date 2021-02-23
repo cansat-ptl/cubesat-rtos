@@ -6,11 +6,11 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/config.h>
-#include <rtos/ipc/ipc.h>
-#include <rtos/ipc/mutex.h>
-#include <rtos/ipc/semaphore.h>
+#include <kernel/types.h>
+#include <kernel/config.h>
+#include <kernel/ipc/ipc.h>
+#include <kernel/ipc/mutex.h>
+#include <kernel/ipc/semaphore.h>
 
 void ipc_mutexInit(kMutexHandle_t mutex)
 {

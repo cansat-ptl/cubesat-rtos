@@ -9,8 +9,8 @@
 #ifndef KERNEL_IPC_H_
 #define KERNEL_IPC_H_
 
-#include <rtos/types.h>
-#include <rtos/common/lists.h>
+#include <kernel/types.h>
+#include <kernel/common/lists.h>
 
 struct kLockStruct_t
 {	

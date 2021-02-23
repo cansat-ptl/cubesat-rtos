@@ -6,11 +6,11 @@
  */
 
 
-#include <rtos/types.h>
-#include <rtos/common/heap.h>
-#include <rtos/tasks/tasks.h>
-#include <rtos/tasks/sched.h>
-#include <rtos/arch/arch.h>
+#include <kernel/types.h>
+#include <kernel/common/heap.h>
+#include <kernel/tasks/tasks.h>
+#include <kernel/tasks/sched.h>
+#include <kernel/arch/arch.h>
 
 void* tasks_malloc(size_t size) 
 {

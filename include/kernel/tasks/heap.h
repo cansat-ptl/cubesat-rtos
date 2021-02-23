@@ -9,7 +9,7 @@
 #ifndef KERNEL_TASKHEAP_H_
 #define KERNEL_TASKHEAP_H_
 
-#include <rtos/types.h>
+#include <kernel/types.h>
 
 void* tasks_malloc(size_t size);
 void tasks_free(void* pointer);

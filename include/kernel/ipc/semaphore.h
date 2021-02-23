@@ -9,8 +9,8 @@
 #ifndef KERNEL_SEMAPHORE_H_
 #define KERNEL_SEMAPHORE_H_
 
-#include <rtos/types.h>
-#include <rtos/ipc/ipc.h>
+#include <kernel/types.h>
+#include <kernel/ipc/ipc.h>
 
 typedef volatile struct kLockStruct_t kSemaphore_t;
 typedef volatile struct kLockStruct_t* kSemaphoreHandle_t;

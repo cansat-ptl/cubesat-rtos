@@ -9,8 +9,8 @@
 #ifndef KERNEL_MUTEX_H_
 #define KERNEL_MUTEX_H_
 
-#include <rtos/types.h>
-#include <rtos/ipc/ipc.h>
+#include <kernel/types.h>
+#include <kernel/ipc/ipc.h>
 
 typedef volatile struct kLockStruct_t kMutex_t;
 typedef volatile struct kLockStruct_t* kMutexHandle_t;
