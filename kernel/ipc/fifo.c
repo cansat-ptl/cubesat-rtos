@@ -11,6 +11,7 @@
 #include <kernel/ipc/ipc.h>
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/mutex.h>
+#include <kernel/tasks/sched.h>
 #include <string.h> /* TODO: memcpy */
 
 void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
@@ -126,7 +127,7 @@ size_t ipc_fifoPeek(kFIFOHandle_t fifo, void* output)
 
 size_t ipc_fifoFreeSpace(kFIFOHandle_t fifo)
 {
-	if (fifo->currentPosition >= fifo->bufferSize) /* what */
+	if (fifo->bufferSize - fifo->currentPosition < fifo->itemSize) /* what */
 		return 0;
 	else
 		return 1;

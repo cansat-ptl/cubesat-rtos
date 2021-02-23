@@ -12,6 +12,7 @@
 #include <kernel/ipc/lifo.h>
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/mutex.h>
+#include <kernel/tasks/sched.h>
 #include <string.h> /* TODO: memcpy */
 
 void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)

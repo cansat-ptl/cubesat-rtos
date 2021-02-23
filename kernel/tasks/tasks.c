@@ -16,7 +16,7 @@
 
 kLinkedList_t kGlobalTaskList;
 
-byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY];
+byte kIdleMem[sizeof(struct kTaskStruct_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN];
 
 static kSpinlock_t kTaskOpSpinlock;
 static kPid_t kGlobalPid = 0;
@@ -31,7 +31,7 @@ void idle0()
 kReturnValue_t tasks_init()
 {
 	common_heapInit();
-	kTaskHandle_t idleTask = tasks_createTaskStatic((void*)kIdleMem, CFG_KERNEL_IDLE_TASK_MEMORY, idle0, NULL, 0, KTASK_CRITICAL_STATIC, "idle");
+	kTaskHandle_t idleTask = tasks_createTaskStatic((void*)kIdleMem, (sizeof(struct kTaskStruct_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN), idle0, NULL, 0, KTASK_CRITICAL, "idle");
 
 	if (idleTask == NULL) {
 		/* debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n")); */
@@ -50,20 +50,20 @@ kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (
 
 	arch_spinlockAcquire(&kTaskOpSpinlock);
 
-	if (taskMemory != NULL) {
-		if (entry != NULL) {
+	if (taskMemory != NULL && entry != NULL) {
+		if (memorySize - sizeof(struct kTaskStruct_t) >= CFG_MIN_TASK_STACK_SIZE) {
 			returnHandle = (kTaskHandle_t)taskMemory;
 
 			kStackPtr_t baseStackPtr = taskMemory + sizeof(struct kTaskStruct_t);
 			size_t stackSize = memorySize - sizeof(struct kTaskStruct_t) - 1;
 
-			/* TODO: task memory protection */
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
-				#if CFG_STACK_GROWTH_DIRECTION == 0
-					stackInitialPtr += CFG_STACK_SAFETY_MARGIN;
-					common_prepareProtectionRegion((void*)(stackInitialPtr), CFG_STACK_SAFETY_MARGIN);
+				#if CFG_STACK_GROWTH_DIRECTION == -1
+					arch_prepareProtectionRegion((void*)(baseStackPtr), CFG_STACK_SAFETY_MARGIN);
+					baseStackPtr += CFG_STACK_SAFETY_MARGIN;
+					stackSize -= CFG_STACK_SAFETY_MARGIN;
 				#else
-					common_prepareProtectionRegion((void*)(stackInitialPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
+					arch_prepareProtectionRegion((void*)(baseStackPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
 				#endif
 			#endif
 
@@ -113,20 +113,21 @@ kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), voi
 
 	size_t memorySize = stackSize + sizeof(struct kTaskStruct_t);
 
-	/* TODO: task memory protection */
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
-		allocationSize += CFG_STACK_SAFETY_MARGIN;
+		memorySize += CFG_STACK_SAFETY_MARGIN + 1;
 	#endif
 
 	void* taskMemory = common_heapAlloc(memorySize, NULL);
 	kTaskHandle_t returnHandle = tasks_createTaskStatic(taskMemory, memorySize, entry, args, priority, type, name);
 	
-	returnHandle->flags |= KTASKFLAG_DYNAMIC;
+	if (returnHandle != NULL) {
+		returnHandle->flags |= KTASKFLAG_DYNAMIC;
+	}
 
 	return returnHandle;
 }
 
-void tasks_deleteTaskStatic(kTaskHandle_t task)
+static void tasks_deleteTaskStatic(kTaskHandle_t task)
 {
 	if (task != NULL) {
 		arch_enterCriticalSection();
@@ -136,15 +137,7 @@ void tasks_deleteTaskStatic(kTaskHandle_t task)
 		kLinkedListItem_t* head = task->childTaskList.head;
 
 		while (head != NULL) {
-			if (head->data != NULL) {
-				if (((kTaskHandle_t)(head->data))->flags & KTASKFLAG_DYNAMIC) {
-					tasks_deleteTaskDynamic((kTaskHandle_t)(head->data));
-				}
-				else {
-					tasks_deleteTaskStatic((kTaskHandle_t)(head->data));
-				}
-				
-			}
+			tasks_deleteTask((kTaskHandle_t)(head->data));
 			head = head->next;
 		}
 
@@ -162,7 +155,7 @@ void tasks_deleteTaskStatic(kTaskHandle_t task)
 	}
 }
 
-void tasks_deleteTaskDynamic(kTaskHandle_t task)
+void tasks_deleteTask(kTaskHandle_t task) 
 {
 	if (task != NULL) {
 		tasks_deleteTaskStatic(task);

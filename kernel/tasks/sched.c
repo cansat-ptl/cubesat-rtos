@@ -10,6 +10,7 @@
 #include <kernel/config.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
+#include <kernel/tasks/mem.h>
 #include <kernel/arch/arch.h>
 #include <kernel/common/lists.h>
 
@@ -21,6 +22,11 @@ void tasks_initScheduler(kTaskHandle_t idle)
 	kSchedCPUState.kReadyTaskList[0].tail = &(idle->activeTaskListItem);
 	kSchedCPUState.kNextTask = idle;
 	kSchedCPUState.kCurrentTask = idle;
+}
+
+kTaskHandle_t tasks_getCurrentTask()
+{
+	return kSchedCPUState.kCurrentTask;
 }
 
 void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
@@ -63,11 +69,6 @@ void tasks_unscheduleTask(kTaskHandle_t task)
 	}
 }
 
-kTaskHandle_t tasks_getCurrentTask()
-{
-	return kSchedCPUState.kCurrentTask;
-}
-
 static inline void tasks_tickTasks()
 {
 	kLinkedListItem_t* head = kSchedCPUState.kSleepingTaskList.head;
@@ -98,7 +99,34 @@ static inline void tasks_search()
 	}
 }
 
-static inline void tasks_runScheduler()
+static void tasks_switchContext()
+{
+	#if CFG_MEMORY_PROTECTION_MODE == 1 || CFG_MEMORY_PROTECTION_MODE == 3 
+		if (tasks_checkStackBounds(kSchedCPUState.kCurrentTask) != KRESULT_SUCCESS) {
+			/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
+		}
+	#endif
+
+	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3 
+		#if CFG_STACK_GROWTH_DIRECTION == -1
+			if (arch_checkProtectionRegion((void*)(kSchedCPUState.kCurrentTask->stackBegin), CFG_STACK_SAFETY_MARGIN)) {
+				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
+			}
+		#else
+			if (arch_checkProtectionRegion((void*)(kSchedCPUState.kCurrentTask->stackBegin + kSchedCPUState.kCurrentTask->stackSize), CFG_STACK_SAFETY_MARGIN)) {
+				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
+			}
+		#endif
+	#endif
+
+	if (kSchedCPUState.kNextTask == NULL) {
+		/* kernel_panic(PSTR("Memory access violation in task manager: kNextTask is out of bounds\r\n")); */
+	}
+
+	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;
+}
+
+void tasks_switchTask()
 {
 	if (!kSchedCPUState.kTickRate) {
 		tasks_tickTasks();
@@ -114,18 +142,7 @@ static inline void tasks_runScheduler()
 	if (!kSchedCPUState.kTaskActiveTicks) {
 		tasks_search();
 	}
-	return;
-}
 
-static void tasks_switchContext()
-{
-	/* TODO: task protection checks */
-	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;
-}
-
-void tasks_switchTask()
-{
-	tasks_runScheduler();
 	if (kSchedCPUState.kNextTask != kSchedCPUState.kCurrentTask) tasks_switchContext();
 }
 

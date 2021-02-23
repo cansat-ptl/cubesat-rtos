@@ -15,7 +15,7 @@
 
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
-#include <kernel/tasks/heap.h>
+#include <kernel/tasks/mem.h>
 
 #include <kernel/ipc/ipc.h>
 #include <kernel/ipc/mutex.h>

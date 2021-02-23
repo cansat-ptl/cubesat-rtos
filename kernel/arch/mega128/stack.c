@@ -41,8 +41,8 @@ kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackS
 	*(stackPointer--) = 0x15;							/* R21 */
 	*(stackPointer--) = 0x16;							/* R22 */
 	*(stackPointer--) = 0x17;							/* R23 */
-	*(stackPointer--) = (uint16_t)args & 0xFF;			/* R24, low byte of args pointer */
-	*(stackPointer--) = (uint16_t)args >> 8;			/* R25, high byte of args pointer */
+	*(stackPointer--) = (uint16_t)args & 0xFF;			/* R24, low byte of args pointer */ //-V542
+	*(stackPointer--) = (uint16_t)args >> 8;			/* R25, high byte of args pointer */ //-V542
 	*(stackPointer--) = 0x1A;							/* R26 */
 	*(stackPointer--) = 0x1B;							/* R27 */
 	*(stackPointer--) = 0x1C;							/* R28 */

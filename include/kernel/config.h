@@ -15,8 +15,7 @@
 	#define CFG_MIN_TASK_STACK_SIZE 60
 
 	/* Memory protection settings */
-	#define CFG_MEMORY_PROTECTION_MODE 0
-	#define CFG_ALLOW_STATIC_TASK_ALLOCATION 0
+	#define CFG_MEMORY_PROTECTION_MODE 3 /* 0 - disabled, 1 - check task stack bounds only, 2 - check task stack protection regions only, 3 - check both */
 	#define CFG_STACK_SAFETY_MARGIN 16
 	#define CFG_KERNEL_RESERVED_MEMORY 100
 	#define CFG_KERNEL_IDLE_TASK_MEMORY 100
@@ -24,7 +23,7 @@
 
 	#define CFG_PROTECT_FROM_INVALID_HEAP_FREE 1
 
-	#define CFG_KERNEL_PANIC_ACTION 1
+	#define CFG_KERNEL_PANIC_ACTION 1 /* 0 - restart, 1 - print error details and restart, 2 - print error details and halt */
 
 	/* Memory manager settings */
 	#define CFG_HEAP_SIZE 2000

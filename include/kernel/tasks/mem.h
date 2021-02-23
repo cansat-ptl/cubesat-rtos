@@ -14,4 +14,6 @@
 void* tasks_malloc(size_t size);
 void tasks_free(void* pointer);
 
+kReturnValue_t tasks_checkStackBounds(kTaskHandle_t task);
+
 #endif

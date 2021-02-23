@@ -62,8 +62,7 @@ kBaseType_t tasks_getTaskPriority(kTaskHandle_t task);
 
 kTaskHandle_t tasks_createTaskStatic(void* taskMemory, size_t memorySize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
 kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void* args, kBaseType_t priority, kTaskType_t type, char* name);
-void tasks_deleteTaskStatic(kTaskHandle_t task);
-void tasks_deleteTaskDynamic(kTaskHandle_t task);
+void tasks_deleteTask(kTaskHandle_t task);
 
 void tasks_blockTask(kTaskHandle_t task, kLinkedList_t* blockList);
 void tasks_unblockTask(kTaskHandle_t task);
