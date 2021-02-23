@@ -10,8 +10,7 @@
 #include <rtos/config.h>
 #include <rtos/ipc/ipc.h>
 #include <rtos/ipc/fifo.h>
-#include <rtos/tasks/tasks.h>
-#include <rtos/tasks/sched.h>
+#include <rtos/ipc/mutex.h>
 #include <string.h> /* TODO: memcpy */
 
 void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_t itemSize)
@@ -23,6 +22,7 @@ void ipc_fifoInit(kFIFOHandle_t fifo, void* fifoBuffer, size_t bufferSize, size_
         fifo->inputPosition = 0;
         fifo->outputPosition = 0;
         fifo->currentPosition = 0;
+		ipc_mutexInit(&fifo->mutex);
 	}
 }
 
@@ -31,6 +31,8 @@ size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input)
 	size_t bytesWritten = 0;
 
 	if (fifo != NULL) {
+		ipc_mutexLock(&(fifo->mutex));
+
 		if (ipc_fifoFreeSpace(fifo)) {
 			memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
 
@@ -43,6 +45,24 @@ size_t ipc_fifoWrite(kFIFOHandle_t fifo, void* input)
 			fifo->currentPosition += fifo->itemSize;
 			bytesWritten += fifo->itemSize;
 		}
+
+		ipc_mutexUnlock(&(fifo->mutex));
+	}
+
+	return bytesWritten;
+}
+
+size_t ipc_fifoWriteBlocking(kFIFOHandle_t fifo, void* input)
+{
+	size_t bytesWritten = 0;
+
+	if (fifo != NULL) {
+		while (1) {
+			bytesWritten = ipc_fifoWrite(fifo, input);
+			if (bytesWritten != 0) {
+				break;
+			}
+		}
 	}
 
 	return bytesWritten;
@@ -53,32 +73,36 @@ size_t ipc_fifoRead(kFIFOHandle_t fifo, void* output)
 	size_t bytesRead = 0;
 
 	if (fifo != NULL) {
-		while (1) {
-			if (ipc_fifoAvailable(fifo) != 0) {
-				memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+		ipc_mutexLock(&(fifo->mutex));
 
-				fifo->outputPosition += fifo->itemSize;
+		if (ipc_fifoAvailable(fifo) != 0) {
+			memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
 
-				if (fifo->outputPosition >= fifo->bufferSize) {
-					fifo->outputPosition = 0;
-				}
+			fifo->outputPosition += fifo->itemSize;
 
-				fifo->currentPosition -= fifo->itemSize;
-				bytesRead += fifo->itemSize;
-
-				kLinkedListItem_t* head = fifo->blockedTasks.head;
-
-				while(head != NULL) {
-					tasks_unblockTask((kTaskHandle_t)head->data);
-					head = head->next;
-				}
-
-				break;
+			if (fifo->outputPosition >= fifo->bufferSize) {
+				fifo->outputPosition = 0;
 			}
-			else {
-				kTaskHandle_t currentTask = tasks_getCurrentTask();
-				tasks_blockTask(currentTask, (kLinkedList_t*)&(fifo->blockedTasks));
-				tasks_sleep(0);
+
+			fifo->currentPosition -= fifo->itemSize;
+			bytesRead += fifo->itemSize;
+		}
+
+		ipc_mutexUnlock(&(fifo->mutex));
+	}
+	
+	return bytesRead;
+}
+
+size_t ipc_fifoReadBlocking(kFIFOHandle_t fifo, void* output)
+{
+	size_t bytesRead = 0;
+
+	if (fifo != NULL) {
+		while (1) {
+			bytesRead = ipc_fifoRead(fifo, output);
+			if (bytesRead != 0) {
+				break;
 			}
 		}
 	}

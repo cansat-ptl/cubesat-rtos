@@ -36,7 +36,7 @@ struct kIPCStruct_t
 	size_t outputPosition;
 	size_t currentPosition;
 
-	kLinkedList_t blockedTasks;
+	struct kLockStruct_t mutex;
 };
 
 #endif

@@ -21,7 +21,6 @@ kTaskHandle_t test5;
 kTaskHandle_t test6;
 kTaskHandle_t test7;
 
-kMutex_t mutex;
 kFIFO_t fifo;
 
 byte fifoBuffer[50];
@@ -34,8 +33,6 @@ void test_task3()
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		ipc_mutexLock(&mutex);
-
 		uart_puts("task3: Reading FIFO\r\n");
 
 		while (ipc_fifoAvailable(&fifo)) {
@@ -46,8 +43,6 @@ void test_task3()
 		uart_puts("task3: FIFO contents: ");
 		uart_puts(receiveBuffer);
 		uart_puts("\r\n");
-
-		ipc_mutexUnlock(&mutex);
 
 		receiveBuffer[31] = 0;
 
@@ -63,8 +58,6 @@ void test_task2()
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		ipc_mutexLock(&mutex);
-
 		uart_puts("task2: Reading FIFO\r\n");
 
 		while (ipc_fifoAvailable(&fifo)) {
@@ -76,11 +69,9 @@ void test_task2()
 		uart_puts(receiveBuffer);
 		uart_puts("\r\n");
 
-		ipc_mutexUnlock(&mutex);
-
 		receiveBuffer[31] = 0;
 
-		tasks_sleep(500);
+		tasks_sleep(200);
 	}
 }
 
@@ -90,15 +81,10 @@ void test_task()
 	uart_puts("task1: Start\r\n");
 	while (1)
 	{
-		ipc_mutexLock(&mutex);
-
 		uart_puts("task1: Writing FIFO\r\n");
 		for (int i = 0; i < strlen((char*)asd); i++) {
 			ipc_fifoWrite(&fifo, (void*)(&(asd[i])));
 		}
-
-		ipc_mutexUnlock(&mutex);
-
 		tasks_sleep(50);
 	}
 }
@@ -106,7 +92,6 @@ void test_task()
 int main(void)
 {
     kernel_init();
-	ipc_mutexInit(&mutex);
 	ipc_fifoInit(&fifo, fifoBuffer, 31, 1);
 	test = tasks_createTaskDynamic(100, test_task, NULL, 1, KTASK_NORMAL, "test1");
 	test2 = tasks_createTaskDynamic(100, test_task2, NULL, 1, KTASK_NORMAL, "test2");
