@@ -22,7 +22,7 @@ void arch_platformInit()
 	arch_ENABLE_INTERRUPTS();
 }
 
-void arch_spinlockAcquire(kSpinlock_t* spinlock)
+void arch_spinlockAcquire(kSpinlock_t *spinlock)
 {
 	while(1) {
 		asm volatile("": : :"memory");
@@ -38,7 +38,7 @@ void arch_spinlockAcquire(kSpinlock_t* spinlock)
 	}
 }
 
-void arch_spinlockRelease(kSpinlock_t* spinlock)
+void arch_spinlockRelease(kSpinlock_t *spinlock)
 {
 	arch_enterCriticalSection();
 	*spinlock = 0;

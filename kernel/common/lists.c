@@ -9,7 +9,7 @@
 #include <kernel/types.h>
 #include <kernel/common/lists.h>
 
-void common_listAddBack(kLinkedList_t* list, kLinkedListItem_t* item)
+void common_listAddBack(kLinkedList_t *list, kLinkedListItem_t *item)
 {
 	if (list != NULL && item != NULL) {
 		item->next = NULL;
@@ -30,12 +30,12 @@ void common_listAddBack(kLinkedList_t* list, kLinkedListItem_t* item)
 	return;
 }
 
-void common_listDropBack(kLinkedList_t* list)
-{
+void common_listDropBack(kLinkedList_t *list)
+{	
+	kLinkedListItem_t *next = NULL;
+
 	if (list != NULL) {
 		if (list->tail != NULL) {
-			kLinkedListItem_t* next;
-
 			next = list->tail;
 			list->tail = list->tail->prev;
 
@@ -53,7 +53,7 @@ void common_listDropBack(kLinkedList_t* list)
 	return;
 }
 
-void common_listAddFront(kLinkedList_t* list, kLinkedListItem_t* item)
+void common_listAddFront(kLinkedList_t *list, kLinkedListItem_t *item)
 {
 	if (list != NULL && item != NULL) {
 		item->next = list->head;
@@ -74,12 +74,12 @@ void common_listAddFront(kLinkedList_t* list, kLinkedListItem_t* item)
 	return;
 }
 
-void common_listDropFront(kLinkedList_t* list)
-{
+void common_listDropFront(kLinkedList_t *list)
+{	
+	kLinkedListItem_t *prev = NULL;
+
 	if (list != NULL) {
 		if (list->head != NULL) {
-			kLinkedListItem_t* prev;
-
 			prev = list->head;
 			list->head = list->head->next;
 
@@ -97,7 +97,7 @@ void common_listDropFront(kLinkedList_t* list)
 	return;
 }
 
-void common_listDeleteAny(kLinkedList_t* list, kLinkedListItem_t* item)
+void common_listDeleteAny(kLinkedList_t *list, kLinkedListItem_t *item)
 {
 	if (list != NULL && item != NULL) {
 		if (list->head == item) {

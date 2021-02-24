@@ -17,15 +17,15 @@
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
-static const size_t kHeapStructSize	= (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* makes sense lol */
+static const size_t kHeapStructSize = (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* makes sense lol */
 
 static struct kMemoryBlockStruct_t kHeapStart;
-static struct kMemoryBlockStruct_t* kHeapEnd;
+static struct kMemoryBlockStruct_t *kHeapEnd;
 
 static size_t kFreeMemory = 0;
 static size_t kMinimumFreeMemory = 0;
 
-kReturnValue_t common_heapPointerSanityCheck(void* pointer);
+kReturnValue_t common_heapPointerSanityCheck(void *pointer);
 
 size_t common_getFreeHeap()
 {
@@ -37,13 +37,13 @@ size_t common_getFreeHeapMin()
 	return kMinimumFreeMemory;
 }
 
-static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t* block) 
+static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t *block) 
 {
 	block->magic1 = HEAP_SIGNATURE_FIRST16;
 	block->magic2 = HEAP_SIGNATURE_LAST16;
 }
 
-static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t* block) 
+static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t *block) 
 {
 	uint8_t result = 0;
 
@@ -56,8 +56,8 @@ static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t* block)
 
 void common_heapInit()
 {
-	struct kMemoryBlockStruct_t* firstFreeBlock;
-	byte* heapAligned;
+	struct kMemoryBlockStruct_t *firstFreeBlock;
+	byte *heapAligned;
 	size_t heapAddress;
 	size_t heapSize = CFG_HEAP_SIZE;
 
@@ -69,9 +69,9 @@ void common_heapInit()
 		heapSize -= heapAddress - (size_t)kHeapRegion;
 	}
 
-	heapAligned = (byte*)heapAddress;
+	heapAligned = (byte *)heapAddress;
 
-	kHeapStart.next = (void*)heapAligned;
+	kHeapStart.next = (void *)heapAligned;
 	kHeapStart.blockSize = (size_t)0;
 	kHeapStart.state = 0;
 
@@ -79,12 +79,12 @@ void common_heapInit()
 	heapAddress -= kHeapStructSize;
 	heapAddress &= ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK);
 
-	kHeapEnd = (void*)heapAddress;
+	kHeapEnd = (void *)heapAddress;
 	kHeapEnd->blockSize = 0;
 	kHeapEnd->next = NULL;
 	kHeapEnd->state = 0;
 
-	firstFreeBlock = (void*)heapAligned;
+	firstFreeBlock = (void *)heapAligned;
 	firstFreeBlock->blockSize = heapAddress - (size_t)firstFreeBlock;
 	firstFreeBlock->next = kHeapEnd;
 	firstFreeBlock->state = 0;
@@ -97,23 +97,23 @@ void common_heapInit()
 	kFreeMemory = firstFreeBlock->blockSize;
 }
 
-static void common_insertFreeBlock(struct kMemoryBlockStruct_t* blockToInsert)
+static void common_insertFreeBlock(struct kMemoryBlockStruct_t *blockToInsert)
 {
-	struct kMemoryBlockStruct_t* blockIterator;
-	byte* pointer_casted;
+	struct kMemoryBlockStruct_t *blockIterator;
+	byte *pointer_casted;
 
 	for (blockIterator = &kHeapStart; blockIterator->next < blockToInsert; blockIterator = blockIterator->next) {;}
 
-	pointer_casted = (byte*)blockIterator;
+	pointer_casted = (byte *)blockIterator;
 
-	if ((pointer_casted + blockIterator->blockSize) == (byte*)blockToInsert) {
+	if ((pointer_casted + blockIterator->blockSize) == (byte *)blockToInsert) {
 		blockIterator->blockSize += blockToInsert->blockSize;
 		blockToInsert = blockIterator;
 	}
 
-	pointer_casted = (byte*)blockToInsert;
+	pointer_casted = (byte *)blockToInsert;
 
-	if ((pointer_casted + blockToInsert->blockSize) == (byte*)blockIterator->next) {
+	if ((pointer_casted + blockToInsert->blockSize) == (byte *)blockIterator->next) {
 		if (blockIterator->next != kHeapEnd) {
 			blockToInsert->blockSize += blockIterator->next->blockSize;
 			blockToInsert->next = blockIterator->next->next;
@@ -133,10 +133,12 @@ static void common_insertFreeBlock(struct kMemoryBlockStruct_t* blockToInsert)
 	return;
 }
 
-void* common_heapAlloc(size_t size, kLinkedList_t* allocList)
+void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 {
-	void* returnAddress = NULL;
-	struct kMemoryBlockStruct_t *block, *newBlock, *previousBlock;
+	void *returnAddress = NULL;
+	struct kMemoryBlockStruct_t *block;
+	struct kMemoryBlockStruct_t *newBlock;
+	struct kMemoryBlockStruct_t *previousBlock;
 
 	arch_enterCriticalSection();
 
@@ -156,12 +158,12 @@ void* common_heapAlloc(size_t size, kLinkedList_t* allocList)
 		}
 
 		if (block != kHeapEnd) {
-			returnAddress = (void*)(((byte*)previousBlock->next) + kHeapStructSize);
+			returnAddress = (void *)(((byte *)previousBlock->next) + kHeapStructSize);
 
 			previousBlock->next = block->next;
 
 			if ((block->blockSize - size) > CFG_MIN_BLOCK_SIZE) {
-				newBlock = (void*)(((byte*)block) + size);
+				newBlock = (void *)(((byte *)block) + size);
 
 				newBlock->blockSize = block->blockSize - size;
 				block->blockSize = size;
@@ -196,17 +198,17 @@ void* common_heapAlloc(size_t size, kLinkedList_t* allocList)
 	return returnAddress;
 }
 
-void common_heapFree(void* pointer)
+void common_heapFree(void *pointer)
 {
-	byte* pointer_casted = (byte*)pointer;
-	struct kMemoryBlockStruct_t* block;
+	byte *pointer_casted = (byte *)pointer;
+	struct kMemoryBlockStruct_t *block;
 
 	arch_enterCriticalSection();
 
 	if (common_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
 		pointer_casted -= kHeapStructSize;
 
-		block = (void*)pointer_casted;
+		block = (void *)pointer_casted;
 
 		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 /* TODO: fix weird #if */
 		if (common_checkBlockValid(block)) {
@@ -223,7 +225,7 @@ void common_heapFree(void* pointer)
 					}
 					block->state = 0;
 					kFreeMemory += block->blockSize;
-					common_insertFreeBlock((struct kMemoryBlockStruct_t*)block);
+					common_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
 				}
 			}
 
@@ -236,7 +238,7 @@ void common_heapFree(void* pointer)
 	return;
 }
 
-void common_heapFreeSafe(void** pointer)
+void common_heapFreeSafe(void **pointer)
 {
 	arch_enterCriticalSection();
 
@@ -247,12 +249,13 @@ void common_heapFreeSafe(void** pointer)
 	return;
 }
 
-kReturnValue_t common_heapPointerSanityCheck(void* pointer)
+kReturnValue_t common_heapPointerSanityCheck(void *pointer)
 {
 	kReturnValue_t exitcode = KRESULT_ERR_MEMORY_VIOLATION;
+
 	if (pointer != NULL) {
-		if (pointer >= (void*)kHeapRegion) {
-			if (pointer <= (void*)(kHeapRegion + CFG_HEAP_SIZE-1)) {
+		if (pointer >= (void *)kHeapRegion) {
+			if (pointer <= (void *)(kHeapRegion + CFG_HEAP_SIZE-1)) {
 				exitcode = KRESULT_SUCCESS;
 			}
 		}

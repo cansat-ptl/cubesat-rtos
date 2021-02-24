@@ -37,20 +37,20 @@ void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
 		common_listDeleteAny(task->activeTaskListItem.list, &(task->activeTaskListItem));
 
 		switch (state) {
-			case KSTATE_SUSPENDED:
-				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kSuspendedTaskList, &(task->activeTaskListItem));
+		case KSTATE_SUSPENDED:
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kSuspendedTaskList, &(task->activeTaskListItem));
 			break;
-			case KSTATE_SLEEPING:
-				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kSleepingTaskList, &(task->activeTaskListItem));
+		case KSTATE_SLEEPING:
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kSleepingTaskList, &(task->activeTaskListItem));
 			break;
-			case KSTATE_READY:
-				common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
+		case KSTATE_READY:
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
-			case KSTATE_UNINIT:
-				/* Do nothing */
+		case KSTATE_UNINIT:
+			/* Do nothing */
 			break;
-			default:
-				/* Do nothing */
+		default:
+			/* Do nothing */
 			break;
 		}
 
@@ -71,7 +71,7 @@ void tasks_unscheduleTask(kTaskHandle_t task)
 
 static inline void tasks_tickTasks()
 {
-	kLinkedListItem_t* head = kSchedCPUState.kSleepingTaskList.head;
+	kLinkedListItem_t *head = kSchedCPUState.kSleepingTaskList.head;
 
 	while (head != NULL) {
 		if (((kTaskHandle_t)(head->data))->sleepTime) {
@@ -86,27 +86,31 @@ static inline void tasks_tickTasks()
 
 static inline void tasks_search()
 {
+	kLinkedListItem_t *head = NULL;
+
 	for (kIterator_t i = CFG_NUMBER_OF_PRIORITIES-1; i >= 0; i--) {
-		kLinkedListItem_t* head = kSchedCPUState.kReadyTaskList[i].head;
+		head = kSchedCPUState.kReadyTaskList[i].head;
 		if (head != NULL) {
 			kSchedCPUState.kNextTask = (kTaskHandle_t)head->data;
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
-			common_listDropFront((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i]);
-			common_listAddBack((kLinkedList_t*)&kSchedCPUState.kReadyTaskList[i], head);
+			common_listDropFront((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[i]);
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[i], head);
 			break;
 		}
 	}
 }
 
 static void tasks_switchContext()
-{
+{	
+	/* TODO: remove these conditions */
 	#if CFG_MEMORY_PROTECTION_MODE == 1 || CFG_MEMORY_PROTECTION_MODE == 3 
 		if (tasks_checkStackBounds(kSchedCPUState.kCurrentTask) != KRESULT_SUCCESS) {
 			/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
 		}
 	#endif
 
+	/* TODO: remove these conditions */
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3 
 		#if CFG_STACK_GROWTH_DIRECTION == -1
 			if (arch_checkProtectionRegion((void*)(kSchedCPUState.kCurrentTask->stackBegin), CFG_STACK_SAFETY_MARGIN)) {

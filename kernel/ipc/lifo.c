@@ -15,12 +15,12 @@
 #include <kernel/tasks/sched.h>
 #include <string.h> /* TODO: memcpy */
 
-void ipc_lifoInit(kLIFOHandle_t lifo, void* lifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
+void ipc_lifoInit(kLIFOHandle_t lifo, void *lifoBuffer, size_t bufferSize, size_t itemSize, kMutexHandle_t mutex)
 {
 	ipc_fifoInit((kFIFOHandle_t)lifo, lifoBuffer, bufferSize, itemSize, mutex);
 }
 
-size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
+size_t ipc_lifoWrite(kLIFOHandle_t lifo, void *input)
 {
 	size_t bytesWritten = 0;
 
@@ -40,7 +40,7 @@ size_t ipc_lifoWrite(kLIFOHandle_t lifo, void* input)
 	return bytesWritten;
 }
 
-size_t ipc_lifoWriteBlocking(kLIFOHandle_t lifo, void* input)
+size_t ipc_lifoWriteBlocking(kLIFOHandle_t lifo, void *input)
 {
 	size_t bytesWritten = 0;
 
@@ -56,7 +56,7 @@ size_t ipc_lifoWriteBlocking(kLIFOHandle_t lifo, void* input)
 	return bytesWritten;
 }
 
-size_t ipc_lifoRead(kLIFOHandle_t lifo, void* output)
+size_t ipc_lifoRead(kLIFOHandle_t lifo, void *output)
 {
 	size_t bytesRead = 0;
 
@@ -76,7 +76,7 @@ size_t ipc_lifoRead(kLIFOHandle_t lifo, void* output)
 	return bytesRead;
 }
 
-size_t ipc_lifoReadBlocking(kLIFOHandle_t lifo, void* output)
+size_t ipc_lifoReadBlocking(kLIFOHandle_t lifo, void *output)
 {
 	size_t bytesRead = 0;
 
@@ -92,7 +92,7 @@ size_t ipc_lifoReadBlocking(kLIFOHandle_t lifo, void* output)
 	return bytesRead;
 }
 
-size_t ipc_lifoPeek(kLIFOHandle_t lifo, void* output)
+size_t ipc_lifoPeek(kLIFOHandle_t lifo, void *output)
 {
 	size_t bytesRead = 0;
 
@@ -108,10 +108,12 @@ size_t ipc_lifoPeek(kLIFOHandle_t lifo, void* output)
 
 size_t ipc_lifoFreeSpace(kLIFOHandle_t lifo)
 {
-	if (lifo->bufferSize - lifo->currentPosition >= lifo->itemSize)
+	if (lifo->bufferSize - lifo->currentPosition >= lifo->itemSize) {
 		return lifo->bufferSize - lifo->currentPosition;
-	else
+	}
+	else {
 		return 0;
+	}
 }
 
 size_t ipc_lifoAvailable(kLIFOHandle_t lifo)

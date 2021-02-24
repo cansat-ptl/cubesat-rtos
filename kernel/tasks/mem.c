@@ -13,10 +13,10 @@
 #include <kernel/tasks/sched.h>
 #include <kernel/arch/arch.h>
 
-void* tasks_malloc(size_t size) 
+void *tasks_malloc(size_t size) 
 {
 	kTaskHandle_t currentTask = tasks_getCurrentTask();
-	kLinkedList_t* allocList = NULL;
+	kLinkedList_t *allocList = NULL;
 
 	if (currentTask != NULL) {
 		allocList = &(currentTask->allocList);
@@ -25,7 +25,7 @@ void* tasks_malloc(size_t size)
 	return common_heapAlloc(size, allocList);
 }
 
-void tasks_free(void* pointer) 
+void tasks_free(void *pointer) 
 {
 	common_heapFree(pointer);
 }

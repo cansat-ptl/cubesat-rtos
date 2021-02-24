@@ -44,7 +44,6 @@ void test_task3()
 		uart_puts(receiveBuffer);
 		uart_puts("\r\n");
 
-		tasks_sleep(1);
 	}
 }
 
@@ -63,8 +62,6 @@ void test_task2()
 		uart_puts("task2: FIFO contents: ");
 		uart_puts(receiveBuffer);
 		uart_puts("\r\n");
-
-		tasks_sleep(2);
 	}
 }
 
@@ -76,7 +73,6 @@ void test_task()
 	{
 		uart_puts("task1: Writing FIFO\r\n");
 		ipc_fifoWriteBlocking(&fifo, (void*)asd);
-		_delay_ms(5);
 	}
 }
 

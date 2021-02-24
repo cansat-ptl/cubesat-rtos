@@ -28,7 +28,9 @@ void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 }
 
 void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
-{
+{	
+	kTaskHandle_t currentTask = NULL;
+
 	if (semaphore != NULL) {
 		while (1) {
 			arch_spinlockAcquire(&semaphore->spinlock);
@@ -45,7 +47,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 				break;
 			}
 			else {
-				kTaskHandle_t currentTask = tasks_getCurrentTask();
+				currentTask = tasks_getCurrentTask();
 
 				if (semaphore->type == KLOCK_MUTEX) {
 					if (tasks_getTaskPriority(semaphore->lockOwner) < tasks_getTaskPriority(currentTask)) {
@@ -53,7 +55,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 					}
 				}
 
-				tasks_blockTask(currentTask, (kLinkedList_t*)&(semaphore->blockedTasks));
+				tasks_blockTask(currentTask, (kLinkedList_t *)&(semaphore->blockedTasks));
 				arch_spinlockRelease(&semaphore->spinlock);
 				tasks_sleep(0);
 			}
@@ -65,11 +67,13 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 
 /* TODO: lock tracking */
 void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
-{
+{	
+	kLinkedListItem_t *head = NULL;
+	
 	if (semaphore != NULL) {
 		arch_spinlockAcquire(&semaphore->spinlock);
 
-		kLinkedListItem_t* temp = semaphore->blockedTasks.head;
+		head = semaphore->blockedTasks.head;
 
 		if (semaphore->type == KLOCK_MUTEX) {
 			if (tasks_getTaskPriority(semaphore->lockOwner) != semaphore->basePriority) {
@@ -79,9 +83,9 @@ void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 			}
 		}
 
-		while(temp != NULL) {
-			tasks_unblockTask((kTaskHandle_t)temp->data);
-			temp = temp->next;
+		while(head != NULL) {
+			tasks_unblockTask((kTaskHandle_t)head->data);
+			head = head->next;
 		}
 
 		semaphore->lockCount++;
