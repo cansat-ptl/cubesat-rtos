@@ -4,6 +4,6 @@
 # include <stdarg.h>
 # include <string.h>
 
-int		debug_printk(char *format, ...);
+int debug_printk(char *format, ...);
 
 #endif

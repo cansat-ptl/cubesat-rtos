@@ -1,10 +1,9 @@
-#include "string.h"
+#include <string.h>
 
-int		common_strlen(char *str)
+int common_strlen(char *str)
 {
-	int ret;
+	int ret = 0;
 
-	ret = 0;
 	while (*str)
 	{
 		ret++;
@@ -13,9 +12,11 @@ int		common_strlen(char *str)
 	return (ret);
 }
 
-int		common_isdigit(char c)
+int common_isdigit(char c)
 {
 	if (c >= '0' && c <= '9')
+	{
 		return (1);
+	}
 	return (0);
 }
