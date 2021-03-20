@@ -15,7 +15,7 @@
 
 void *tasks_malloc(size_t size) 
 {
-	kTaskHandle_t currentTask = tasks_getCurrentTask();
+	kTask_t *currentTask = tasks_getCurrentTask();
 	kLinkedList_t *allocList = NULL;
 
 	if (currentTask != NULL) {
@@ -30,7 +30,7 @@ void tasks_free(void *pointer)
 	common_heapFree(pointer);
 }
 
-kReturnValue_t tasks_checkStackBounds(kTaskHandle_t task) {
+kReturnValue_t tasks_checkStackBounds(kTask_t *task) {
 	kReturnValue_t exitcode = KRESULT_ERR_GENERIC;
 
 	if (task->stackPtr < task->stackBegin || task->stackBegin + task->stackSize < task->stackPtr) {

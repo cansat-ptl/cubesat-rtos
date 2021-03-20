@@ -12,18 +12,18 @@
 #include <kernel/ipc/mutex.h>
 #include <kernel/ipc/semaphore.h>
 
-void ipc_mutexInit(kMutexHandle_t mutex)
+void ipc_mutexInit(kMutex_t *mutex)
 {
 	ipc_semaphoreInit(mutex, 1);
 	mutex->type = KLOCK_MUTEX;
 }
 
-void ipc_mutexLock(kMutexHandle_t mutex)
+void ipc_mutexLock(kMutex_t *mutex)
 {
 	ipc_semaphoreWait(mutex);
 }
 
-void ipc_mutexUnlock(kMutexHandle_t mutex)
+void ipc_mutexUnlock(kMutex_t *mutex)
 {
 	ipc_semaphoreSignal(mutex);
 }

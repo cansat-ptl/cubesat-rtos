@@ -13,10 +13,9 @@
 #include <kernel/ipc/ipc.h>
 
 typedef volatile struct kLockStruct_t kSemaphore_t;
-typedef volatile struct kLockStruct_t* kSemaphoreHandle_t;
 
-void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount);
-void ipc_semaphoreWait(kSemaphoreHandle_t semaphore);
-void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore);
+void ipc_semaphoreInit(kSemaphore_t *semaphore, kBaseType_t resourceAmount);
+void ipc_semaphoreWait(kSemaphore_t *semaphore);
+void ipc_semaphoreSignal(kSemaphore_t *semaphore);
 
 #endif

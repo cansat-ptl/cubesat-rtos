@@ -15,7 +15,7 @@
 
 struct kMemoryBlockStruct_t
 {
-	struct kMemoryBlockStruct_t* next;
+	struct kMemoryBlockStruct_t *next;
 
 	size_t blockSize;
 	kBaseType_t state;
@@ -31,8 +31,8 @@ struct kMemoryBlockStruct_t
 
 void common_heapInit();
 
-void* common_heapAlloc(size_t size, kLinkedList_t* allocList);
-void common_heapFree(void* pointer);
+void* common_heapAlloc(size_t size, kLinkedList_t *allocList);
+void common_heapFree(void *pointer);
 
 size_t common_getFreeHeap();
 size_t common_getFreeHeapMin();

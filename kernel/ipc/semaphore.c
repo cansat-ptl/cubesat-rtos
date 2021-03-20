@@ -14,7 +14,7 @@
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
 
-void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
+void ipc_semaphoreInit(kSemaphore_t *semaphore, kBaseType_t resourceAmount)
 {
 	if (semaphore != NULL) {
 		semaphore->type = KLOCK_SEMAPHORE;
@@ -27,9 +27,9 @@ void ipc_semaphoreInit(kSemaphoreHandle_t semaphore, kBaseType_t resourceAmount)
 	}
 }
 
-void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
+void ipc_semaphoreWait(kSemaphore_t *semaphore)
 {	
-	kTaskHandle_t currentTask = NULL;
+	kTask_t *currentTask = NULL;
 
 	if (semaphore != NULL) {
 		while (1) {
@@ -66,7 +66,7 @@ void ipc_semaphoreWait(kSemaphoreHandle_t semaphore)
 }
 
 /* TODO: lock tracking */
-void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
+void ipc_semaphoreSignal(kSemaphore_t *semaphore)
 {	
 	kLinkedListItem_t *head = NULL;
 	
@@ -84,7 +84,7 @@ void ipc_semaphoreSignal(kSemaphoreHandle_t semaphore)
 		}
 
 		while(head != NULL) {
-			tasks_unblockTask((kTaskHandle_t)head->data);
+			tasks_unblockTask((kTask_t *)head->data);
 			head = head->next;
 		}
 

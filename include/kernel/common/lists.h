@@ -17,24 +17,24 @@ typedef struct kLinkedListItemStruct_t kLinkedListItem_t;
 
 struct kLinkedListStruct_t
 {
-	kLinkedListItem_t* head;
-	kLinkedListItem_t* tail;
+	kLinkedListItem_t *head;
+	kLinkedListItem_t *tail;
 };
 
 struct kLinkedListItemStruct_t
 {
-	kLinkedList_t* list;
-	kLinkedListItem_t* next;
-	kLinkedListItem_t* prev;
-	void* data;
+	kLinkedList_t *list;
+	kLinkedListItem_t *next;
+	kLinkedListItem_t *prev;
+	void *data;
 };
 
 #define common_LISTITEM_STRUCT_SIZE (sizeof(kLinkedListItem_t))
 
-void common_listAddBack(kLinkedList_t* list, kLinkedListItem_t* item);
-void common_listAddFront(kLinkedList_t* list, kLinkedListItem_t* item);
-void common_listDropBack(kLinkedList_t* list);
-void common_listDropFront(kLinkedList_t* list);
-void common_listDeleteAny(kLinkedList_t* list, kLinkedListItem_t* item);
+void common_listAddBack(kLinkedList_t *list, kLinkedListItem_t *item);
+void common_listAddFront(kLinkedList_t *list, kLinkedListItem_t *item);
+void common_listDropBack(kLinkedList_t *list);
+void common_listDropFront(kLinkedList_t *list);
+void common_listDeleteAny(kLinkedList_t *list, kLinkedListItem_t *item);
 
 #endif

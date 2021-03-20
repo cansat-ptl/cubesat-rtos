@@ -13,13 +13,13 @@
 #include <kernel/arch/arch.h>
 #include <string.h>
 
-kTaskHandle_t test;
-kTaskHandle_t test2;
-kTaskHandle_t test3;
-kTaskHandle_t test4;
-kTaskHandle_t test5;
-kTaskHandle_t test6;
-kTaskHandle_t test7;
+kTask_t *test;
+kTask_t *test2;
+kTask_t *test3;
+kTask_t *test4;
+kTask_t *test5;
+kTask_t *test6;
+kTask_t *test7;
 
 kFIFO_t fifo;
 kMutex_t mutex;

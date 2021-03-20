@@ -15,8 +15,8 @@
 
 struct kSchedCPUStateStruct_t
 {
-	kTaskHandle_t kCurrentTask;
-	kTaskHandle_t kNextTask;
+	kTask_t *kCurrentTask;
+	kTask_t *kNextTask;
 
 	kBaseType_t kTickRate;
 	kTaskTicks_t kTaskActiveTicks;
@@ -26,12 +26,12 @@ struct kSchedCPUStateStruct_t
 	kLinkedList_t kSuspendedTaskList;
 };
 
-void tasks_initScheduler(kTaskHandle_t idle);
+void tasks_initScheduler(kTask_t *idle);
 
-void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state);
-void tasks_unscheduleTask(kTaskHandle_t task);
+void tasks_scheduleTask(kTask_t *task, kTaskState_t state);
+void tasks_unscheduleTask(kTask_t *task);
 
-kTaskHandle_t tasks_getCurrentTask();
+kTask_t *tasks_getCurrentTask();
 
 void tasks_sleep(kTaskTicks_t sleep);
 

@@ -46,7 +46,7 @@ void arch_stopSystickTimer();
 
 void arch_platformInit();
 
-void arch_spinlockAcquire(kSpinlock_t* spinlock);
-void arch_spinlockRelease(kSpinlock_t* spinlock);
+void arch_spinlockAcquire(kSpinlock_t *spinlock);
+void arch_spinlockRelease(kSpinlock_t *spinlock);
 
 #endif

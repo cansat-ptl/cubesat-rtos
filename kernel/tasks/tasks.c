@@ -18,7 +18,6 @@ kLinkedList_t kGlobalTaskList;
 
 byte kIdleMem[sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN];
 
-static kSpinlock_t kTaskOpSpinlock;
 static kPid_t kGlobalPid = 0;
 
 void idle0() 
@@ -28,9 +27,9 @@ void idle0()
 	}
 }
 
-kReturnValue_t tasks_init()
+void tasks_init()
 {	
-	kTaskHandle_t idleTask = NULL;
+	kTask_t *idleTask = NULL;
 
 	common_heapInit();
 
@@ -40,23 +39,21 @@ kReturnValue_t tasks_init()
 		while(1);
 	}
 	tasks_initScheduler(idleTask);
-
-	return 0; /* TODO: remove return */
 }
 
 /* TODO: proper architecture-independent structure size calculation */
-kTaskHandle_t tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
+kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
 {
-	kTaskHandle_t returnHandle = NULL;
-	kTaskHandle_t currentTask = NULL;
-	kStackPtr_t baseStackPtr = NULL;
+	kTask_t *returnHandle = NULL;
+	kTask_t *currentTask = NULL;
+	kTask_t *baseStackPtr = NULL;
 	size_t stackSize = 0;
-
-	arch_spinlockAcquire(&kTaskOpSpinlock);
 
 	if (taskMemory != NULL && entry != NULL) {
 		if (memorySize - sizeof(kTask_t) >= CFG_MIN_TASK_STACK_SIZE) {
-			returnHandle = (kTaskHandle_t)taskMemory;
+			arch_enterCriticalSection();
+
+			returnHandle = (kTask_t *)taskMemory;
 
 			baseStackPtr = taskMemory + sizeof(kTask_t);
 			stackSize = memorySize - sizeof(kTask_t) - 1;
@@ -66,11 +63,12 @@ kTaskHandle_t tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (
 				#if CFG_STACK_GROWTH_DIRECTION == -1
 					arch_prepareProtectionRegion((void *)(baseStackPtr), CFG_STACK_SAFETY_MARGIN);
 					baseStackPtr += CFG_STACK_SAFETY_MARGIN;
-					stackSize -= CFG_STACK_SAFETY_MARGIN;
 				#else
 					arch_prepareProtectionRegion((void *)(baseStackPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
 				#endif
 			#endif
+
+			stackSize -= CFG_STACK_SAFETY_MARGIN;
 
 			returnHandle->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
 			returnHandle->stackBegin = baseStackPtr;
@@ -78,7 +76,7 @@ kTaskHandle_t tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (
 			returnHandle->entry = entry;
 			returnHandle->args = args;
 			returnHandle->type = type;
-			returnHandle->pid = kGlobalPid;
+			returnHandle->pid = kGlobalPid++;
 			returnHandle->name = name;
 
 			returnHandle->activeTaskListItem.data = (void *)returnHandle;
@@ -99,22 +97,22 @@ kTaskHandle_t tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (
 				common_listAddBack(&(currentTask->childTaskList), &(returnHandle->childTaskListItem));
 			}
 
-			kGlobalPid++;
-
 			tasks_setTaskState(returnHandle, KSTATE_READY);
+
+			arch_exitCriticalSection();
 		}
 	}
-
-	arch_spinlockRelease(&kTaskOpSpinlock);
 
 	return returnHandle;
 }
 
-kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
+kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
 {	
-	kTaskHandle_t returnHandle = NULL;
+	kTask_t *returnHandle = NULL;
 	void *taskMemory = NULL;
 	size_t memorySize = 0;
+
+	arch_enterCriticalSection();
 
 	if (stackSize < CFG_MIN_TASK_STACK_SIZE) {
 		stackSize = CFG_MIN_TASK_STACK_SIZE;
@@ -133,10 +131,12 @@ kTaskHandle_t tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), voi
 		returnHandle->flags |= KTASKFLAG_DYNAMIC;
 	}
 
+	arch_exitCriticalSection();
+
 	return returnHandle;
 }
 
-static void tasks_deleteTaskStatic(kTaskHandle_t task)
+static void tasks_deleteTaskStatic(kTask_t *task)
 {	
 	kLinkedListItem_t *head = NULL;
 
@@ -148,7 +148,7 @@ static void tasks_deleteTaskStatic(kTaskHandle_t task)
 		head = task->childTaskList.head;
 
 		while (head != NULL) {
-			tasks_deleteTask((kTaskHandle_t)(head->data));
+			tasks_deleteTask((kTask_t *)(head->data));
 			head = head->next;
 		}
 
@@ -166,28 +166,36 @@ static void tasks_deleteTaskStatic(kTaskHandle_t task)
 	}
 }
 
-void tasks_deleteTask(kTaskHandle_t task) 
+void tasks_deleteTask(kTask_t *task) 
 {
 	if (task != NULL) {
+		arch_enterCriticalSection();
+
 		tasks_deleteTaskStatic(task);
 		if (task->flags & KTASKFLAG_DYNAMIC) {
 			common_heapFree((void *)task);
 		}
+
+		arch_exitCriticalSection();
 	}
 }
 
-kBaseType_t tasks_getTaskPriority(kTaskHandle_t task) 
+kBaseType_t tasks_getTaskPriority(kTask_t *task) 
 {
 	kBaseType_t priority = 0;
 
 	if (task != NULL) {
+		arch_enterCriticalSection();
+
 		priority = task->priority;
+
+		arch_exitCriticalSection();
 	}
 
 	return priority;
 }
 
-void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
+void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority)
 {
 	if (task != NULL) {
 		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
@@ -202,18 +210,22 @@ void tasks_setTaskPriority(kTaskHandle_t task, kBaseType_t priority)
 	}
 }
 
-kTaskState_t tasks_getTaskState(kTaskHandle_t task) 
+kTaskState_t tasks_getTaskState(kTask_t *task) 
 {
 	kTaskState_t state = KSTATE_UNINIT;
 
 	if (task != NULL) {
+		arch_enterCriticalSection();
+
 		state = task->state;
+
+		arch_exitCriticalSection();
 	}
 
 	return state;
 }
 
-void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
+void tasks_setTaskState(kTask_t *task, kTaskState_t state)
 {
 	if (task != NULL) {
 		arch_enterCriticalSection();
@@ -225,17 +237,21 @@ void tasks_setTaskState(kTaskHandle_t task, kTaskState_t state)
 	}
 }
 
-void tasks_blockTask(kTaskHandle_t task, kLinkedList_t *blockList)
+void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList)
 {
 	if (task != NULL && blockList != NULL) {
+		arch_enterCriticalSection();
+
 		if (task->activeTaskListItem.list != blockList) {
 			tasks_setTaskState(task, KSTATE_BLOCKED);
 			common_listAddBack(blockList, &(task->activeTaskListItem));
 		}
+
+		arch_exitCriticalSection();
 	}
 }
 
-void tasks_unblockTask(kTaskHandle_t task) 
+void tasks_unblockTask(kTask_t *task) 
 {
 	tasks_setTaskState(task, KSTATE_READY);
 }

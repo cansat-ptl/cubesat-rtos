@@ -11,9 +11,9 @@
 
 #include <kernel/types.h>
 
-void* tasks_malloc(size_t size);
-void tasks_free(void* pointer);
+void *tasks_malloc(size_t size);
+void tasks_free(void *pointer);
 
-kReturnValue_t tasks_checkStackBounds(kTaskHandle_t task);
+kReturnValue_t tasks_checkStackBounds(kTask_t *task);
 
 #endif

@@ -16,7 +16,7 @@
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
-void tasks_initScheduler(kTaskHandle_t idle)
+void tasks_initScheduler(kTask_t *idle)
 {
 	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
 	kSchedCPUState.kReadyTaskList[0].tail = &(idle->activeTaskListItem);
@@ -24,12 +24,12 @@ void tasks_initScheduler(kTaskHandle_t idle)
 	kSchedCPUState.kCurrentTask = idle;
 }
 
-kTaskHandle_t tasks_getCurrentTask()
+kTask_t *tasks_getCurrentTask()
 {
 	return kSchedCPUState.kCurrentTask;
 }
 
-void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
+void tasks_scheduleTask(kTask_t *task, kTaskState_t state)
 {	
 	if (task != NULL) {
 		arch_enterCriticalSection();
@@ -58,7 +58,7 @@ void tasks_scheduleTask(kTaskHandle_t task, kTaskState_t state)
 	}
 }
 
-void tasks_unscheduleTask(kTaskHandle_t task)
+void tasks_unscheduleTask(kTask_t *task)
 {
 	if (task != NULL) {
 		arch_enterCriticalSection();
@@ -74,8 +74,8 @@ static inline void tasks_tickTasks()
 	kLinkedListItem_t *head = kSchedCPUState.kSleepingTaskList.head;
 
 	while (head != NULL) {
-		if (((kTaskHandle_t)(head->data))->sleepTime) {
-			((kTaskHandle_t)(head->data))->sleepTime--;
+		if (((kTask_t *)(head->data))->sleepTime) {
+			((kTask_t *)(head->data))->sleepTime--;
 		}
 		else {
 			tasks_setTaskState(head->data, KSTATE_READY);
@@ -91,7 +91,7 @@ static inline void tasks_search()
 	for (kIterator_t i = CFG_NUMBER_OF_PRIORITIES-1; i >= 0; i--) {
 		head = kSchedCPUState.kReadyTaskList[i].head;
 		if (head != NULL) {
-			kSchedCPUState.kNextTask = (kTaskHandle_t)head->data;
+			kSchedCPUState.kNextTask = (kTask_t *)head->data;
 			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
 
 			common_listDropFront((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[i]);
@@ -113,11 +113,11 @@ static void tasks_switchContext()
 	/* TODO: remove these conditions */
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3 
 		#if CFG_STACK_GROWTH_DIRECTION == -1
-			if (arch_checkProtectionRegion((void*)(kSchedCPUState.kCurrentTask->stackBegin), CFG_STACK_SAFETY_MARGIN)) {
+			if (arch_checkProtectionRegion((void *)(kSchedCPUState.kCurrentTask->stackBegin), CFG_STACK_SAFETY_MARGIN)) {
 				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
 			}
 		#else
-			if (arch_checkProtectionRegion((void*)(kSchedCPUState.kCurrentTask->stackBegin + kSchedCPUState.kCurrentTask->stackSize), CFG_STACK_SAFETY_MARGIN)) {
+			if (arch_checkProtectionRegion((void *)(kSchedCPUState.kCurrentTask->stackBegin + kSchedCPUState.kCurrentTask->stackSize), CFG_STACK_SAFETY_MARGIN)) {
 				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
 			}
 		#endif

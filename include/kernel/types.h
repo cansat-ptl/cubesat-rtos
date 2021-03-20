@@ -48,8 +48,6 @@ typedef enum {KTASK_UNINIT, KTASK_NORMAL, KTASK_CRITICAL} kTaskType_t;
 typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
 
 typedef struct kTaskStruct_t kTask_t;
-typedef kTask_t* kTaskHandle_t;
-
 typedef struct kLockStruct_t kLock_t;
 
 #endif /* TYPES_H_ */

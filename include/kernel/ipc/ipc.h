@@ -19,7 +19,7 @@ struct kLockStruct_t
 	kBaseType_t lockCount;
 	kBaseType_t basePriority;
 
-	kTaskHandle_t lockOwner;
+	kTask_t *lockOwner;
 
 	kLinkedList_t blockedTasks;
 
@@ -28,7 +28,7 @@ struct kLockStruct_t
 
 struct kIPCStruct_t
 {
-	void* pointer;
+	void *pointer;
 
 	size_t itemSize;
 	size_t bufferSize;
@@ -36,7 +36,7 @@ struct kIPCStruct_t
 	size_t outputPosition;
 	size_t currentPosition;
 
-	volatile struct kLockStruct_t* mutex;
+	volatile struct kLockStruct_t *mutex;
 };
 
 #endif
