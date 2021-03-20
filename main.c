@@ -76,6 +76,18 @@ void test_task()
 	}
 }
 
+void test_task() 
+{
+	char asd[] = "10 symbols";
+	uart_puts("task1: Start\r\n");
+	while (1)
+	{
+		uart_puts("task1: Writing FIFO\r\n");
+		ipc_fifoWriteBlocking(&fifo, (void*)asd);
+	}
+}
+
+
 int main(void)
 {
 	kernel_init();

@@ -39,3 +39,8 @@ kReturnValue_t tasks_checkStackBounds(kTask_t *task) {
 
 	return exitcode;
 }
+
+void tasks_handleStackCorruption()
+{
+	
+}

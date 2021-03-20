@@ -136,10 +136,10 @@ kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *ar
 	return returnHandle;
 }
 
-static void tasks_deleteTaskStatic(kTask_t *task)
+void tasks_deleteTask(kTask_t *task) 
 {	
 	kLinkedListItem_t *head = NULL;
-
+	
 	if (task != NULL) {
 		arch_enterCriticalSection();
 
@@ -162,16 +162,6 @@ static void tasks_deleteTaskStatic(kTask_t *task)
 		common_listDeleteAny(&kGlobalTaskList, &(task->globalTaskListItem));
 		common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
 
-		arch_exitCriticalSection();
-	}
-}
-
-void tasks_deleteTask(kTask_t *task) 
-{
-	if (task != NULL) {
-		arch_enterCriticalSection();
-
-		tasks_deleteTaskStatic(task);
 		if (task->flags & KTASKFLAG_DYNAMIC) {
 			common_heapFree((void *)task);
 		}
