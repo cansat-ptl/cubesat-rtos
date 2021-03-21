@@ -6,7 +6,7 @@
  */
 
 
-#include <string.h>
+#include <kernel/common/string.h>
 
 int common_strlen(char *str)
 {
@@ -25,6 +25,6 @@ int common_isdigit(char c)
 	if (c >= '0' && c <= '9') {
 		return (1);
 	}
-	
+
 	return (0);
 }

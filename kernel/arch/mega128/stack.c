@@ -11,7 +11,7 @@
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args)
 {
-	stackPointer += stackSize-1;
+	stackPointer += stackSize;
 	*(stackPointer--) = 0; 				/* (uint16_t)kernel_taskReturnHook & 0xFF; */	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
 	*(stackPointer--) = 0; 				/* (uint16_t)kernel_taskReturnHook >> 8;  */
 	*(stackPointer--) = (uint16_t)entry & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */

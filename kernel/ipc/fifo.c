@@ -64,6 +64,7 @@ size_t ipc_fifoWriteBlocking(kFIFO_t *fifo, void *input)
 			if (bytesWritten != 0) {
 				break;
 			}
+			tasks_sleep(0);
 		}
 	}
 
@@ -106,6 +107,7 @@ size_t ipc_fifoReadBlocking(kFIFO_t *fifo, void *output)
 			if (bytesRead != 0) {
 				break;
 			}
+			tasks_sleep(0);
 		}
 	}
 	

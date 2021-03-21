@@ -23,9 +23,8 @@
 
 	#define CFG_PROTECT_FROM_INVALID_HEAP_FREE 1
 
-	#define CFG_KERNEL_PANIC_ACTION 3 /* 0 - restart, 1 - print error details and restart, 2 - print error details and halt */
-	#define CFG_STACK_CORRUPTION_ACTION 1 /* 0 - panic, 1 - restart affected task, panic if critical, 2 - restart all tasks */
-	#define CFG_TASK_RETURN_ACTION 1 /* 0 - panic, 1 - delete affected task, panic if critical */
+	#define CFG_KERNEL_PANIC_ACTION 2 /* 0 - restart, 1 - print error details and restart, 2 - print error details and halt */
+	#define CFG_TASK_RETURN_ACTION 1 /* 0 - panic, 1 - kill affected task, panic if critical */
 
 	/* Memory manager settings */
 	#define CFG_HEAP_SIZE 2000

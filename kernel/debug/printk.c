@@ -5,8 +5,12 @@
  * Author: awend0
  */
 
+#include <kernel/types.h>
+#include <kernel/debug/printk.h>
+#include <kernel/common/string.h>
+#include <kernel/arch/arch.h>
 
-#include <printk.h>
+static kSpinlock_t kPrintkSpinlock = 0;
 
 static int debug_spacing(int count, char c)
 {
@@ -208,6 +212,8 @@ int debug_printk(char *format, ...)
 	int ret = 0;
 	va_list args;
 
+	arch_enterCriticalSection();
+
 	va_start(args, format);
 	while (*format) {
 		ret += debug_write_till_percent(&format);
@@ -217,6 +223,8 @@ int debug_printk(char *format, ...)
 		}
 	}
 	va_end(args);
+
+	arch_exitCriticalSection();
 
 	return (ret);
 }

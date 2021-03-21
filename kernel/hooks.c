@@ -20,17 +20,6 @@ void kernel_taskReturnHook()
 	tasks_deleteTask(currentTask);
 
 	while (1) {
-		;//Do nothing
-	}
-}
-
-void kernel_stackCorruptionHook()
-{
-    kTask_t *currentTask = tasks_getCurrentTask();
-
-	tasks_deleteTask(currentTask);
-
-	while (1) {
-		;//Do nothing
+		; /* Do nothing */
 	}
 }

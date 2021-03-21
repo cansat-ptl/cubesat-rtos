@@ -28,62 +28,63 @@ byte fifoBuffer[50];
 
 void test_task3() 
 {
-	uart_puts("task3: Start\r\n");
+	debug_printk("task3: Start\r\n");
 	while (1)
 	{
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		uart_puts("task3: Reading FIFO\r\n");
+		debug_printk("task3: Reading FIFO\r\n");
 
 		ipc_fifoReadBlocking(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
 
-		uart_puts("task3: FIFO contents: ");
-		uart_puts(receiveBuffer);
-		uart_puts("\r\n");
+		debug_printk("task3: FIFO contents: ");
+		debug_printk(receiveBuffer);
+		debug_printk("\r\n");
 
 	}
 }
 
 void test_task2() 
 {
-	uart_puts("task2: Start\r\n");
+	debug_printk("task2: Start\r\n");
 	while (1)
 	{
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		uart_puts("task2: Reading FIFO\r\n");
+		debug_printk("task2: Reading FIFO\r\n");
 
 		ipc_fifoReadBlocking(&fifo, (void*)receiveBuffer);
 
-		uart_puts("task2: FIFO contents: ");
-		uart_puts(receiveBuffer);
-		uart_puts("\r\n");
+		debug_printk("task2: FIFO contents: ");
+		debug_printk(receiveBuffer);
+		debug_printk("\r\n");
 	}
 }
 
 void test_task() 
 {
 	char asd[] = "10 symbols";
-	uart_puts("task1: Start\r\n");
+	debug_printk("task1: Start\r\n");
 	while (1)
 	{
-		uart_puts("task1: Writing FIFO\r\n");
+		debug_printk("task1: Writing FIFO\r\n");
 		ipc_fifoWriteBlocking(&fifo, (void*)asd);
 	}
 }
 
-void test_task() 
+void test_task123() 
 {
 	char asd[] = "10 symbols";
-	uart_puts("task1: Start\r\n");
+	debug_printk("task123: Start\r\n");
 	while (1)
 	{
-		uart_puts("task1: Writing FIFO\r\n");
+		debug_printk("task123: Writing FIFO\r\n");
 		ipc_fifoWriteBlocking(&fifo, (void*)asd);
+		_delay_ms(10);
 	}
 }
 
@@ -92,13 +93,14 @@ int main(void)
 {
 	kernel_init();
 	ipc_fifoInit(&fifo, fifoBuffer, 31, 11, &mutex);
-	test = tasks_createTaskDynamic(100, test_task, NULL, 1, KTASK_NORMAL, "test1");
-	test2 = tasks_createTaskDynamic(100, test_task2, NULL, 1, KTASK_NORMAL, "test2");
-	test3 = tasks_createTaskDynamic(100, test_task3, NULL, 1, KTASK_NORMAL, "test3");
+	test = tasks_createTaskDynamic(150, test_task, NULL, 1, KTASK_NORMAL, "test1");
+	test2 = tasks_createTaskDynamic(150, test_task2, NULL, 1, KTASK_NORMAL, "test2");
+	test3 = tasks_createTaskDynamic(150, test_task3, NULL, 1, KTASK_NORMAL, "test3");
+	test4 = tasks_createTaskDynamic(150, test_task123, NULL, 1, KTASK_NORMAL, "test123");
 	while (1)
 	{
 		asm volatile("nop"::);
-		//uart_puts("Idling in mah main\r\n");
+		//debug_printk("Idling in mah main\r\n");
 	}
 }
 

@@ -13,6 +13,8 @@
 #include <kernel/tasks/mem.h>
 #include <kernel/arch/arch.h>
 #include <kernel/common/lists.h>
+#include <kernel/hooks.h>
+#include <kernel/panic.h>
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
@@ -74,13 +76,18 @@ static inline void tasks_tickTasks()
 	kLinkedListItem_t *head = kSchedCPUState.kSleepingTaskList.head;
 
 	while (head != NULL) {
-		if (((kTask_t *)(head->data))->sleepTime) {
-			((kTask_t *)(head->data))->sleepTime--;
+		if (head->data != NULL) {
+			if (((kTask_t *)(head->data))->sleepTime) {
+				((kTask_t *)(head->data))->sleepTime--;
+			}
+			else {
+				tasks_setTaskState(head->data, KSTATE_READY);
+			}
+			head = head->next;
 		}
 		else {
-			tasks_setTaskState(head->data, KSTATE_READY);
+			kernel_panic("tickTasks: head->data = NULL");
 		}
-		head = head->next;
 	}
 }
 
@@ -103,28 +110,14 @@ static inline void tasks_search()
 
 static void tasks_switchContext()
 {	
-	/* TODO: remove these conditions */
-	#if CFG_MEMORY_PROTECTION_MODE == 1 || CFG_MEMORY_PROTECTION_MODE == 3 
-		if (tasks_checkStackBounds(kSchedCPUState.kCurrentTask) != KRESULT_SUCCESS) {
-			/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
-		}
-	#endif
+	kTask_t *task = kSchedCPUState.kCurrentTask;
 
-	/* TODO: remove these conditions */
-	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3 
-		#if CFG_STACK_GROWTH_DIRECTION == -1
-			if (arch_checkProtectionRegion((void *)(kSchedCPUState.kCurrentTask->stackBegin), CFG_STACK_SAFETY_MARGIN)) {
-				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
-			}
-		#else
-			if (arch_checkProtectionRegion((void *)(kSchedCPUState.kCurrentTask->stackBegin + kSchedCPUState.kCurrentTask->stackSize), CFG_STACK_SAFETY_MARGIN)) {
-				/* kernel_stackCorruptionHook(kSchedCPUState.kCurrentTask); */
-			}
-		#endif
-	#endif
+	if (tasks_checkStackBounds(task) != KRESULT_SUCCESS && task->pid != 0) {
+		kernel_panic("Task stack corruption");
+	}
 
 	if (kSchedCPUState.kNextTask == NULL) {
-		/* kernel_panic(PSTR("Memory access violation in task manager: kNextTask is out of bounds\r\n")); */
+		kernel_panic("kNextTask is NULL");
 	}
 
 	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;

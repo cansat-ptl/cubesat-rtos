@@ -7,11 +7,14 @@
 
 
 #include <kernel/types.h>
+#include <kernel/config.h>
 #include <kernel/tasks/mem.h>
 #include <kernel/common/heap.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
 #include <kernel/arch/arch.h>
+#include <kernel/hooks.h>
+#include <kernel/panic.h>
 
 void *tasks_malloc(size_t size) 
 {
@@ -30,17 +33,13 @@ void tasks_free(void *pointer)
 	common_heapFree(pointer);
 }
 
-kReturnValue_t tasks_checkStackBounds(kTask_t *task) {
-	kReturnValue_t exitcode = KRESULT_ERR_GENERIC;
+kReturnValue_t tasks_checkStackBounds(kTask_t *task) 
+{
+	kReturnValue_t exitcode = KRESULT_SUCCESS;
 
-	if (task->stackPtr < task->stackBegin || task->stackBegin + task->stackSize < task->stackPtr) {
-		exitcode = KRESULT_SUCCESS;
+	if (task->stackPtr < task->stackBegin || task->stackPtr > task->stackBegin + task->stackSize) {
+		exitcode = KRESULT_ERR_GENERIC;
 	}
 
 	return exitcode;
-}
-
-void tasks_handleStackCorruption()
-{
-	
 }

@@ -23,4 +23,6 @@
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/lifo.h>
 
+#include <kernel/debug/printk.h>
+
 #endif

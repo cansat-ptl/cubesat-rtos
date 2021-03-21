@@ -57,18 +57,6 @@ kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entr
 
 			baseStackPtr = taskMemory + sizeof(kTask_t);
 			stackSize = memorySize - sizeof(kTask_t) - 1;
-			
-			/* TODO: remove this condition */
-			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
-				#if CFG_STACK_GROWTH_DIRECTION == -1
-					arch_prepareProtectionRegion((void *)(baseStackPtr), CFG_STACK_SAFETY_MARGIN);
-					baseStackPtr += CFG_STACK_SAFETY_MARGIN;
-				#else
-					arch_prepareProtectionRegion((void *)(baseStackPtr + stackSize), CFG_STACK_SAFETY_MARGIN);
-				#endif
-			#endif
-
-			stackSize -= CFG_STACK_SAFETY_MARGIN;
 
 			returnHandle->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
 			returnHandle->stackBegin = baseStackPtr;
