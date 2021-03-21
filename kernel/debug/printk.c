@@ -151,6 +151,7 @@ static int debug_parse_width(char **format)
 	if (common_isdigit(**format)) {
 		ret = 0;
 		while (common_isdigit(**format)) {
+			ret *= 10;
 			ret += **format - '0';
 			(*format)++;
 		}
