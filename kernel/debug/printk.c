@@ -5,6 +5,8 @@
  * Author: awend0
  */
 
+
+#include <stdarg.h>
 #include <kernel/types.h>
 #include <kernel/debug/printk.h>
 #include <kernel/common/string.h>
@@ -210,10 +212,10 @@ static int debug_write_till_percent(char **format)
 
 int debug_printk(char *format, ...)
 {
-	int ret = 0;
 	va_list args;
 
-	arch_enterCriticalSection();
+	int ret = 0;
+	kStatusRegister_t sreg = arch_enterCriticalSectionSafe();
 
 	va_start(args, format);
 	while (*format) {
@@ -224,8 +226,9 @@ int debug_printk(char *format, ...)
 		}
 	}
 	va_end(args);
+	
+	arch_exitCriticalSectionSafe(sreg);
 
-	arch_exitCriticalSection();
 
 	return (ret);
 }

@@ -46,6 +46,9 @@ void arch_stopSystickTimer();
 
 void arch_platformInit();
 
+kStatusRegister_t arch_enterCriticalSectionSafe();
+void arch_exitCriticalSectionSafe(kStatusRegister_t sreg);
+
 void arch_spinlockAcquire(kSpinlock_t *spinlock);
 void arch_spinlockRelease(kSpinlock_t *spinlock);
 

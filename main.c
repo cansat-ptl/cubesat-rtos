@@ -40,16 +40,13 @@ void test_task3()
 
 		receiveBuffer[31] = 0;
 
-		debug_printk("task3: FIFO contents: ");
-		debug_printk(receiveBuffer);
-		debug_printk("\r\n");
-
+		debug_printk("task3: FIFO contents: %s\r\n", receiveBuffer);
 	}
 }
 
 void test_task2() 
 {
-	debug_printk("task2: Start\r\n");
+	debug_printk("Test\r\n");
 	while (1)
 	{
 		char receiveBuffer[32] = "";
@@ -59,9 +56,7 @@ void test_task2()
 
 		ipc_fifoReadBlocking(&fifo, (void*)receiveBuffer);
 
-		debug_printk("task2: FIFO contents: ");
-		debug_printk(receiveBuffer);
-		debug_printk("\r\n");
+		debug_printk("task3: FIFO contents: %s\r\n", receiveBuffer);
 	}
 }
 

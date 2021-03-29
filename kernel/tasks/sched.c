@@ -13,7 +13,7 @@
 #include <kernel/tasks/mem.h>
 #include <kernel/arch/arch.h>
 #include <kernel/common/lists.h>
-#include <kernel/hooks.h>
+#include <kernel/debug/printk.h>
 #include <kernel/panic.h>
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
@@ -111,6 +111,8 @@ static inline void tasks_search()
 static void tasks_switchContext()
 {	
 	kTask_t *task = kSchedCPUState.kCurrentTask;
+
+	debug_printk("Test");
 
 	if (tasks_checkStackBounds(task) != KRESULT_SUCCESS && task->pid != 0) {
 		kernel_panic("Task stack corruption");

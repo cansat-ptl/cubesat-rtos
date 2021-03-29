@@ -73,3 +73,16 @@ void arch_stopSystickTimer()
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
 }
+
+kStatusRegister_t arch_enterCriticalSectionSafe()
+{
+	kStatusRegister_t sreg = arch_STATUS_REG;
+	arch_DISABLE_INTERRUPTS();
+	return sreg;
+}
+
+void arch_exitCriticalSectionSafe(kStatusRegister_t sreg)
+{
+	arch_ENABLE_INTERRUPTS();
+	arch_STATUS_REG = sreg;
+}

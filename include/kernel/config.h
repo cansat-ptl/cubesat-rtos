@@ -17,7 +17,7 @@
 	/* Memory protection settings */
 	#define CFG_MEMORY_PROTECTION_MODE 3 /* 0 - disabled, 1 - check task stack bounds only, 2 - check task stack protection regions only, 3 - check both */
 	#define CFG_STACK_SAFETY_MARGIN 16
-	#define CFG_KERNEL_RESERVED_MEMORY 100
+	#define CFG_KERNEL_RESERVED_MEMORY 150
 	#define CFG_KERNEL_IDLE_TASK_MEMORY 100
 	#define CFG_STACK_GROWTH_DIRECTION -1 /* -1 - towards lower addresses, 1 - towards higher */
 
