@@ -50,6 +50,8 @@ struct kTaskStruct_t
 	kLinkedList_t childTaskList;
 };
 
+#define tasks_TASK_STRUCT_SIZE ((sizeof(struct kTaskStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
+
 void tasks_init();
 
 void tasks_setTaskState(kTask_t *task, kTaskState_t state);

@@ -29,6 +29,8 @@ struct kMemoryBlockStruct_t
 	kLinkedListItem_t allocListItem;
 };
 
+#define COMMON_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
+
 void common_heapInit();
 
 void* common_heapAlloc(size_t size, kLinkedList_t *allocList);

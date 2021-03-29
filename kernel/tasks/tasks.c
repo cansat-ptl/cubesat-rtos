@@ -41,7 +41,6 @@ void tasks_init()
 	tasks_initScheduler(idleTask);
 }
 
-/* TODO: proper architecture-independent structure size calculation */
 kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
 {
 	kTask_t *returnHandle = NULL;
@@ -50,13 +49,13 @@ kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entr
 	size_t stackSize = 0;
 
 	if (taskMemory != NULL && entry != NULL) {
-		if (memorySize - sizeof(kTask_t) >= CFG_MIN_TASK_STACK_SIZE) {
+		if (memorySize - tasks_TASK_STRUCT_SIZE >= CFG_MIN_TASK_STACK_SIZE) {
 			arch_enterCriticalSection();
 
 			returnHandle = (kTask_t *)taskMemory;
 
-			baseStackPtr = taskMemory + sizeof(kTask_t);
-			stackSize = memorySize - sizeof(kTask_t) - 1;
+			baseStackPtr = taskMemory + tasks_TASK_STRUCT_SIZE;
+			stackSize = memorySize - tasks_TASK_STRUCT_SIZE - 1;
 
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 				stackSize -= CFG_STACK_SAFETY_MARGIN;
@@ -112,7 +111,7 @@ kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *ar
 		stackSize = CFG_MIN_TASK_STACK_SIZE;
 	}
 
-	memorySize = stackSize + sizeof(kTask_t);
+	memorySize = stackSize + tasks_TASK_STRUCT_SIZE;
 
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 		memorySize += CFG_STACK_SAFETY_MARGIN + 1;

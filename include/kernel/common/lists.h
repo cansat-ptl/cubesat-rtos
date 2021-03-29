@@ -11,6 +11,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <kernel/config.h>
 
 typedef struct kLinkedListStruct_t kLinkedList_t;
 typedef struct kLinkedListItemStruct_t kLinkedListItem_t;
@@ -29,7 +30,7 @@ struct kLinkedListItemStruct_t
 	void *data;
 };
 
-#define common_LISTITEM_STRUCT_SIZE (sizeof(kLinkedListItem_t))
+#define common_LISTITEM_STRUCT_SIZE ((sizeof(kLinkedListItem_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 
 void common_listAddBack(kLinkedList_t *list, kLinkedListItem_t *item);
 void common_listAddFront(kLinkedList_t *list, kLinkedListItem_t *item);

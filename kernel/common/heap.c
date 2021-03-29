@@ -17,8 +17,6 @@
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
-static const size_t kHeapStructSize = (sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK); /* makes sense lol */
-
 static struct kMemoryBlockStruct_t kHeapStart;
 static struct kMemoryBlockStruct_t *kHeapEnd;
 
@@ -76,7 +74,7 @@ void common_heapInit()
 	kHeapStart.state = 0;
 
 	heapAddress = ((size_t)heapAligned) + heapSize;
-	heapAddress -= kHeapStructSize;
+	heapAddress -= COMMON_HEAP_STRUCT_SIZE;
 	heapAddress &= ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK);
 
 	kHeapEnd = (void *)heapAddress;
@@ -146,7 +144,7 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 		size += (CFG_PLATFORM_BYTE_ALIGNMENT - (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK));
 	}
 
-	if (size > 0) size += kHeapStructSize;
+	if (size > 0) size += COMMON_HEAP_STRUCT_SIZE;
 
 	if (size > 0 && size <= kFreeMemory) {
 		previousBlock = &kHeapStart;
@@ -158,7 +156,7 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 		}
 
 		if (block != kHeapEnd) {
-			returnAddress = (void *)(((byte *)previousBlock->next) + kHeapStructSize);
+			returnAddress = (void *)(((byte *)previousBlock->next) + COMMON_HEAP_STRUCT_SIZE);
 
 			previousBlock->next = block->next;
 
@@ -206,7 +204,7 @@ void common_heapFree(void *pointer)
 	arch_enterCriticalSection();
 
 	if (common_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
-		pointer_casted -= kHeapStructSize;
+		pointer_casted -= COMMON_HEAP_STRUCT_SIZE;
 
 		block = (void *)pointer_casted;
 
