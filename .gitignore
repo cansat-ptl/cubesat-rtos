@@ -65,3 +65,4 @@ Module.symvers
 Mkfile.old
 dkms.conf
 *.workspace
+/yktsat-rtos.elf.asm

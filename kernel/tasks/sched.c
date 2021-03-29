@@ -112,9 +112,9 @@ static void tasks_switchContext()
 {	
 	kTask_t *task = kSchedCPUState.kCurrentTask;
 
-	debug_printk("Test");
-
-	if (tasks_checkStackBounds(task) != KRESULT_SUCCESS && task->pid != 0) {
+	if (arch_checkProtectionRegion(task->stackBegin, task->stackSize, CFG_STACK_SAFETY_MARGIN) != KRESULT_SUCCESS \
+		|| tasks_checkStackBounds(task) != KRESULT_SUCCESS \
+		&& task->pid != 0) {
 		kernel_panic("Task stack corruption");
 	}
 

@@ -17,7 +17,7 @@
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args);
 
-void arch_prepareProtectionRegion(void *pointer, size_t size);
-kReturnValue_t arch_checkProtectionRegion(void *pointer, size_t size);
+kStackPtr_t arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize);
+kStackPtr_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize);
 
 #endif

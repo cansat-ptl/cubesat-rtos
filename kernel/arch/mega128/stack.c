@@ -7,6 +7,7 @@
 
 
 #include <kernel/types.h>
+#include <kernel/config.h>
 #include <kernel/arch/mega128/stack.h>
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args)
@@ -53,27 +54,39 @@ kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackS
 	return stackPointer;
 }
 
-void arch_prepareProtectionRegion(void *pointer, size_t size)
+kStackPtr_t arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
 {
-	if (pointer != NULL) {
-		for (size_t i = 0; i < size; i++) {
-			*(byte *)((byte *)pointer + i) = 0xFE;
-		}
-	}
-}
-
-kReturnValue_t arch_checkProtectionRegion(void* pointer, size_t size)
-{
-	kReturnValue_t kresult = KRESULT_SUCCESS;
-
-	if (pointer != NULL) {
-		for (size_t i = 0; i < size; i++) {
-			if (*(byte*)((byte*)pointer + i) != 0xFE) {
-				kresult = KRESULT_ERR_MEMORY_VIOLATION;
-				break;
+	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
+		if (basePtr != NULL) {
+			for (size_t i = 0; i < regionSize; i++) {
+				*(byte *)((byte *)basePtr + i) = 0xFE;
 			}
 		}
-	}
 	
-	return kresult;
+		return basePtr + regionSize;
+	#else
+		return basePtr;
+	#endif
+}
+
+kStackPtr_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
+{
+	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
+		kReturnValue_t kresult = KRESULT_SUCCESS;
+
+		if (basePtr != NULL) {
+			basePtr -= regionSize;
+			
+			for (size_t i = 0; i < regionSize; i++) {
+				if (*(byte*)((byte*)basePtr + i) != 0xFE) {
+					kresult = KRESULT_ERR_MEMORY_VIOLATION;
+					break;
+				}
+			}
+		}
+		
+		return kresult;
+	#else
+		return KRESULT_SUCCESS;
+	#endif
 }
