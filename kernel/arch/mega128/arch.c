@@ -10,7 +10,9 @@
 #include <kernel/config.h>
 #include <kernel/arch/mega128/uart.h>
 #include <kernel/arch/mega128/arch.h>
+#include <avr/wdt.h>
 
+static volatile uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
 kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-1];
 
@@ -85,4 +87,31 @@ void arch_exitCriticalSectionSafe(kStatusRegister_t sreg)
 {
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
+} 
+
+void arch_halt()
+{	
+	arch_DISABLE_INTERRUPTS();
+	wdt_disable();
+	while(1) {
+		; /* wait for reset */
+	}
+}
+
+void arch_reboot()
+{
+	arch_DISABLE_INTERRUPTS();
+	wdt_enable(WDTO_15MS);
+	while(1) {
+		; /* wait for reset */
+	}
+}
+
+static void arch_disableWatchdogOnStart(void) __attribute__((naked, section(".init3")));
+
+static void arch_disableWatchdogOnStart(void)
+{
+	mcusr_mirror = MCUCSR;
+	MCUCSR = 0;
+	wdt_disable();
 }

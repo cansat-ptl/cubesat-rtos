@@ -9,12 +9,16 @@
 #include <kernel/types.h>
 #include <kernel/config.h>
 #include <kernel/arch/mega128/stack.h>
+#include <kernel/tasks/tasks.h>
+#include <kernel/tasks/sched.h>
+
+void arch_taskReturnHook();
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args)
 {
-	stackPointer += stackSize;
-	*(stackPointer--) = 0; 				/* (uint16_t)kernel_taskReturnHook & 0xFF; */	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
-	*(stackPointer--) = 0; 				/* (uint16_t)kernel_taskReturnHook >> 8;  */
+	stackPointer += stackSize - 2;
+	*(stackPointer--) = (uint16_t)arch_taskReturnHook & 0xFF; /* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
+	*(stackPointer--) = (uint16_t)arch_taskReturnHook >> 8; /* higher 8 bits */
 	*(stackPointer--) = (uint16_t)entry & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
 	*(stackPointer--) = (uint16_t)entry >> 8;	/* Upper 8 bits */
 	*(stackPointer--) = 0;				/* R0 initial value, overwritten by SREG during context switch, should be initialized separately */
@@ -69,14 +73,14 @@ kStackPtr_t arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stack
 	#endif
 }
 
-kStackPtr_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
+kReturnValue_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
 {
 	#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 		kReturnValue_t kresult = KRESULT_SUCCESS;
 
 		if (basePtr != NULL) {
 			basePtr -= regionSize;
-			
+
 			for (size_t i = 0; i < regionSize; i++) {
 				if (*(byte*)((byte*)basePtr + i) != 0xFE) {
 					kresult = KRESULT_ERR_MEMORY_VIOLATION;
@@ -89,4 +93,15 @@ kStackPtr_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSi
 	#else
 		return KRESULT_SUCCESS;
 	#endif
+}
+
+void arch_taskReturnHook()
+{
+    kTask_t *currentTask = tasks_getCurrentTask();
+
+	tasks_deleteTask(currentTask);
+
+	while (1) {
+		; /* Do nothing */
+	}
 }

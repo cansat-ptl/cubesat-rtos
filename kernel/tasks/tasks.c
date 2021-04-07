@@ -220,6 +220,20 @@ void tasks_setTaskState(kTask_t *task, kTaskState_t state)
 	}
 }
 
+kTaskType_t tasks_getTaskType(kTask_t *task)
+{	
+	kTaskType_t type = KTASK_NORMAL;
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		type = task->type;
+
+		arch_exitCriticalSection();
+	}
+
+	return type;
+}
+
 void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList)
 {
 	if (task != NULL && blockList != NULL) {

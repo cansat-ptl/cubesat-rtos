@@ -46,6 +46,9 @@ void arch_stopSystickTimer();
 
 void arch_platformInit();
 
+void arch_halt();
+void arch_reboot();
+
 kStatusRegister_t arch_enterCriticalSectionSafe();
 void arch_exitCriticalSectionSafe(kStatusRegister_t sreg);
 

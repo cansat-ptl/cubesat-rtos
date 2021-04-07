@@ -18,12 +18,8 @@ void kernel_panic(char *msg)
     #endif
 
     #if CFG_KERNEL_PANIC_ACTION != 2
-        /* TODO: restart */
+        arch_reboot();
     #else
-        /* TODO: halt */
+        arch_halt();
     #endif
-    arch_DISABLE_INTERRUPTS();
-    while(1) {
-        arch_DISABLE_INTERRUPTS();
-    }
 }
