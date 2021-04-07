@@ -10,12 +10,8 @@
 #include <kernel/config.h>
 #include <kernel/tasks/mem.h>
 #include <kernel/common/heap.h>
-#include <kernel/common/string.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
-#include <kernel/arch/arch.h>
-#include <kernel/hooks.h>
-#include <kernel/panic.h>
 
 void *tasks_malloc(size_t size) 
 {

@@ -13,7 +13,7 @@
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/mutex.h>
 #include <kernel/tasks/sched.h>
-#include <string.h> /* TODO: memcpy */
+#include <kernel/common/string.h>
 
 void ipc_lifoInit(kLIFO_t *lifo, void *lifoBuffer, size_t bufferSize, size_t itemSize, kMutex_t *mutex)
 {
@@ -28,7 +28,7 @@ size_t ipc_lifoWrite(kLIFO_t *lifo, void *input)
 		ipc_mutexLock(lifo->mutex);
 
 		if (ipc_lifoFreeSpace(lifo) != 0) {
-			memcpy(lifo->pointer + lifo->currentPosition, input, lifo->itemSize);
+			common_memcpy(lifo->pointer + lifo->currentPosition, input, lifo->itemSize);
 			
 			lifo->currentPosition += lifo->itemSize;
 			bytesWritten += lifo->itemSize;
@@ -64,7 +64,7 @@ size_t ipc_lifoRead(kLIFO_t *lifo, void *output)
 		ipc_mutexLock(lifo->mutex);
 
 		if (ipc_lifoAvailable(lifo) != 0) {
-			memcpy(output, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
+			common_memcpy(output, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
 			
 			lifo->currentPosition -= lifo->itemSize;
 			bytesRead += lifo->itemSize;
@@ -98,7 +98,7 @@ size_t ipc_lifoPeek(kLIFO_t *lifo, void *output)
 
 	if (lifo != NULL) {
 		if (ipc_fifoAvailable(lifo) != 0) {
-			memcpy(output, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
+			common_memcpy(output, lifo->pointer + lifo->currentPosition - lifo->itemSize, lifo->itemSize);
 			bytesRead += lifo->itemSize;
 		}
 	}

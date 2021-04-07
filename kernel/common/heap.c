@@ -87,9 +87,7 @@ void common_heapInit()
 	firstFreeBlock->next = kHeapEnd;
 	firstFreeBlock->state = 0;
 
-	#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
-		common_prepareBlockMagic(firstFreeBlock);
-	#endif
+	common_prepareBlockMagic(firstFreeBlock);
 
 	kMinimumFreeMemory = firstFreeBlock->blockSize;
 	kFreeMemory = firstFreeBlock->blockSize;
@@ -186,9 +184,7 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 				block->allocListItem.data = NULL;
 			}
 
-			#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
-				common_prepareBlockMagic(block);
-			#endif
+			common_prepareBlockMagic(block);
 		}
 	}
 
@@ -208,12 +204,9 @@ void common_heapFree(void *pointer)
 
 		block = (void *)pointer_casted;
 
-		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 /* TODO: fix weird #if */
 		if (common_checkBlockValid(block)) {
 			block->magic1 = 0;
 			block->magic2 = 0;
-			block->checksum = 0;
-		#endif
 
 			if (block->state != 0) {
 				if (block->next == NULL) {
@@ -226,10 +219,7 @@ void common_heapFree(void *pointer)
 					common_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
 				}
 			}
-
-		#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1 /* TODO: fix weird #if */
 		}
-		#endif
 	}
 
 	arch_exitCriticalSection();

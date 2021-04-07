@@ -12,7 +12,7 @@
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/mutex.h>
 #include <kernel/tasks/sched.h>
-#include <string.h> /* TODO: memcpy */
+#include <kernel/common/string.h>
 
 void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize, kMutex_t *mutex)
 {
@@ -36,7 +36,7 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 		ipc_mutexLock(fifo->mutex);
 
 		if (ipc_fifoFreeSpace(fifo)) {
-			memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
+			common_memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
 
 			fifo->inputPosition += fifo->itemSize;
 
@@ -79,7 +79,7 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 		ipc_mutexLock(fifo->mutex);
 
 		if (ipc_fifoAvailable(fifo) != 0) {
-			memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
 
 			fifo->outputPosition += fifo->itemSize;
 
@@ -120,7 +120,7 @@ size_t ipc_fifoPeek(kFIFO_t *fifo, void *output)
 
 	if (fifo != NULL) {
 		if (ipc_fifoAvailable(fifo) != 0) {
-			memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
 		}
 	}
 

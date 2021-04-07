@@ -21,8 +21,6 @@
 	#define CFG_KERNEL_IDLE_TASK_MEMORY 100
 	#define CFG_STACK_GROWTH_DIRECTION -1 /* -1 - towards lower addresses, 1 - towards higher */
 
-	#define CFG_PROTECT_FROM_INVALID_HEAP_FREE 1
-
 	#define CFG_KERNEL_PANIC_ACTION 2 /* 0 - restart, 1 - print error details and restart, 2 - print error details and halt */
 	#define CFG_TASK_RETURN_ACTION 1 /* 0 - panic, 1 - kill affected task, panic if critical */
 

@@ -9,4 +9,10 @@
 #ifndef KERNEL_EVENTS_H_
 #define KERNEL_EVENTS_H_
 
+#include <stdint.h>
+#include <kernel/types.h>
+
+uint16_t tasks_notificationWait();
+void tasks_notificationSend(kTask_t *taskToNotify, uint16_t flags);
+
 #endif

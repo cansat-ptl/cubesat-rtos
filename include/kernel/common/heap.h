@@ -17,14 +17,12 @@ struct kMemoryBlockStruct_t
 {
 	struct kMemoryBlockStruct_t *next;
 
+	uint16_t magic1;
+
 	size_t blockSize;
 	kBaseType_t state;
 
-	#if CFG_PROTECT_FROM_INVALID_HEAP_FREE == 1
-		uint16_t magic1;
-		uint16_t magic2;
-		uint8_t checksum;
-	#endif
+	uint16_t magic2;
 
 	kLinkedListItem_t allocListItem;
 };
