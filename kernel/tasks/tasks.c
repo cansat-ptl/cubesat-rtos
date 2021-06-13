@@ -10,7 +10,7 @@
 #include <kernel/config.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
-#include <kernel/common/heap.h>
+#include <kernel/mem/heap.h>
 #include <kernel/common/lists.h>
 #include <kernel/arch/arch.h>
 
@@ -30,8 +30,6 @@ void idle0()
 void tasks_init()
 {	
 	kTask_t *idleTask = NULL;
-
-	common_heapInit();
 
 	idleTask = tasks_createTaskStatic((void *)kIdleMem, (sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN), idle0, NULL, 0, KTASK_CRITICAL, "idle");
 	if (idleTask == NULL) {
@@ -117,7 +115,7 @@ kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *ar
 		memorySize += CFG_STACK_SAFETY_MARGIN + 1;
 	#endif
 
-	taskMemory = common_heapAlloc(memorySize, NULL);
+	taskMemory = mem_heapAlloc(memorySize, NULL);
 	returnHandle = tasks_createTaskStatic(taskMemory, memorySize, entry, args, priority, type, name);
 	
 	if (returnHandle != NULL) {
@@ -148,7 +146,7 @@ void tasks_deleteTask(kTask_t *task)
 		head = task->allocList.head;
 		
 		while(head != NULL) {
-			common_heapFree(head->data);
+			mem_heapFree(head->data);
 			head = head->next;
 		}
 
@@ -156,7 +154,7 @@ void tasks_deleteTask(kTask_t *task)
 		common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
 
 		if (task->flags & KTASKFLAG_DYNAMIC) {
-			common_heapFree((void *)task);
+			mem_heapFree((void *)task);
 		}
 
 		arch_exitCriticalSection();
@@ -234,6 +232,20 @@ kTaskType_t tasks_getTaskType(kTask_t *task)
 	return type;
 }
 
+kLinkedList_t *tasks_getTaskAllocList(kTask_t *task)
+{	
+	kLinkedList_t *allocList = NULL;
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		allocList = &(task->allocList);
+
+		arch_exitCriticalSection();
+	}
+
+	return allocList;
+}
+
 void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList)
 {
 	if (task != NULL && blockList != NULL) {
@@ -251,5 +263,16 @@ void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList)
 void tasks_unblockTask(kTask_t *task) 
 {
 	tasks_setTaskState(task, KSTATE_READY);
+}
+
+kReturnValue_t tasks_checkStackBounds(kTask_t *task) 
+{
+	kReturnValue_t exitcode = KRESULT_SUCCESS;
+
+	if (task->stackPtr < task->stackBegin || task->stackPtr > task->stackBegin + task->stackSize) {
+		exitcode = KRESULT_ERR_GENERIC;
+	}
+
+	return exitcode;
 }
 

@@ -29,12 +29,12 @@ struct kMemoryBlockStruct_t
 
 #define COMMON_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 
-void common_heapInit();
+void mem_heapInit();
 
-void* common_heapAlloc(size_t size, kLinkedList_t *allocList);
-void common_heapFree(void *pointer);
+void* mem_heapAlloc(size_t size, kLinkedList_t *allocList);
+void mem_heapFree(void *pointer);
 
-size_t common_getFreeHeap();
-size_t common_getFreeHeapMin();
+size_t mem_getFreeHeap();
+size_t mem_getFreeHeapMin();
 
 #endif

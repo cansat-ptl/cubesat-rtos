@@ -24,9 +24,9 @@ OBJDUMP_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-t
 AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe"
 
 # Host platform settings
-RM_CMD = C:\Tools\Coreutils\bin\rm -f
-MKDIR_CMD = C:\Tools\Coreutils\bin\mkdir.exe -p
-COPY_CMD = C:\Tools\Coreutils\bin\cp.exe
+RM_CMD = C:/Tools/Coreutils/bin/rm -f
+MKDIR_CMD = C:/Tools/Coreutils/bin/mkdir.exe -p
+COPY_CMD = C:/Tools/Coreutils/bin/cp.exe
  
 # Compiler & linker flags
 CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG $(INCLUDES) -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99

@@ -35,8 +35,6 @@ struct kIPCStruct_t
 	size_t inputPosition;
 	size_t outputPosition;
 	size_t currentPosition;
-
-	volatile struct kLockStruct_t *mutex;
 };
 
 #endif

@@ -15,7 +15,7 @@
 
 typedef volatile struct kIPCStruct_t kFIFO_t;
 
-void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize, kMutex_t *mutex);
+void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize);
 
 size_t ipc_fifoWrite(kFIFO_t *fifo, void *input);
 size_t ipc_fifoWriteBlocking(kFIFO_t *fifo, void *input);

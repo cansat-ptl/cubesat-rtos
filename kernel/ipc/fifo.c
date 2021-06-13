@@ -14,7 +14,7 @@
 #include <kernel/tasks/sched.h>
 #include <kernel/common/string.h>
 
-void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize, kMutex_t *mutex)
+void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize)
 {
 	if (fifoBuffer != NULL && bufferSize >= itemSize) {
 		fifo->itemSize = itemSize;
@@ -23,8 +23,6 @@ void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t ite
 		fifo->inputPosition = 0;
 		fifo->outputPosition = 0;
 		fifo->currentPosition = 0;
-		fifo->mutex = mutex;
-		ipc_mutexInit(fifo->mutex);
 	}
 }
 
@@ -33,8 +31,6 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 	size_t bytesWritten = 0;
 
 	if (fifo != NULL) {
-		ipc_mutexLock(fifo->mutex);
-
 		if (ipc_fifoFreeSpace(fifo)) {
 			common_memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
 
@@ -47,25 +43,6 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 			fifo->currentPosition += fifo->itemSize;
 			bytesWritten += fifo->itemSize;
 		}
-
-		ipc_mutexUnlock(fifo->mutex);
-	}
-
-	return bytesWritten;
-}
-
-size_t ipc_fifoWriteBlocking(kFIFO_t *fifo, void *input)
-{
-	size_t bytesWritten = 0;
-
-	if (fifo != NULL) {
-		while (1) {
-			bytesWritten = ipc_fifoWrite(fifo, input);
-			if (bytesWritten != 0) {
-				break;
-			}
-			tasks_sleep(0);
-		}
 	}
 
 	return bytesWritten;
@@ -76,8 +53,6 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 	size_t bytesRead = 0;
 
 	if (fifo != NULL) {
-		ipc_mutexLock(fifo->mutex);
-
 		if (ipc_fifoAvailable(fifo) != 0) {
 			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
 
@@ -89,25 +64,6 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 
 			fifo->currentPosition -= fifo->itemSize;
 			bytesRead += fifo->itemSize;
-		}
-
-		ipc_mutexUnlock(fifo->mutex);
-	}
-	
-	return bytesRead;
-}
-
-size_t ipc_fifoReadBlocking(kFIFO_t *fifo, void *output)
-{
-	size_t bytesRead = 0;
-
-	if (fifo != NULL) {
-		while (1) {
-			bytesRead = ipc_fifoRead(fifo, output);
-			if (bytesRead != 0) {
-				break;
-			}
-			tasks_sleep(0);
 		}
 	}
 	

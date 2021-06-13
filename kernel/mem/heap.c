@@ -9,7 +9,7 @@
 #include <kernel/types.h>
 #include <kernel/config.h>
 #include <kernel/arch/arch.h>
-#include <kernel/common/heap.h>
+#include <kernel/mem/heap.h>
 #include <kernel/common/lists.h>
 
 #define HEAP_SIGNATURE_FIRST16 0x4845
@@ -23,25 +23,25 @@ static struct kMemoryBlockStruct_t *kHeapEnd;
 static size_t kFreeMemory = 0;
 static size_t kMinimumFreeMemory = 0;
 
-kReturnValue_t common_heapPointerSanityCheck(void *pointer);
+kReturnValue_t mem_heapPointerSanityCheck(void *pointer);
 
-size_t common_getFreeHeap()
+size_t mem_getFreeHeap()
 {
 	return kFreeMemory;
 }
 
-size_t common_getFreeHeapMin()
+size_t mem_getFreeHeapMin()
 {
 	return kMinimumFreeMemory;
 }
 
-static inline void common_prepareBlockMagic(struct kMemoryBlockStruct_t *block) 
+static inline void mem_prepareBlockMagic(struct kMemoryBlockStruct_t *block) 
 {
 	block->magic1 = HEAP_SIGNATURE_FIRST16;
 	block->magic2 = HEAP_SIGNATURE_LAST16;
 }
 
-static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t *block) 
+static inline uint8_t mem_checkBlockValid(struct kMemoryBlockStruct_t *block) 
 {
 	uint8_t result = 0;
 
@@ -52,7 +52,7 @@ static inline uint8_t common_checkBlockValid(struct kMemoryBlockStruct_t *block)
 	return result;
 }
 
-void common_heapInit()
+void mem_heapInit()
 {
 	struct kMemoryBlockStruct_t *firstFreeBlock;
 	byte *heapAligned;
@@ -87,13 +87,13 @@ void common_heapInit()
 	firstFreeBlock->next = kHeapEnd;
 	firstFreeBlock->state = 0;
 
-	common_prepareBlockMagic(firstFreeBlock);
+	mem_prepareBlockMagic(firstFreeBlock);
 
 	kMinimumFreeMemory = firstFreeBlock->blockSize;
 	kFreeMemory = firstFreeBlock->blockSize;
 }
 
-static void common_insertFreeBlock(struct kMemoryBlockStruct_t *blockToInsert)
+static void mem_insertFreeBlock(struct kMemoryBlockStruct_t *blockToInsert)
 {
 	struct kMemoryBlockStruct_t *blockIterator;
 	byte *pointer_casted;
@@ -129,7 +129,7 @@ static void common_insertFreeBlock(struct kMemoryBlockStruct_t *blockToInsert)
 	return;
 }
 
-void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
+void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 {
 	void *returnAddress = NULL;
 	struct kMemoryBlockStruct_t *block;
@@ -164,7 +164,7 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 				newBlock->blockSize = block->blockSize - size;
 				block->blockSize = size;
 
-				common_insertFreeBlock(newBlock);
+				mem_insertFreeBlock(newBlock);
 			}
 
 			kFreeMemory -= block->blockSize;
@@ -184,7 +184,7 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 				block->allocListItem.data = NULL;
 			}
 
-			common_prepareBlockMagic(block);
+			mem_prepareBlockMagic(block);
 		}
 	}
 
@@ -192,19 +192,19 @@ void* common_heapAlloc(size_t size, kLinkedList_t *allocList)
 	return returnAddress;
 }
 
-void common_heapFree(void *pointer)
+void mem_heapFree(void *pointer)
 {
 	byte *pointer_casted = (byte *)pointer;
 	struct kMemoryBlockStruct_t *block;
 
 	arch_enterCriticalSection();
 
-	if (common_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
+	if (mem_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
 		pointer_casted -= COMMON_HEAP_STRUCT_SIZE;
 
 		block = (void *)pointer_casted;
 
-		if (common_checkBlockValid(block)) {
+		if (mem_checkBlockValid(block)) {
 			block->magic1 = 0;
 			block->magic2 = 0;
 
@@ -216,7 +216,7 @@ void common_heapFree(void *pointer)
 					}
 					block->state = 0;
 					kFreeMemory += block->blockSize;
-					common_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
+					mem_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
 				}
 			}
 		}
@@ -226,18 +226,18 @@ void common_heapFree(void *pointer)
 	return;
 }
 
-void common_heapFreeSafe(void **pointer)
+void mem_heapFreeSafe(void **pointer)
 {
 	arch_enterCriticalSection();
 
-	common_heapFree(*pointer);
+	mem_heapFree(*pointer);
 	*pointer = NULL;
 
 	arch_exitCriticalSection();
 	return;
 }
 
-kReturnValue_t common_heapPointerSanityCheck(void *pointer)
+kReturnValue_t mem_heapPointerSanityCheck(void *pointer)
 {
 	kReturnValue_t exitcode = KRESULT_ERR_MEMORY_VIOLATION;
 

@@ -36,7 +36,7 @@ void test_task3()
 
 		debug_printk("task3: Reading FIFO\r\n");
 
-		ipc_fifoReadBlocking(&fifo, (void*)receiveBuffer);
+		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
 
@@ -54,7 +54,7 @@ void test_task2()
 
 		debug_printk("task2: Reading FIFO\r\n");
 
-		ipc_fifoReadBlocking(&fifo, (void*)receiveBuffer);
+		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		debug_printk("task2: FIFO contents: %s\r\n", receiveBuffer);
 
@@ -69,7 +69,7 @@ void test_task()
 	while (1)
 	{
 		debug_printk("task1: Writing FIFO\r\n");
-		ipc_fifoWriteBlocking(&fifo, (void*)asd);
+		ipc_fifoWrite(&fifo, (void*)asd);
 	}
 }
 
@@ -80,7 +80,7 @@ void test_task123()
 	while (1)
 	{
 		debug_printk("task123: Writing FIFO\r\n");
-		ipc_fifoWriteBlocking(&fifo, (void*)asd);
+		ipc_fifoWrite(&fifo, (void*)asd);
 		_delay_ms(10);
 		break;
 	}
@@ -90,7 +90,7 @@ void test_task123()
 int main(void)
 {
 	kernel_init();
-	ipc_fifoInit(&fifo, fifoBuffer, 31, 11, &mutex);
+	ipc_fifoInit(&fifo, fifoBuffer, 31, 11);
 	test = tasks_createTaskDynamic(150, test_task, NULL, 1, KTASK_NORMAL, "test1");
 	test2 = tasks_createTaskDynamic(150, test_task2, NULL, 1, KTASK_NORMAL, "test2");
 	test3 = tasks_createTaskDynamic(150, test_task3, NULL, 1, KTASK_NORMAL, "test3");
