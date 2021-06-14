@@ -1,7 +1,3 @@
-# Recursive makefile wildcard
-# https://stackoverflow.com/a/12959764
-rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
-
 # Project settings
 TARG = rtos
 TEST_TARG = yktsat-rtos
@@ -30,9 +26,14 @@ AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-
 RM_CMD = C:/Tools/Coreutils/bin/rm -rf
 MKDIR_CMD = C:/Tools/Coreutils/bin/mkdir.exe -p
 COPY_CMD = C:/Tools/Coreutils/bin/cp.exe
+
+VERSION_SEMANTIC = 0.0.1
+VERSION_GIT_HASH = `git rev-parse HEAD | cut -c1-8`
+VERSION_GIT_BRANCH = `git rev-parse --abbrev-ref HEAD`
+VERSION_STRING = $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
  
 # Compiler & linker flags
-CFLAGS = -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -mmcu=$(MCU) -c -std=gnu99 -Wall -Wextra -Wpedantic
+CFLAGS = -x c -DDEBUG -DVERSION_STRING="\"$(VERSION_STRING)\"" $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -mmcu=$(MCU) -c -std=gnu99 -Wall -Wextra -Wpedantic
 ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -mmcu=$(MCU) -Wall -Wextra -Wpedantic 
 LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -mmcu=$(MCU) -lm -Wall -Wextra -Wpedantic 
 
@@ -46,6 +47,10 @@ OBJDUMP_LSS_FLAGS = -h -S
 #-------------------------------------------------------------------------------
 # DO NOT EDIT BELOW THIS LINE
 #-------------------------------------------------------------------------------
+
+# Recursive makefile wildcard
+# https://stackoverflow.com/a/12959764
+rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
 
 # Automatically find all source files
 SRCS = $(call rwildcard, $(SRCDIR)/,*.c)

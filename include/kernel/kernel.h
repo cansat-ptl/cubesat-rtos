@@ -9,7 +9,9 @@
 #ifndef KERNEL_RTOS_H_
 #define KERNEL_RTOS_H_
 
-#define KERNEL_VERSION "v0.0.1-git-7725113"
+#ifndef VERSION_STRING
+#define VERSION_STRING "0.0.0-unknown"
+#endif
 
 #include <kernel/types.h>
 #include <kernel/config.h>
