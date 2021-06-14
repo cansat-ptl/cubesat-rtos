@@ -3,7 +3,8 @@
 rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
 
 # Project settings
-TARG = yktsat-rtos
+TARG = rtos
+TEST_TARG = yktsat-rtos
 MCU=atmega128
 
 # Libraries & includes
@@ -11,12 +12,14 @@ INCLUDES = -I"./include"
 
 # Project directories
 SRCDIR = kernel
+TESTDIR = tests
 BUILDDIR = build
 TARGDIR = bin
 
 # Compiler & linker settings
 CC = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
 ASM = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
+AR = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-ar.exe"
 
 # AVR-specific tool settings
 OBJCOPY_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe"
@@ -24,7 +27,7 @@ OBJDUMP_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-t
 AVR_SIZE_CMD = "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe"
 
 # Host platform settings
-RM_CMD = C:/Tools/Coreutils/bin/rm -f
+RM_CMD = C:/Tools/Coreutils/bin/rm -rf
 MKDIR_CMD = C:/Tools/Coreutils/bin/mkdir.exe -p
 COPY_CMD = C:/Tools/Coreutils/bin/cp.exe
  
@@ -41,38 +44,46 @@ OBJCOPY_SREC_FLAGS = -O srec -R .eeprom -R .fuse -R .lock -R .signature -R .user
 OBJDUMP_LSS_FLAGS = -h -S
 
 #-------------------------------------------------------------------------------
-#							DO NOT EDIT BELOW THIS LINE
+# DO NOT EDIT BELOW THIS LINE
 #-------------------------------------------------------------------------------
 
 # Automatically find all source files
-SRCS = $(call rwildcard, $(SRCDIR)/,*.c) main.c
+SRCS = $(call rwildcard, $(SRCDIR)/,*.c)
+TEST_SRCS = $(call rwildcard, $(TESTDIR)/,*.c)
 ASM_SRCS = $(call rwildcard, $(SRCDIR)/,*.S)
 
 # Generate build directory structure
 DIRS = $(addprefix $(BUILDDIR)/,$(dir $(SRCS)))
+TEST_DIRS = $(addprefix $(BUILDDIR)/,$(dir $(TEST_SRCS)))
 
 # Generate list of objects
 OBJS = $(addprefix $(BUILDDIR)/,$(SRCS:.c=.o)) $(addprefix $(BUILDDIR)/,$(ASM_SRCS:.S=.o))
+TEST_OBJS = $(addprefix $(BUILDDIR)/,$(TEST_SRCS:.c=.o))
  
-all: dirs $(TARG)
+all: dirs $(TARG) $(TEST_TARG)
 
 # Create build directories
 dirs:
 	$(MKDIR_CMD) $(BUILDDIR)
 	$(MKDIR_CMD) $(TARGDIR)
 	$(MKDIR_CMD) $(DIRS)
+	$(MKDIR_CMD) $(TEST_DIRS)
 
-# Compile target
+# Compile main target
 $(TARG): $(OBJS)
-	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(LDFLAGS)
-	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).hex"
-	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).eep" || exit 0
-	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TARG).elf" > "$(TARGDIR)/$(TARG).lss"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).srec"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).usersignatures" || exit 0
-	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TARG).elf"
-	$(COPY_CMD) "$(TARGDIR)/$(TARG).elf" "./$(TARG).elf"
+	$(AR) rcs "$(TARGDIR)/lib$(TARG).a" $(OBJS)
+	$(COPY_CMD) "$(TARGDIR)/lib$(TARG).a" "./lib$(TARG).a"
 
+# Compile test target
+$(TEST_TARG): $(TARG) $(TEST_OBJS)
+	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(TEST_OBJS) $(LDFLAGS) -L. -l$(TARG)
+	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).hex"
+	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).eep" || exit 0
+	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" > "$(TARGDIR)/$(TEST_TARG).lss"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).srec"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).usersignatures" || exit 0
+	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TEST_TARG).elf"
+	$(COPY_CMD) "$(TARGDIR)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
 
 # Compile objects
 $(BUILDDIR)/%.o: %.c
@@ -82,11 +93,14 @@ $(BUILDDIR)/%.o: %.S
 	$(ASM) $(ASMFLAGS) -c -o $@ $<
 
 # Clean
+cleandirs:
+	$(RM_CMD) $(TARGDIR) $(BUILDDIR)
+
 cleanobjs:
-	$(RM_CMD) $(OBJS)
+	$(RM_CMD) $(OBJS) $(TEST_OBJS)
 
 cleanmisc:
-	$(RM_CMD) $(TARGDIR)/$(TARG).map $(TARGDIR)/$(TARG).usersignatures $(TARGDIR)/$(TARG).srec $(TARGDIR)/$(TARG).lss $(TARGDIR)/$(TARG).eep
+	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).map $(TARGDIR)/$(TEST_TARG).usersignatures $(TARGDIR)/$(TEST_TARG).srec $(TARGDIR)/$(TEST_TARG).lss $(TARGDIR)/$(TEST_TARG).eep
 
-clean: cleanobjs cleanmisc
-	$(RM_CMD) $(TARGDIR)/$(TARG).elf $(TARG).elf $(TARGDIR)/$(TARG).bin $(TARGDIR)/$(TARG).hex
+clean: cleanobjs cleanmisc cleandirs
+	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).elf $(TEST_TARG).elf $(TARGDIR)/$(TEST_TARG).bin $(TARGDIR)/$(TEST_TARG).hex lib$(TARG).a $(TARGDIR)/lib$(TARG).a
