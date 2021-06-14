@@ -45,6 +45,7 @@ void arch_startSystickTimer();
 void arch_stopSystickTimer();
 
 void arch_platformInit();
+void arch_startScheduler();
 
 void arch_halt();
 void arch_reboot();

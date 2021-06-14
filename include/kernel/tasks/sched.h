@@ -33,6 +33,8 @@ void tasks_unscheduleTask(kTask_t *task);
 
 kTask_t *tasks_getCurrentTask();
 
+kSysTicks_t tasks_getSysTickCount();
+
 void tasks_sleep(kTaskTicks_t sleep);
 
 void tasks_switchTask();

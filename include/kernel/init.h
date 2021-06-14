@@ -10,5 +10,6 @@
 #define KERNEL_INIT_H_
 
 void kernel_init();
+void kernel_startScheduler();
 
 #endif /* KERNEL_H_ */

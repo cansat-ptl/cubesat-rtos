@@ -90,12 +90,12 @@ void test_task123()
 int main(void)
 {
 	kernel_init();
-	debug_printk("test test test\r\n");
 	ipc_fifoInit(&fifo, fifoBuffer, 31, 11);
 	test = tasks_createTaskDynamic(150, test_task, NULL, 1, KTASK_NORMAL, "test1");
 	test2 = tasks_createTaskDynamic(150, test_task2, NULL, 1, KTASK_NORMAL, "test2");
 	test3 = tasks_createTaskDynamic(150, test_task3, NULL, 1, KTASK_NORMAL, "test3");
 	test4 = tasks_createTaskDynamic(150, test_task123, NULL, 1, KTASK_NORMAL, "test123");
+	kernel_startScheduler();
 	while (1)
 	{
 		asm volatile("nop"::);

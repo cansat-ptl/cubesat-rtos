@@ -20,6 +20,10 @@ void arch_platformInit()
 {
 	uart_init();
 	arch_setupSystickTimer();
+}
+
+void arch_startScheduler()
+{
 	arch_startSystickTimer();
 	arch_ENABLE_INTERRUPTS();
 }

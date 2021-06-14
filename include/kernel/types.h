@@ -29,6 +29,8 @@ typedef volatile uint8_t kSpinlock_t;
 
 typedef volatile uint8_t* kStackPtr_t;
 
+typedef uint32_t kSysTicks_t;
+
 typedef uint8_t kBaseType_t;
 
 typedef int16_t kIterator_t;

@@ -17,6 +17,8 @@
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
+static volatile kSysTicks_t kTicks = 0;
+
 void tasks_initScheduler(kTask_t *idle)
 {
 	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
@@ -27,7 +29,22 @@ void tasks_initScheduler(kTask_t *idle)
 
 kTask_t *tasks_getCurrentTask()
 {
-	return kSchedCPUState.kCurrentTask;
+	arch_enterCriticalSection();
+
+	kTask_t *currentTask = kSchedCPUState.kCurrentTask;
+
+	arch_exitCriticalSection();
+	return currentTask;
+}
+
+kSysTicks_t tasks_getSysTickCount()
+{
+	arch_enterCriticalSection();
+
+	kSysTicks_t ticks = (kSysTicks_t)kTicks;
+
+	arch_exitCriticalSection();
+	return ticks;
 }
 
 void tasks_scheduleTask(kTask_t *task, kTaskState_t state)
@@ -107,7 +124,7 @@ static inline void tasks_search()
 	}
 }
 
-static void tasks_switchContext()
+static inline void tasks_switchContext()
 {	
 	kTask_t *task = kSchedCPUState.kCurrentTask;
 
@@ -124,7 +141,8 @@ static void tasks_switchContext()
 	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;
 }
 
-void tasks_switchTask()
+/* Note: must not be static, called in arch module */
+inline void tasks_switchTask()
 {
 	if (!kSchedCPUState.kTickRate) {
 		tasks_tickTasks();
@@ -144,9 +162,10 @@ void tasks_switchTask()
 	if (kSchedCPUState.kNextTask != kSchedCPUState.kCurrentTask) tasks_switchContext();
 }
 
-void tasks_tick()
+/* Note: must not be static, called in arch module */
+inline void tasks_tick()
 {
-	/* TODO: timekeeping */
+	kTicks++;
 	tasks_switchTask();
 }
 

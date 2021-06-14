@@ -16,13 +16,19 @@
 void kernel_init()
 {	
 	arch_platformInit();
+	debug_printk("[init] Board init OK\r\n");
+
 	mem_heapInit();
+	debug_printk("[init] Memmgr init OK\r\n");
+
 	tasks_init();
+	debug_printk("[init] Taskmgr init OK\r\n");
 
-	arch_DISABLE_INTERRUPTS();
+	debug_printk("[init] yktsat-rtos " KERNEL_VERSION "\r\n");
+}
 
-	debug_printk("[init] Init OK\r\n");
-	debug_printk("[init] Starting yktsat-rtos " KERNEL_VERSION "\r\n");
-
-	arch_ENABLE_INTERRUPTS();
+void kernel_startScheduler()
+{
+	debug_printk("[init] Starting scheduler\r\n");
+	arch_startScheduler();
 }
