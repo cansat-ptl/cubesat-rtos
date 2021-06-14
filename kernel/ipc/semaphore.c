@@ -81,14 +81,16 @@ void ipc_semaphoreSignal(kSemaphore_t *semaphore)
 				semaphore->lockOwner = NULL;
 				semaphore->basePriority = 0;
 			}
+			semaphore->lockCount = 1;
+		}
+		else {
+			semaphore->lockCount++;
 		}
 
 		while(head != NULL) {
 			tasks_unblockTask((kTask_t *)head->data);
 			head = head->next;
 		}
-
-		semaphore->lockCount++;
 
 		arch_spinlockRelease(&semaphore->spinlock);
 	}

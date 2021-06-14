@@ -29,9 +29,9 @@ MKDIR_CMD = C:/Tools/Coreutils/bin/mkdir.exe -p
 COPY_CMD = C:/Tools/Coreutils/bin/cp.exe
  
 # Compiler & linker flags
-CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG $(INCLUDES) -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=$(MCU) -c -std=gnu99
+CFLAGS = -x c -funsigned-char -funsigned-bitfields -DDEBUG $(INCLUDES) -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -Wextra -Wpedantic -mmcu=$(MCU) -c -std=gnu99
 ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Og -mrelax -g2 -mmcu=$(MCU) 
-LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,-u,vfprintf -Wl,--start-group -Wl,-lm	-Wl,--end-group -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -mmcu=$(MCU) -Wl,-u,vfprintf -lprintf_flt -lm
+LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,-u,vfprintf -Wl,--start-group -Wl,-lm -Wl,--end-group -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -mmcu=$(MCU) -Wl,-u,vfprintf -lprintf_flt -lm
 
 # AVR-specific tool flags
 OBJCOPY_HEX_FLAGS = -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures

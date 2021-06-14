@@ -10,7 +10,6 @@
 #define KENREL_PRINTK_H_
 
 #include <stdarg.h>
-#include <string.h>
 
 #define MAX_NBR_LEN 16
 

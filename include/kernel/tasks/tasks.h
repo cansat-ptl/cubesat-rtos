@@ -70,4 +70,6 @@ void tasks_deleteTask(kTask_t *task);
 void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList);
 void tasks_unblockTask(kTask_t *task);
 
+kReturnValue_t tasks_checkStackBounds(kTask_t *task);
+
 #endif

@@ -10,7 +10,6 @@
 #include <kernel/config.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
-#include <kernel/tasks/mem.h>
 #include <kernel/arch/arch.h>
 #include <kernel/common/lists.h>
 #include <kernel/debug/printk.h>
