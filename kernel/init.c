@@ -24,7 +24,7 @@ void kernel_init()
 	tasks_init();
 	debug_printk("[init] Taskmgr init OK\r\n");
 
-	debug_printk("[init] yktsat-rtos " VERSION_STRING " arch " KERNEL_ARCH "\\" KERNEL_MCU "\r\n");
+	debug_printk("[init] yktsat-rtos " VERSION_STRING " arch " KERNEL_ARCH "/" KERNEL_MCU "\r\n");
 }
 
 void kernel_startScheduler()
