@@ -7,12 +7,12 @@
 
 
 #ifdef KERNEL_ARCH_avr
-#ifdef KERNEL_MCU_atmega128
+#ifdef KERNEL_MCU_atmega2560
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/iom128.h>
-#include <kernel/arch/mega128/arch.h>
+#include <avr/iom2560.h>
+#include <kernel/arch/mega2560/arch.h>
 
 void __attribute__ (( naked, noinline )) arch_tick();
 

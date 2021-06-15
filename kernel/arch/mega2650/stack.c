@@ -7,11 +7,11 @@
 
 
 #ifdef KERNEL_ARCH_avr
-#ifdef KERNEL_MCU_atmega128
+#ifdef KERNEL_MCU_atmega2560
 
 #include <kernel/types.h>
 #include <kernel/config.h>
-#include <kernel/arch/mega128/stack.h>
+#include <kernel/arch/mega2560/stack.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
 

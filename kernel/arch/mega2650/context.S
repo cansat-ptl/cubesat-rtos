@@ -7,10 +7,10 @@
 
 
 #ifdef KERNEL_ARCH_avr
-#ifdef KERNEL_MCU_atmega128
+#ifdef KERNEL_MCU_atmega2560
 
 #include <avr/io.h>
-#include <avr/iom128.h>
+#include <avr/iom2560.h>
 
 .extern kSchedCPUState
 .extern kReservedMemory

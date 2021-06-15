@@ -1,7 +1,8 @@
 # Project settings
 TARG = rtos
 TEST_TARG = yktsat-rtos
-MCU=atmega128
+ARCH_DEFAULT = avr
+MCU_DEFAULT = atmega128
 
 # Libraries & includes
 INCLUDES = -I"./include"
@@ -30,12 +31,11 @@ COPY_CMD = C:/Tools/Coreutils/bin/cp.exe
 VERSION_SEMANTIC = 0.0.1
 VERSION_GIT_HASH = `git rev-parse HEAD | cut -c1-8`
 VERSION_GIT_BRANCH = `git rev-parse --abbrev-ref HEAD`
-VERSION_STRING = $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
  
 # Compiler & linker flags
-CFLAGS = -x c -DDEBUG -DVERSION_STRING="\"$(VERSION_STRING)\"" $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -mmcu=$(MCU) -c -std=gnu99 -Wall -Wextra -Wpedantic
-ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -mmcu=$(MCU) -Wall -Wextra -Wpedantic 
-LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -mmcu=$(MCU) -lm -Wall -Wextra -Wpedantic 
+CFLAGS = -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
+ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra
+LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra
 
 # AVR-specific tool flags
 OBJCOPY_HEX_FLAGS = -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures
@@ -64,6 +64,24 @@ TEST_DIRS = $(addprefix $(BUILDDIR)/,$(dir $(TEST_SRCS)))
 # Generate list of objects
 OBJS = $(addprefix $(BUILDDIR)/,$(SRCS:.c=.o)) $(addprefix $(BUILDDIR)/,$(ASM_SRCS:.S=.o))
 TEST_OBJS = $(addprefix $(BUILDDIR)/,$(TEST_SRCS:.c=.o))
+
+VERSION_STRING = $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
+
+ifndef $(arch)
+arch = $(ARCH_DEFAULT)
+else
+ifeq ($(strip $(arch)),)
+	$(arch) := $(ARCH_DEFAULT)
+endif
+endif
+
+ifndef $(mcu)
+mcu = $(MCU_DEFAULT)
+else
+ifeq ($(strip $(mcu)),)
+	$(mcu) := $(MCU_DEFAULT)
+endif
+endif
  
 all: dirs $(TARG) $(TEST_TARG)
 
@@ -71,8 +89,12 @@ all: dirs $(TARG) $(TEST_TARG)
 dirs:
 	$(MKDIR_CMD) $(BUILDDIR)
 	$(MKDIR_CMD) $(TARGDIR)
+ifneq ($(strip $(DIRS)),)
 	$(MKDIR_CMD) $(DIRS)
+endif
+ifneq ($(strip $(TEST_DIRS)),)
 	$(MKDIR_CMD) $(TEST_DIRS)
+endif
 
 # Compile main target
 $(TARG): $(OBJS)
@@ -81,7 +103,7 @@ $(TARG): $(OBJS)
 
 # Compile test target
 $(TEST_TARG): $(TARG) $(TEST_OBJS)
-	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(TEST_OBJS) $(LDFLAGS) -L. -l$(TARG)
+	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(TEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L. -l$(TARG)
 	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).hex"
 	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).eep" || exit 0
 	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" > "$(TARGDIR)/$(TEST_TARG).lss"
@@ -92,10 +114,10 @@ $(TEST_TARG): $(TARG) $(TEST_OBJS)
 
 # Compile objects
 $(BUILDDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -c -o $@ $<
 
 $(BUILDDIR)/%.o: %.S
-	$(ASM) $(ASMFLAGS) -c -o $@ $<
+	$(ASM) $(ASMFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -c -o $@ $<
 
 # Clean
 cleandirs:

@@ -7,12 +7,12 @@
 
 
 #ifdef KERNEL_ARCH_avr
-#ifdef KERNEL_MCU_atmega128
+#ifdef KERNEL_MCU_atmega2560
 
 #include <kernel/types.h>
 #include <kernel/config.h>
-#include <kernel/arch/mega128/uart.h>
-#include <kernel/arch/mega128/arch.h>
+#include <kernel/arch/mega2560/uart.h>
+#include <kernel/arch/mega2560/arch.h>
 #include <avr/wdt.h>
 
 static volatile uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
@@ -58,9 +58,9 @@ void arch_setupSystickTimer()
 {
 	kStatusRegister_t sreg = arch_STATUS_REG;
 	arch_DISABLE_INTERRUPTS();
-	TCCR0 |= (CFG_KERNEL_TIMER_PRESCALER << CS00); /* prescaler 64 cs11 & cs10 = 1 */
+	TCCR0A |= (CFG_KERNEL_TIMER_PRESCALER << CS00); /* prescaler 64 cs11 & cs10 = 1 */
 	TCNT0 = 0;
-	OCR0 = 250; /* CFG_TIMER_COMPARE_VALUE; Corrected according to ISR execution time */
+	OCR0A = 250; /* CFG_TIMER_COMPARE_VALUE; Corrected according to ISR execution time */
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
 }
@@ -69,7 +69,7 @@ void arch_startSystickTimer()
 {
 	kStatusRegister_t sreg = arch_STATUS_REG;
 	arch_DISABLE_INTERRUPTS();
-	TIMSK |= (1 << OCIE0);
+	TIMSK0 |= (1 << OCIE0A);
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
 }
@@ -78,7 +78,7 @@ void arch_stopSystickTimer()
 {
 	kStatusRegister_t sreg = arch_STATUS_REG;
 	arch_DISABLE_INTERRUPTS();
-	TIMSK &= ~(1 << OCIE0);
+	TIMSK0 &= ~(1 << OCIE0A);
 	arch_ENABLE_INTERRUPTS();
 	arch_STATUS_REG = sreg;
 }
@@ -118,8 +118,8 @@ static void arch_disableWatchdogOnStart(void) __attribute__((naked, section(".in
 
 static void arch_disableWatchdogOnStart(void)
 {
-	mcusr_mirror = MCUCSR;
-	MCUCSR = 0;
+	mcusr_mirror = MCUSR;
+	MCUSR = 0;
 	wdt_disable();
 }
 
