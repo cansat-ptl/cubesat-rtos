@@ -19,13 +19,17 @@ void arch_taskReturnHook();
 
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args)
 {
-	stackPointer += stackSize - 2;
-	*(stackPointer--) = (uint16_t)arch_taskReturnHook & 0xFF; /* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
-	*(stackPointer--) = (uint16_t)arch_taskReturnHook >> 8; /* higher 8 bits */
-	*(stackPointer--) = (uint16_t)entry & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
-	*(stackPointer--) = (uint16_t)entry >> 8;	/* Upper 8 bits */
+	stackPointer += stackSize - 3;
+	*(stackPointer--) = (uint32_t)arch_taskReturnHook & 0xFF; /* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
+	*(stackPointer--) = ((uint32_t)arch_taskReturnHook >> 8) & 0xFF; /* middle 8 bits */
+	*(stackPointer--) = (uint32_t)arch_taskReturnHook >> 16; /* higher 8 bits */
+	*(stackPointer--) = (uint32_t)entry & 0xFF;	/* Function address - will be grabbed by RETI when the task executes for first time, lower 8 bits */
+	*(stackPointer--) = ((uint32_t)entry >> 8) & 0xFF;	/* Middle 8 bits */
+	*(stackPointer--) = (uint32_t)entry >> 16;	/* Upper 8 bits */
 	*(stackPointer--) = 0;				/* R0 initial value, overwritten by SREG during context switch, should be initialized separately */
 	*(stackPointer--) = 0x80;			/* SREG initial value - interrupts enabled */
+	*(stackPointer--) = 0;				/* EIND initial value = 0 */
+	*(stackPointer--) = 0;				/* RAMPZ initial value = 0 */
 	*(stackPointer--) = 0x00;			/* R1, needs to be 0 in gcc */
 	*(stackPointer--) = 0x02;			/* R2 */
 	*(stackPointer--) = 0x03;			/* R3 */

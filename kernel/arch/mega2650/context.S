@@ -26,17 +26,17 @@
 
 .macro _arch_restore_context_m
 ;-------------------Context-Restore-------------------
-	lds r0, SPL					; load current stack pointer
+	lds r0, SPL			; load current stack pointer
 	sts kStackPointer, r0		; and save it into kStackPointer
 	lds r0, SPH
 	sts kStackPointer+1, r0
 	lds r26, kSchedCPUState		; load kCurrentTask handle
 	lds r27, kSchedCPUState+1
-	ld r0, X+					; load new stack pointer from kCurrentTask
-	sts SPL, r0					; and replace the current one with it
+	ld r0, X+			; load new stack pointer from kCurrentTask
+	sts SPL, r0			; and replace the current one with it
 	ld r0, X+
 	sts SPH, r0
-	pop r31						; load previously saved registers from stack
+	pop r31				; load previously saved registers from stack
 	pop r30
 	pop r29
 	pop r28
@@ -67,21 +67,29 @@
 	pop r3
 	pop r2
 	pop r1
-	sei							; Simulator bug workaround, TODO: remove this
-	pop r0						; load previously saved SREG to r0
+	pop r0
+	sts RAMPZ, r0
+	pop r0
+	sts EIND, r0
+	sei				; Simulator bug workaround, TODO: remove this
+	pop r0				; load previously saved SREG to r0
 	sts SREG, r0
-	pop r0						; load the actual r0 register
+	pop r0				; load the actual r0 register
 ;-----------------------------------------------------
 .endm
 
 .macro _arch_save_context_m
 ;--------------------Context-Save---------------------
-	push r0						; do everything from _arch_restore_context
-	lds r0, SREG				; but in reverse
+	push r0				; do everything from _arch_restore_context
+	lds r0, SREG			; but in reverse
 	cli
 	push r0
+	lds r0, EIND
+	push r0
+	lds r0, RAMPZ
+	push r0
 	push r1
-	clr r1						; r1 needs to always be 0
+	clr r1				; r1 needs to always be 0
 	push r2
 	push r3
 	push r4

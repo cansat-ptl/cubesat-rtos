@@ -58,7 +58,7 @@ void arch_setupSystickTimer()
 {
 	kStatusRegister_t sreg = arch_STATUS_REG;
 	arch_DISABLE_INTERRUPTS();
-	TCCR0A |= (CFG_KERNEL_TIMER_PRESCALER << CS00); /* prescaler 64 cs11 & cs10 = 1 */
+	TCCR0B |= (CFG_KERNEL_TIMER_PRESCALER << CS10); /* prescaler 64 cs11 & cs10 = 1 */
 	TCNT0 = 0;
 	OCR0A = 250; /* CFG_TIMER_COMPARE_VALUE; Corrected according to ISR execution time */
 	arch_ENABLE_INTERRUPTS();
