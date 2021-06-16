@@ -11,7 +11,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <kernel/config.h>
 
 typedef struct kLinkedListStruct_t kLinkedList_t;
 typedef struct kLinkedListItemStruct_t kLinkedListItem_t;

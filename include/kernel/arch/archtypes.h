@@ -15,10 +15,16 @@
 	#elif defined KERNEL_MCU_atmega2560
 		#include "./mega2560/types.h"
 	#else
-		#error "Unsupported/unknown AVR MCU"
+		/* workaround to make IntelliSense happy */
+		/* makes you REALLY contemplate directory structure choices */
+		#include "./stub/types.h"
+		#warning "Unsupported/unknown AVR MCU, using stub types"
 	#endif
 #else
-	#error "Unsupported/unknown architecture"
+	/* workaround to make IntelliSense happy */
+	/* makes you REALLY contemplate directory structure choices */
+	#include "./stub/types.h"
+	#warning "Unsupported/unknown architecture, using stub types"
 #endif
 
 #endif

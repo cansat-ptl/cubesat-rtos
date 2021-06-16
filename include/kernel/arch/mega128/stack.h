@@ -13,8 +13,6 @@
 #include <avr/iom128.h>
 #include <avr/common.h>
 
-#include <kernel/types.h>
-
 kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args);
 
 kStackPtr_t arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize);

@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-typedef uint8_t byte;
-
 typedef volatile uint8_t kSpinlock_t;
 
 typedef volatile uint8_t* kStackPtr_t;
