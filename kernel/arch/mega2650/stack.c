@@ -1,8 +1,8 @@
 /*
  * stack.c
- *
- * Created: 17.12.2020 20:52:33
- *  Author: Admin
+ * 
+ * Created: 15.06.2021 07:37:23
+ * Author: ThePetrovich
  */
 
 

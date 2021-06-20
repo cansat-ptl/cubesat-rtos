@@ -44,4 +44,4 @@
 
 	#define CFG_KERNEL_TIMER_PRESCALER 3
 
-#endif /* CONFIG_H_ */
+#endif

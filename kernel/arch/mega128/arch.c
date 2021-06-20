@@ -1,8 +1,8 @@
 /*
- * init.c
+ * arch.c
  *
  * Created: 17.12.2020 20:53:05
- *  Author: Admin
+ * Author: ThePetrovich
  */
 
 

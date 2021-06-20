@@ -2,7 +2,7 @@
  * heap.c
  *
  * Created: 18.12.2020 6:21:51
- *  Author: Admin
+ * Author: ThePetrovich
  */
 
 

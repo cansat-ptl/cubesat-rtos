@@ -1,5 +1,5 @@
 /*
- * module.h
+ * arch.h
  * 
  * Created: 08.02.2021 03:32:12
  * Author: ThePetrovich

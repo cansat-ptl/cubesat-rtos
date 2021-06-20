@@ -24,8 +24,10 @@ struct kLinkedListStruct_t
 struct kLinkedListItemStruct_t
 {
 	kLinkedList_t *list;
+	
 	kLinkedListItem_t *next;
 	kLinkedListItem_t *prev;
+
 	void *data;
 };
 

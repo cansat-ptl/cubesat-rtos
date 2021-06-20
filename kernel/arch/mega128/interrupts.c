@@ -2,7 +2,7 @@
  * interrupts.c
  *
  * Created: 17.12.2020 20:52:49
- *  Author: Admin
+ * Author: ThePetrovich
  */
 
 

@@ -2,7 +2,7 @@
  * cubesat-rtos.c
  *
  * Created: 22.11.2020 20:06:27
- * Author : Admin
+ * Author : ThePetrovich
  */
 
 #define F_CPU 16000000L

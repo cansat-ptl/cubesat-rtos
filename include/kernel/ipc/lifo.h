@@ -18,9 +18,7 @@ typedef volatile struct kIPCStruct_t kLIFO_t;
 void ipc_lifoInit(kLIFO_t *lifo, void *lifoBuffer, size_t bufferSize, size_t itemSize);
 
 size_t ipc_lifoWrite(kLIFO_t *lifo, void *input);
-size_t ipc_lifoWriteBlocking(kLIFO_t *lifo, void *input);
 size_t ipc_lifoRead(kLIFO_t *lifo, void *output);
-size_t ipc_lifoReadBlocking(kLIFO_t *lifo, void *output);
 size_t ipc_lifoPeek(kLIFO_t *lifo, void *output);
 size_t ipc_lifoFreeSpace(kLIFO_t *lifo);
 size_t ipc_lifoAvailable(kLIFO_t *lifo);

@@ -2,7 +2,7 @@
  * init.c
  *
  * Created: 17.12.2020 20:49:07
- *  Author: ThePetrovich
+ * Author: ThePetrovich
  */
 
 

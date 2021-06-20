@@ -2,7 +2,7 @@
  * uart.c
  *
  * Created: 17.12.2020 20:52:21
- *  Author: Admin
+ * Author: ThePetrovich
  */
 
 

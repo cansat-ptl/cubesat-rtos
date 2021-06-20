@@ -2,7 +2,7 @@
  * types.h
  *
  * Created: 17.12.2020 20:56:33
- *  Author: Admin
+ *  Author: ThePetrovich
  */
 
 
@@ -34,4 +34,4 @@ typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
 typedef struct kTaskStruct_t kTask_t;
 typedef struct kLockStruct_t kLock_t;
 
-#endif /* TYPES_H_ */
+#endif

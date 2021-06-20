@@ -1,5 +1,5 @@
 /*
- * kernel.h
+ * init.h
  * 
  * Created: 24.01.2021 08:31:50
  * Author: ThePetrovich
@@ -12,4 +12,4 @@
 void kernel_init();
 void kernel_startScheduler();
 
-#endif /* KERNEL_H_ */
+#endif

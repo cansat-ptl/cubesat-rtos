@@ -53,19 +53,17 @@ struct kTaskStruct_t
 
 void tasks_init();
 
-void tasks_setTaskState(kTask_t *task, kTaskState_t state);
-kTaskState_t tasks_getTaskState(kTask_t *task);
-
-void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority);
-kBaseType_t tasks_getTaskPriority(kTask_t *task);
-
-kTaskType_t tasks_getTaskType(kTask_t *task);
-
-kLinkedList_t *tasks_getTaskAllocList(kTask_t *task);
-
 kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name);
 kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name);
 void tasks_deleteTask(kTask_t *task);
+
+void tasks_setTaskState(kTask_t *task, kTaskState_t state);
+void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority);
+
+kTaskState_t tasks_getTaskState(kTask_t *task);
+kBaseType_t tasks_getTaskPriority(kTask_t *task);
+kTaskType_t tasks_getTaskType(kTask_t *task);
+kLinkedList_t *tasks_getTaskAllocList(kTask_t *task);
 
 void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList);
 void tasks_unblockTask(kTask_t *task);
