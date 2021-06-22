@@ -30,4 +30,4 @@ typedef uint16_t kStackSize_t;
 typedef uint16_t kTaskTicks_t;
 typedef uint16_t kPid_t;
 
-#endif
+#endif /* AVRM128_TYPES_H_ */

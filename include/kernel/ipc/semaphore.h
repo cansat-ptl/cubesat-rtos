@@ -14,8 +14,16 @@
 
 typedef volatile struct kLockStruct_t kSemaphore_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void ipc_semaphoreInit(kSemaphore_t *semaphore, kBaseType_t resourceAmount);
 void ipc_semaphoreWait(kSemaphore_t *semaphore);
 void ipc_semaphoreSignal(kSemaphore_t *semaphore);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KERNEL_SEMAPHORE_H_ */

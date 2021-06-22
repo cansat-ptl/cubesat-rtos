@@ -1,7 +1,7 @@
 /*
  * types.h
  * 
- * Created: 15.06.2021 11:55:26
+ * Created: 16.06.2021 12:06:32
  * Author: ThePetrovich
  */
 
@@ -28,4 +28,4 @@ typedef int kStackSize_t;
 typedef int kTaskTicks_t;
 typedef int kPid_t;
 
-#endif
+#endif /* STUB_TYPES_H_ */

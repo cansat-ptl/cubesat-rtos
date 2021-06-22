@@ -51,6 +51,10 @@ struct kTaskStruct_t
 
 #define tasks_TASK_STRUCT_SIZE ((sizeof(struct kTaskStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void tasks_init();
 
 kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name);
@@ -70,4 +74,8 @@ void tasks_unblockTask(kTask_t *task);
 
 kReturnValue_t tasks_checkStackBounds(kTask_t *task);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KERNEL_TASKS_H_ */

@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_SCHEDULER_H_
-#define KERNEL_SCHEDULER_H_
+#ifndef KERNEL_SCHED_H_
+#define KERNEL_SCHED_H_
 
 #include <kernel/types.h>
 #include <kernel/common/lists.h>
@@ -26,6 +26,10 @@ struct kSchedCPUStateStruct_t
 	kLinkedList_t kSuspendedTaskList;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void tasks_initScheduler(kTask_t *idle);
 
 void tasks_scheduleTask(kTask_t *task, kTaskState_t state);
@@ -39,4 +43,8 @@ void tasks_sleep(kTaskTicks_t sleep);
 void tasks_switchTask();
 void tasks_tick();
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KERNEL_SCHED_H_ */

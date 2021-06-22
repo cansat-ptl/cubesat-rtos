@@ -13,6 +13,14 @@
 
 #define MAX_NBR_LEN 16
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int debug_printk(char *format, ...);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KENREL_PRINTK_H_ */

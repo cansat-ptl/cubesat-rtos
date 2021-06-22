@@ -29,15 +29,19 @@
 #define arch_ENABLE_INTERRUPTS() asm volatile ("sei"::)
 #define arch_STATUS_REG SREG
 #define arch_NOP() asm volatile ("nop"::)
-#define arch_enterCriticalSection()	 asm volatile (	"lds __tmp_reg__, __SREG__ 	\n\t"\
-							"cli				\n\t"\
-							"push	__tmp_reg__" 		::)
-#define arch_exitCriticalSection() 	asm volatile (	"pop __tmp_reg__ 		\n\t"\
-							"sei 				\n\t"\
-							"sts __SREG__, __tmp_reg__" 	::)
+#define arch_enterCriticalSection()	asm volatile ("lds __tmp_reg__, __SREG__ \n\t"\
+					              "cli                       \n\t"\
+					              "push __tmp_reg__"            ::)
+#define arch_exitCriticalSection() 	asm volatile ("pop __tmp_reg__           \n\t"\
+					              "sei                       \n\t"\
+					              "sts __SREG__, __tmp_reg__"   ::)
 
 #define arch_RET() asm volatile ("ret" ::)
 #define arch_RETI() asm volatile ("reti" ::)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void __attribute__ (( naked, noinline )) arch_yield(void);
 
@@ -57,4 +61,8 @@ void arch_exitCriticalSectionSafe(kStatusRegister_t sreg);
 void arch_spinlockAcquire(kSpinlock_t *spinlock);
 void arch_spinlockRelease(kSpinlock_t *spinlock);
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KERNEL_MEGA128_H_ */

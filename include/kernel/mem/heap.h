@@ -29,6 +29,10 @@ struct kMemoryBlockStruct_t
 
 #define COMMON_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void mem_heapInit();
 
 void* mem_heapAlloc(size_t size, kLinkedList_t *allocList);
@@ -37,4 +41,8 @@ void mem_heapFree(void *pointer);
 size_t mem_getFreeHeap();
 size_t mem_getFreeHeapMin();
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif /* KERNEL_HEAP_H_ */

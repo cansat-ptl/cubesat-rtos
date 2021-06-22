@@ -27,4 +27,4 @@
 	#warning "Unsupported/unknown architecture, using stub types"
 #endif
 
-#endif
+#endif /* KERNEL_ARCHTYPES_H_ */

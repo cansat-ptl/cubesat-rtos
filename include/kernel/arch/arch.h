@@ -1,13 +1,13 @@
 /*
  * arch.h
  * 
- * Created: 08.02.2021 03:32:12
+ * Created: 08.02.2021 06:57:40
  * Author: ThePetrovich
  */
 
 
-#ifndef KERNEL_MODULE_ARCH_H_
-#define KERNEL_MODULE_ARCH_H_
+#ifndef KERNEL_ARCH_H_
+#define KERNEL_ARCH_H_
 
 #ifdef KERNEL_ARCH_avr
 	#define KERNEL_ARCH "avr"
@@ -36,4 +36,4 @@
 #define KERNEL_MCU "unkn"
 #endif
 
-#endif
+#endif /* KERNEL_ARCH_H_ */

@@ -32,10 +32,10 @@ struct kIPCStruct_t
 
 	size_t itemSize;
 	size_t bufferSize;
-	
+
 	size_t inputPosition;
 	size_t outputPosition;
 	size_t currentPosition;
 };
 
-#endif
+#endif /* KERNEL_IPC_H_ */
