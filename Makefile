@@ -65,6 +65,10 @@ TEST_DIRS = $(addprefix $(BUILDDIR)/,$(dir $(TEST_SRCS)))
 OBJS = $(addprefix $(BUILDDIR)/,$(SRCS:.c=.o)) $(addprefix $(BUILDDIR)/,$(ASM_SRCS:.S=.o))
 TEST_OBJS = $(addprefix $(BUILDDIR)/,$(TEST_SRCS:.c=.o))
 
+# Generate dependencies
+DEPS = $(OBJS:.o=.d)
+CFLAGS += -MMD -MP
+
 VERSION_STRING = $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
 
 ifndef $(arch)
@@ -124,10 +128,12 @@ cleandirs:
 	$(RM_CMD) $(TARGDIR) $(BUILDDIR)
 
 cleanobjs:
-	$(RM_CMD) $(OBJS) $(TEST_OBJS)
+	$(RM_CMD) $(OBJS) $(DEPS) $(TEST_OBJS)
 
 cleanmisc:
 	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).map $(TARGDIR)/$(TEST_TARG).usersignatures $(TARGDIR)/$(TEST_TARG).srec $(TARGDIR)/$(TEST_TARG).lss $(TARGDIR)/$(TEST_TARG).eep
 
 clean: cleanobjs cleanmisc cleandirs
 	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).elf $(TEST_TARG).elf $(TARGDIR)/$(TEST_TARG).bin $(TARGDIR)/$(TEST_TARG).hex lib$(TARG).a $(TARGDIR)/lib$(TARG).a
+
+-include $(DEPS)
