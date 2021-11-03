@@ -220,7 +220,7 @@ void tasks_setTaskState(kTask_t *task, kTaskState_t state)
 
 kTaskType_t tasks_getTaskType(kTask_t *task)
 {	
-	kTaskType_t type = KTASK_NORMAL;
+	kTaskType_t type = KTASK_UNINIT;
 	if (task != NULL) {
 		arch_enterCriticalSection();
 
