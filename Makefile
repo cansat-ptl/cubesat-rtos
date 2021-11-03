@@ -29,8 +29,8 @@ MKDIR_CMD := C:/Tools/Coreutils/bin/mkdir.exe -p
 COPY_CMD := C:/Tools/Coreutils/bin/cp.exe
 
 VERSION_SEMANTIC := 0.0.1
-VERSION_GIT_HASH := `git rev-parse HEAD | cut -c1-8`
-VERSION_GIT_BRANCH := `git rev-parse --abbrev-ref HEAD`
+VERSION_GIT_HASH := $(shell git rev-parse --short HEAD)
+VERSION_GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
  
 # Compiler & linker flags
 CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
@@ -50,7 +50,7 @@ OBJDUMP_LSS_FLAGS := -h -S
 
 # Recursive makefile wildcard
 # https://stackoverflow.com/a/12959764
-rwildcard=$(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
+rwildcard = $(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
 
 # Automatically find all source files
 SRCS := $(call rwildcard, $(SRCDIR)/,*.c)
@@ -71,6 +71,7 @@ CFLAGS += -MMD -MP
 
 VERSION_STRING := $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
 
+# Set default arch if not specified
 ifndef $(arch)
 arch := $(ARCH_DEFAULT)
 else
@@ -79,6 +80,7 @@ ifeq ($(strip $(arch)),)
 endif
 endif
 
+# Set default MCU if not specified
 ifndef $(mcu)
 mcu := $(MCU_DEFAULT)
 else
