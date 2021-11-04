@@ -60,6 +60,7 @@
 .tmp_versions/
 /build
 /bin
+/docs/output
 modules.order
 Module.symvers
 Mkfile.old

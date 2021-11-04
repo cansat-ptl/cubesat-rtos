@@ -1,0 +1,28 @@
+html {
+        --primary-color: #457aab;
+        --primary-dark-color: #285580;
+        --primary-light-color: #7aabd6;
+        --primary-lighter-color: #cae1f1;
+        --primary-lightest-color: #e9f1f8;
+
+        --page-background-color: white;
+        --page-foreground-color: #222222;
+        --page-secondary-foreground-color: #67727e;
+
+        --border-radius-large: 2px;
+        --border-radius-small: 2px;
+        --border-radius-medium: 2px;
+
+        --page-font-size: 15px;
+        --navigation-font-size: 13px;
+        --code-font-size: 13px; /* affects code, fragment */
+        --title-font-size: 20px;
+        
+        --font-family: -apple-system,BlinkMacSystemFont,Arial,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif;
+        --font-family-monospace: source-code-pro,Menlo,Monaco,Consolas,Courier New,monospace;
+        --font-family-monospace-working: source-code-pro,Menlo,Monaco,Consolas,Courier New,monospace;
+}
+
+.params td {
+        padding: 0 8px 0 8px;
+}
