@@ -26,3 +26,7 @@ html {
 .params td {
         padding: 0 8px 0 8px;
 }
+
+#MSearchBox {
+        border-radius: var( --border-radius-large) !important;
+}

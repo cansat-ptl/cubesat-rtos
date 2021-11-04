@@ -1,0 +1,33 @@
+%!TEX program = xelatex
+\thispagestyle{titlepage}
+
+\begin{tikzpicture}[remember picture,overlay]
+    \draw[draw=blueMain,fill=blueMain] (-100, 10) rectangle (\paperwidth,1.85cm);
+ \end{tikzpicture}%
+ 
+
+\hfill\begin{minipage}{0.8\linewidth}
+    \raggedleft\fontsize{28pt}{28pt}\selectfont \textbf{\iDocCode}
+
+    \vspace{0.3cm}
+    \raggedleft\fontsize{16pt}{16pt}\selectfont Версия \iDocRevision - \iDocDate
+
+    \vspace{0.5cm}
+    {\color{blueMain}\rule{\linewidth}{1pt}}
+    
+    \raggedleft\onehalfspacing\fontsize{26pt}{26pt}\selectfont \iDocTitle
+
+    \vspace{-0.5cm}
+    {\color{blueMain}\rule{\linewidth}{1pt}}
+
+    \vspace{0.2cm}
+    \raggedleft\onehalfspacing\fontsize{16pt}{16pt}\selectfont \iDocSubtitle
+
+    {\color{blueMain}\rule{\linewidth}{1pt}}
+\end{minipage}
+
+\vspace{0.75cm}
+
+\hfill\begin{minipage}{0.7\linewidth}
+    \input{description}
+\end{minipage}

@@ -21,17 +21,17 @@ static volatile kSysTicks_t kTicks = 0;
 
 void tasks_initScheduler(kTask_t *idle)
 {
-	kSchedCPUState.kReadyTaskList[0].head = &(idle->activeTaskListItem);
-	kSchedCPUState.kReadyTaskList[0].tail = &(idle->activeTaskListItem);
-	kSchedCPUState.kNextTask = idle;
-	kSchedCPUState.kCurrentTask = idle;
+	kSchedCPUState.readyTaskList[0].head = &(idle->activeTaskListItem);
+	kSchedCPUState.readyTaskList[0].tail = &(idle->activeTaskListItem);
+	kSchedCPUState.nextTask = idle;
+	kSchedCPUState.currentTask = idle;
 }
 
 kTask_t *tasks_getCurrentTask()
 {
 	arch_enterCriticalSection();
 
-	kTask_t *currentTask = kSchedCPUState.kCurrentTask;
+	kTask_t *currentTask = kSchedCPUState.currentTask;
 
 	arch_exitCriticalSection();
 	return currentTask;
@@ -56,16 +56,16 @@ void tasks_scheduleTask(kTask_t *task, kTaskState_t state)
 
 		switch (state) {
 		case KSTATE_SUSPENDED:
-			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kSuspendedTaskList, &(task->activeTaskListItem));
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.suspendedTaskList, &(task->activeTaskListItem));
 			break;
 		case KSTATE_SLEEPING:
-			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kSleepingTaskList, &(task->activeTaskListItem));
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.sleepingTaskList, &(task->activeTaskListItem));
 			break;
 		case KSTATE_READY:
-			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[task->priority], &(task->activeTaskListItem));
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.readyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
 		case KSTATE_UNINIT:
-			/* Do nothing */
+			kernel_panic("Uninitialized task scheduled");
 			break;
 		default:
 			/* Do nothing */
@@ -89,7 +89,7 @@ void tasks_unscheduleTask(kTask_t *task)
 
 static inline void tasks_tickTasks()
 {
-	kLinkedListItem_t *head = kSchedCPUState.kSleepingTaskList.head;
+	kLinkedListItem_t *head = kSchedCPUState.sleepingTaskList.head;
 
 	while (head != NULL) {
 		if (head->data != NULL) {
@@ -112,13 +112,13 @@ static inline void tasks_search()
 	kLinkedListItem_t *head = NULL;
 
 	for (kIterator_t i = CFG_NUMBER_OF_PRIORITIES-1; i >= 0; i--) {
-		head = kSchedCPUState.kReadyTaskList[i].head;
+		head = kSchedCPUState.readyTaskList[i].head;
 		if (head != NULL) {
-			kSchedCPUState.kNextTask = (kTask_t *)head->data;
-			kSchedCPUState.kTaskActiveTicks = CFG_TICKS_PER_TASK;
+			kSchedCPUState.nextTask = (kTask_t *)head->data;
+			kSchedCPUState.taskQuantumLeft = CFG_TICKS_PER_TASK;
 
-			common_listDropFront((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[i]);
-			common_listAddBack((kLinkedList_t *)&kSchedCPUState.kReadyTaskList[i], head);
+			common_listDropFront((kLinkedList_t *)&kSchedCPUState.readyTaskList[i]);
+			common_listAddBack((kLinkedList_t *)&kSchedCPUState.readyTaskList[i], head);
 			break;
 		}
 	}
@@ -126,7 +126,7 @@ static inline void tasks_search()
 
 static inline void tasks_switchContext()
 {	
-	kTask_t *task = kSchedCPUState.kCurrentTask;
+	kTask_t *task = kSchedCPUState.currentTask;
 
 	if ((arch_checkProtectionRegion(task->stackBegin, task->stackSize, CFG_STACK_SAFETY_MARGIN) != KRESULT_SUCCESS \
 		|| tasks_checkStackBounds(task) != KRESULT_SUCCESS) \
@@ -134,32 +134,32 @@ static inline void tasks_switchContext()
 		kernel_panic("Task stack corruption");
 	}
 
-	if (kSchedCPUState.kNextTask == NULL) {
+	if (kSchedCPUState.nextTask == NULL) {
 		kernel_panic("kNextTask is NULL");
 	}
 
-	kSchedCPUState.kCurrentTask = kSchedCPUState.kNextTask;
+	kSchedCPUState.currentTask = kSchedCPUState.nextTask;
 }
 
 /* Note: must not be static, called in arch module */
 inline void tasks_switchTask()
 {
-	if (!kSchedCPUState.kTickRate) {
+	if (!kSchedCPUState.quantumTicksLeft) {
 		tasks_tickTasks();
-		kSchedCPUState.kTickRate = CFG_TICKRATE_MS;
-		if (kSchedCPUState.kTaskActiveTicks) {
-			kSchedCPUState.kTaskActiveTicks--;
+		kSchedCPUState.quantumTicksLeft = CFG_TICKRATE_MS;
+		if (kSchedCPUState.taskQuantumLeft) {
+			kSchedCPUState.taskQuantumLeft--;
 		}
 	}
 	else {
-		kSchedCPUState.kTickRate--;
+		kSchedCPUState.quantumTicksLeft--;
 	}
 
-	if (!kSchedCPUState.kTaskActiveTicks) {
+	if (!kSchedCPUState.taskQuantumLeft) {
 		tasks_search();
 	}
 
-	if (kSchedCPUState.kNextTask != kSchedCPUState.kCurrentTask) tasks_switchContext();
+	if (kSchedCPUState.nextTask != kSchedCPUState.currentTask) tasks_switchContext();
 }
 
 /* Note: must not be static, called in arch module */
@@ -171,11 +171,11 @@ inline void tasks_tick()
 
 void tasks_sleep(kTaskTicks_t sleep)
 {
-	kSchedCPUState.kTaskActiveTicks = 0;
+	kSchedCPUState.taskQuantumLeft = 0;
 
 	if (sleep != 0) {
-		tasks_setTaskState(kSchedCPUState.kCurrentTask, KSTATE_SLEEPING);
-		kSchedCPUState.kCurrentTask->sleepTime = sleep;
+		tasks_setTaskState(kSchedCPUState.currentTask, KSTATE_SLEEPING);
+		kSchedCPUState.currentTask->sleepTime = sleep;
 	}
 	arch_yield();
 }
