@@ -8,6 +8,7 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
+#include <kernel/panic.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
 #include <kernel/mem/heap.h>
@@ -31,15 +32,27 @@ void tasks_init()
 {	
 	kTask_t *idleTask = NULL;
 
-	idleTask = tasks_createTaskStatic((void *)kIdleMem, (sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN), idle0, NULL, 0, KTASK_CRITICAL, "idle");
+	idleTask = tasks_createTaskStatic((void *)kIdleMem,
+					(sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN),
+					idle0,
+					NULL,
+					0,
+					KTASK_CRITICAL,
+					"idle");
 	if (idleTask == NULL) {
-		/* debug_logMessage(PGM_PUTS, L_FATAL, PSTR("\r\ntaskmgr: Startup failed, could not create idle task.\r\n")); */
+		kernel_panic("Failed to create idle task");
 		while(1);
 	}
 	tasks_initScheduler(idleTask);
 }
 
-kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
+kTask_t *tasks_createTaskStatic(void *taskMemory, 
+				size_t memorySize, 
+				void (*entry)(void *), 
+				void *args, 
+				kBaseType_t priority, 
+				kTaskType_t type, 
+				char *name)
 {
 	kTask_t *returnHandle = NULL;
 	kTask_t *currentTask = NULL;
@@ -97,7 +110,12 @@ kTask_t *tasks_createTaskStatic(void *taskMemory, size_t memorySize, void (*entr
 	return returnHandle;
 }
 
-kTask_t *tasks_createTaskDynamic(size_t stackSize, void (*entry)(void), void *args, kBaseType_t priority, kTaskType_t type, char *name)
+kTask_t *tasks_createTaskDynamic(size_t stackSize, 
+				void (*entry)(void *), 
+				void *args, 
+				kBaseType_t priority, 
+				kTaskType_t type, 
+				char *name)
 {	
 	kTask_t *returnHandle = NULL;
 	void *taskMemory = NULL;

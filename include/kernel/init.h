@@ -1,8 +1,9 @@
-/*
- * init.h
+/**
+ * @file init.h
+ * @brief Kernel startup and initialization.
  * 
- * Created: 24.01.2021 08:31:50
- * Author: ThePetrovich
+ * @date 24.01.2021 08:31:50
+ * @author ThePetrovich
  */
 
 
@@ -10,13 +11,16 @@
 #define KERNEL_INIT_H_
 
 /**
+ * @ingroup kernel
  * @brief Initializes internal kernel structures.
- * Note: scheduler will NOT run after you call this, see kernel_startScheduler().
+ * @note Scheduler will NOT run after you call this, see kernel_startScheduler().
  */
 void kernel_init();
 
 /**
- * @brief Enables systick timer and starts the scheduler.
+ * @ingroup kernel
+ * @brief Enables systick timer and starts the scheduler. Needs to be called after
+ * kernel_init().
  */
 void kernel_startScheduler();
 

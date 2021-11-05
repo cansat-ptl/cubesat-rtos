@@ -58,8 +58,8 @@
 *.mod*
 *.cmd
 .tmp_versions/
-/build
-/bin
+build
+bin
 /docs/output
 modules.order
 Module.symvers

@@ -12,9 +12,9 @@
 #include <kernel/tasks/sched.h>
 #include <kernel/arch/arch.h>
 
-uint16_t tasks_notificationWait()
+kBaseType_t tasks_eventWait()
 {
-	uint16_t returnValue = 0;
+	kBaseType_t returnValue = 0;
 	while (1) {
 		arch_enterCriticalSection();
 		kTask_t *currentTask = tasks_getCurrentTask();
@@ -34,17 +34,17 @@ uint16_t tasks_notificationWait()
 	return returnValue;
 }
 
-void tasks_notificationSend(kTask_t *taskToNotify, uint16_t flags)
+void tasks_eventSend(kTask_t *task, kBaseType_t flags)
 {
-	if (taskToNotify != NULL) {
+	if (task != NULL) {
 		arch_enterCriticalSection();
 
-		if (taskToNotify->state == KSTATE_SUSPENDED) {
-			tasks_setTaskState(taskToNotify, KSTATE_READY);
+		if (task->state == KSTATE_SUSPENDED) {
+			tasks_setTaskState(task, KSTATE_READY);
 		}
 
-		taskToNotify->event.state = KEVENT_FIRED;
-		taskToNotify->event.eventFlags = flags;
+		task->event.state = KEVENT_FIRED;
+		task->event.eventFlags = flags;
 
 		arch_exitCriticalSection();
 	}

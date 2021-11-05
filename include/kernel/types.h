@@ -1,8 +1,13 @@
-/*
- * types.h
- *
- * Created: 17.12.2020 20:56:33
- *  Author: ThePetrovich
+/**
+ * @addtogroup types
+ * @brief Kernel types and constants.
+ * @ingroup kernel
+ * 
+ * @file types.h
+ * @brief Architecture-independent kernel types and constants.
+ * 
+ * @date 17.12.2020 20:56:33
+ * @author ThePetrovich
  */
 
 

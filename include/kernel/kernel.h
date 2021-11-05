@@ -1,8 +1,12 @@
-/*
- * kernel.h
+/**
+ * @defgroup kernel
+ * @brief General kernel control functions.
  * 
- * Created: 08.02.2021 06:58:35
- * Author: ThePetrovich
+ * @file kernel.h
+ * @brief Main kernel header for user applications. 
+ * 
+ * @date 08.02.2021 06:58:35
+ * @author ThePetrovich
  */
 
 

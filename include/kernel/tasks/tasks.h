@@ -4,7 +4,6 @@
  * @brief Kernel tasks module.
  * 
  * @file tasks.h
- * @ingroup tasks
  * @brief Kernel task manipulation functions.
  * 
  * Created: 02.01.2021 11:58:18
@@ -34,9 +33,9 @@ struct kEventStruct_t
 /**
  * @ingroup tasks
  * @brief Main task structure, which holds all task state information. 
- * This structure preceeds task stack region
- * and is created automatically when you call tasks_createTaskStatic or tasks_createTaskDynamic. You must
- * never manually alter its fields, use tasks_*** functions instead.
+ * This structure preceeds task stack region and is created automatically 
+ * when you call tasks_createTaskStatic or tasks_createTaskDynamic. 
+ * You must never manually alter its fields, use tasks_*** functions instead.
  */
 struct kTaskStruct_t
 {							
@@ -66,6 +65,9 @@ struct kTaskStruct_t
 	kLinkedList_t childTaskList;		/**< Child task list. */
 };
 
+/**
+ * @brief Macro for kTaskStruct_t size calculation with arch alignment.
+ */
 #define tasks_TASK_STRUCT_SIZE ((sizeof(struct kTaskStruct_t) + \
 				((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & \
 				~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
@@ -98,7 +100,7 @@ void tasks_init();
  */
 kTask_t *tasks_createTaskStatic(void *taskMemory, 
 				size_t memorySize, 
-				void (*entry)(void), 
+				void (*entry)(void *), 
 				void *args, 
 				kBaseType_t priority, 
 				kTaskType_t type, 
@@ -119,7 +121,7 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
  * @return kTask_t* task handle on success, NULL otherwise.
  */
 kTask_t *tasks_createTaskDynamic(size_t stackSize, 
-				void (*entry)(void), 
+				void (*entry)(void *), 
 				void *args, 
 				kBaseType_t priority, 
 				kTaskType_t type, 

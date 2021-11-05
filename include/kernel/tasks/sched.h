@@ -1,6 +1,5 @@
 /**
  * @file sched.h
- * @ingroup tasks
  * @brief Kernel scheduling control functions.
  * 
  * Created: 02.01.2021 11:58:18
