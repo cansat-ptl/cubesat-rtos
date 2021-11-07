@@ -32,7 +32,7 @@ void take_fork(int i)
 {
 	ipc_mutexLock(&(forks[left(i)]));
 	ipc_mutexLock(&(forks[right(i)]));
-	
+
 	ipc_mutexLock(&print_mutex);
 	printf("Philosopher %d got the fork %d and %d\r\n", i, left(i), right(i));
 	ipc_mutexUnlock(&print_mutex);
@@ -43,7 +43,7 @@ void put_fork(int i)
 	ipc_mutexLock(&print_mutex);
 	printf("Philosopher %d Gave up the fork %d and %d\r\n", i, left(i), right(i));
 	ipc_mutexUnlock(&print_mutex);
-
+	
 	ipc_mutexUnlock(&(forks[left(i)]));
 	ipc_mutexUnlock(&(forks[right(i)]));
 }
@@ -55,29 +55,30 @@ void philosophers_task(void *param)
 	kTaskTicks_t eatTime = 0;
 
 	while (1) {
-		if (starveTime >= 21) {
+		starveTime = tasks_getSysTickCount() - eatTime;
+
+		if (starveTime > 95) {
 			ipc_mutexLock(&print_mutex);
 			printf("--------> Philosopher %d starved to death, time: %d\r\n", i, starveTime);
 			ipc_mutexUnlock(&print_mutex);
 			break;
 		}
 
-		ipc_semaphoreWait(&entry_sem);
-		take_fork(i);
-
 		ipc_mutexLock(&print_mutex);
 		printf("Philosopher %d is eating, starve time: %d\r\n", i, starveTime);
 		ipc_mutexUnlock(&print_mutex);
 
-		_delay_ms(15);
+		ipc_semaphoreWait(&entry_sem);
+		take_fork(i);
+
+		tasks_sleep(5);
+		eatTime = tasks_getSysTickCount();
 
 		put_fork(i);
-		eatTime = tasks_getSysTickCount();
 
 		ipc_semaphoreSignal(&entry_sem);
     
-		tasks_sleep(10);
-		starveTime = tasks_getSysTickCount() - eatTime;
+		tasks_sleep(5);
 	}
 }
 
