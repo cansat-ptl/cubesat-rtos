@@ -23,6 +23,7 @@
 
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
+#include <kernel/tasks/events.h>
 
 #include <kernel/mem/malloc.h>
 

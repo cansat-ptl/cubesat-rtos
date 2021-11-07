@@ -43,7 +43,7 @@ struct kTaskStruct_t
 	kStackPtr_t stackBegin;			/**< Stack begin. */
 	size_t stackSize;			/**< Stack size in bytes. */
 
-	void (*entry)(void);			/**< Task entry point. */
+	void (*entry)(void *);			/**< Task entry point. */
 	void* args;				/**< Task startup args, can be NULL if none. */
 
 	kTaskState_t state;			/**< Current task state. */

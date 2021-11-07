@@ -17,7 +17,7 @@
 
 kLinkedList_t kGlobalTaskList;
 
-byte kIdleMem[sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN];
+byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY];
 
 static kPid_t kGlobalPid = 0;
 
@@ -33,7 +33,7 @@ void tasks_init()
 	kTask_t *idleTask = NULL;
 
 	idleTask = tasks_createTaskStatic((void *)kIdleMem,
-					(sizeof(kTask_t) + CFG_MIN_TASK_STACK_SIZE + CFG_STACK_SAFETY_MARGIN),
+					(sizeof(kTask_t) + 100 + CFG_STACK_SAFETY_MARGIN),
 					idle0,
 					NULL,
 					0,
@@ -66,13 +66,13 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
 			returnHandle = (kTask_t *)taskMemory;
 
 			baseStackPtr = taskMemory + tasks_TASK_STRUCT_SIZE;
-			stackSize = memorySize - tasks_TASK_STRUCT_SIZE - 1;
+			stackSize = memorySize - tasks_TASK_STRUCT_SIZE;
 
 			#if CFG_MEMORY_PROTECTION_MODE == 2 || CFG_MEMORY_PROTECTION_MODE == 3
 				stackSize -= CFG_STACK_SAFETY_MARGIN;
 			#endif
 
-			baseStackPtr = (void *)arch_prepareProtectionRegion((kStackPtr_t)baseStackPtr + 1, stackSize, CFG_STACK_SAFETY_MARGIN);
+			baseStackPtr = (void *)arch_prepareProtectionRegion((kStackPtr_t)baseStackPtr, stackSize, CFG_STACK_SAFETY_MARGIN);
 
 			returnHandle->stackPtr = arch_prepareStackFrame(baseStackPtr, stackSize, entry, args);
 			returnHandle->stackBegin = baseStackPtr;

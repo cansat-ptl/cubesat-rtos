@@ -27,7 +27,7 @@ static int debug_spacing(int count, char c)
 
 static int debug_putnbr(long number, int base, int len, char *alph)
 {
-	char str[16] = {0};
+	char str[17] = {0};
 	int sign;
 
 	sign = (number < 0) ? -1 : 1;

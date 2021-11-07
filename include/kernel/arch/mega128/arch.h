@@ -22,19 +22,19 @@
 #define CFG_TIMER_COMPARE_VALUE 250
 #define CFG_KERNEL_TIMER_PRESCALER 3
 
-#define lo8(x) ((x)&0xff)
-#define hi8(x) ((x)>>8)
+#define lo8(x) ((x) & 0xff)
+#define hi8(x) ((x) >> 8)
 
 #define arch_DISABLE_INTERRUPTS() asm volatile ("cli"::)
 #define arch_ENABLE_INTERRUPTS() asm volatile ("sei"::)
 #define arch_STATUS_REG SREG
 #define arch_NOP() asm volatile ("nop"::)
-#define arch_enterCriticalSection()	asm volatile ("lds __tmp_reg__, __SREG__ \n\t"\
+#define arch_enterCriticalSection()	asm volatile ("in __tmp_reg__, __SREG__ \n\t"\
 					              "cli                       \n\t"\
 					              "push __tmp_reg__"            ::)
 #define arch_exitCriticalSection() 	asm volatile ("pop __tmp_reg__           \n\t"\
 					              "sei                       \n\t"\
-					              "sts __SREG__, __tmp_reg__"   ::)
+					              "out __SREG__, __tmp_reg__"   ::)
 
 #define arch_RET() asm volatile ("ret" ::)
 #define arch_RETI() asm volatile ("reti" ::)

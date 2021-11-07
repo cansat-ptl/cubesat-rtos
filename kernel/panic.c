@@ -17,9 +17,9 @@ void kernel_panic(char *msg)
         debug_printk("\r\nFATAL: Kernel panic - %s\r\n", msg);
     #endif
 
-    #if CFG_KERNEL_PANIC_ACTION != 2
+    #if CFG_KERNEL_PANIC_ACTION == 1
         arch_reboot();
-    #else
+    #elif CFG_KERNEL_PANIC_ACTION == 2
         arch_halt();
     #endif
 }

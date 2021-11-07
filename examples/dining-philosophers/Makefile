@@ -1,17 +1,16 @@
 # Project settings
-TARG := rtos
-TEST_TARG := yktsat-rtos
+TARG := dining-philosophers
 ARCH_DEFAULT := avr
 MCU_DEFAULT := atmega128
 
-# Libraries & includes
-INCLUDES := -I"./include"
-
 # Project directories
-SRCDIR := kernel
-TESTDIR := tests
+SRCDIR := ./
 BUILDDIR := build
 TARGDIR := bin
+
+# Libraries & includes
+LIBRTOS_PATH := ../..
+INCLUDES := -I"./include" -I"$(LIBRTOS_PATH)/include"
 
 # Compiler & linker settings
 CC := "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe"
@@ -27,14 +26,10 @@ AVR_SIZE_CMD := "C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu
 RM_CMD := C:/Tools/Coreutils/bin/rm -rf
 MKDIR_CMD := C:/Tools/Coreutils/bin/mkdir.exe -p
 COPY_CMD := C:/Tools/Coreutils/bin/cp.exe
-
-VERSION_SEMANTIC := 0.0.1
-VERSION_GIT_HASH := $(shell git rev-parse --short HEAD)
-VERSION_GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
  
 # Compiler & linker flags
-CFLAGS := -x c -DDEBUG $(INCLUDES) -Og -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
-ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Og -g2 -mrelax -Wall -Wextra
+CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
+ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra
 LDFLAGS := -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra
 
 # AVR-specific tool flags
@@ -54,22 +49,17 @@ rwildcard = $(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *
 
 # Automatically find all source files
 SRCS := $(call rwildcard, $(SRCDIR)/,*.c)
-TEST_SRCS := $(call rwildcard, $(TESTDIR)/,*.c)
 ASM_SRCS := $(call rwildcard, $(SRCDIR)/,*.S)
 
 # Generate build directory structure
 DIRS := $(addprefix $(BUILDDIR)/,$(dir $(SRCS)))
-TEST_DIRS := $(addprefix $(BUILDDIR)/,$(dir $(TEST_SRCS)))
 
 # Generate list of objects
 OBJS := $(addprefix $(BUILDDIR)/,$(SRCS:.c=.o)) $(addprefix $(BUILDDIR)/,$(ASM_SRCS:.S=.o))
-TEST_OBJS := $(addprefix $(BUILDDIR)/,$(TEST_SRCS:.c=.o))
 
 # Generate dependencies
 DEPS := $(OBJS:.o=.d)
 CFLAGS += -MMD -MP
-
-VERSION_STRING := $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
 
 # Set default arch if not specified
 ifndef $(arch)
@@ -89,7 +79,11 @@ ifeq ($(strip $(mcu)),)
 endif
 endif
  
-all: dirs $(TARG) $(TEST_TARG)
+all: kernel dirs $(TARG) $(TARG)
+
+kernel:
+	$(MAKE) -C $(LIBRTOS_PATH) clean
+	$(MAKE) -C $(LIBRTOS_PATH) arch=$(arch) mcu=$(mcu)
 
 # Create build directories
 dirs:
@@ -98,25 +92,19 @@ dirs:
 ifneq ($(strip $(DIRS)),)
 	$(MKDIR_CMD) $(DIRS)
 endif
-ifneq ($(strip $(TEST_DIRS)),)
-	$(MKDIR_CMD) $(TEST_DIRS)
-endif
 
 # Compile main target
-$(TARG): $(OBJS)
-	$(AR) rcs "$(TARGDIR)/lib$(TARG).a" $(OBJS)
-	$(COPY_CMD) "$(TARGDIR)/lib$(TARG).a" "./lib$(TARG).a"
 
 # Compile test target
-$(TEST_TARG): $(TARG) $(TEST_OBJS)
-	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(TEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L. -l$(TARG)
-	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).hex"
-	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).eep" || exit 0
-	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" > "$(TARGDIR)/$(TEST_TARG).lss"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).srec"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).usersignatures" || exit 0
-	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TEST_TARG).elf"
-	$(COPY_CMD) "$(TARGDIR)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
+$(TARG): $(OBJS)
+	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(LDFLAGS) -mmcu=$(mcu) -L$(LIBRTOS_PATH) -lrtos
+	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).hex"
+	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).eep" || exit 0
+	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TARG).elf" > "$(TARGDIR)/$(TARG).lss"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).srec"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).usersignatures" || exit 0
+	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TARG).elf"
+	$(COPY_CMD) "$(TARGDIR)/$(TARG).elf" "./$(TARG).elf"
 
 # Compile objects
 $(BUILDDIR)/%.o: %.c
@@ -130,12 +118,12 @@ cleandirs:
 	$(RM_CMD) $(TARGDIR) $(BUILDDIR)
 
 cleanobjs:
-	$(RM_CMD) $(OBJS) $(DEPS) $(TEST_OBJS)
+	$(RM_CMD) $(OBJS) $(DEPS) $(OBJS)
 
 cleanmisc:
-	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).map $(TARGDIR)/$(TEST_TARG).usersignatures $(TARGDIR)/$(TEST_TARG).srec $(TARGDIR)/$(TEST_TARG).lss $(TARGDIR)/$(TEST_TARG).eep
+	$(RM_CMD) $(TARGDIR)/$(TARG).map $(TARGDIR)/$(TARG).usersignatures $(TARGDIR)/$(TARG).srec $(TARGDIR)/$(TARG).lss $(TARGDIR)/$(TARG).eep
 
 clean: cleanobjs cleanmisc cleandirs
-	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).elf $(TEST_TARG).elf $(TARGDIR)/$(TEST_TARG).bin $(TARGDIR)/$(TEST_TARG).hex lib$(TARG).a $(TARGDIR)/lib$(TARG).a
+	$(RM_CMD) $(TARGDIR)/$(TARG).elf $(TARG).elf $(TARGDIR)/$(TARG).bin $(TARGDIR)/$(TARG).hex lib$(TARG).a
 
 -include $(DEPS)

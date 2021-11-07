@@ -20,7 +20,7 @@
 
 	/** Sheduling time quantum size in ticks. Controls how long will task run before 
 	 * getting pre-empted. */
-	#define CFG_TICKS_PER_TASK 5
+	#define CFG_TICKS_PER_TASK 1
 
 	/** Minimum task stack size. For AVR, leave this at 60. */
 	#define CFG_MIN_TASK_STACK_SIZE 60
@@ -34,13 +34,13 @@
 
 	/** When CFG_MEMORY_PROTECTION_MODE is set to 2 or 3, controls length of
 	 * memory protection region in bytes. */
-	#define CFG_STACK_SAFETY_MARGIN 16
+	#define CFG_STACK_SAFETY_MARGIN 8
 
 	/** Memory reserved for kernel operations (ISRs, syscalls, etc.). */
-	#define CFG_KERNEL_RESERVED_MEMORY 150
+	#define CFG_KERNEL_RESERVED_MEMORY 200
 
 	/** Idle task memory size. Must not be less than CFG_MIN_TASK_STACK_SIZE. */
-	#define CFG_KERNEL_IDLE_TASK_MEMORY 100
+	#define CFG_KERNEL_IDLE_TASK_MEMORY 200
 
 	/** Stack growth direction for selected architecture. Do not change unless you
 	 * know what you are doing. -1 is towards lower addresses, 1 towards higher. */
@@ -49,8 +49,9 @@
 	/** Kernel panic action.
 	 * @param 0 Reset without printing the error message.
 	 * @param 1 Print error details and reset.
-	 * @param 2 Print error details and halt. */
-	#define CFG_KERNEL_PANIC_ACTION 2
+	 * @param 2 Print error details and halt. 
+	 * @param 3 Do nothing */
+	#define CFG_KERNEL_PANIC_ACTION 3
 
 	/** Action to take when a task exits.
 	 * @param 0 Throw kernel panic.
@@ -59,7 +60,7 @@
 
 	/** Kernel heap size. Used to dynamically allocate tasks and kernel objects.
 	 * See mem module for more info. */
-	#define CFG_HEAP_SIZE 2000
+	#define CFG_HEAP_SIZE 2500
 
 	/** Archiecture byte alignment. Leave 1 for AVR. */
 	#define CFG_PLATFORM_BYTE_ALIGNMENT 1
@@ -79,6 +80,8 @@
 
 	/** Systick timer prescaler value. */
 	#define CFG_KERNEL_TIMER_PRESCALER 3
+
+	#define CFG_ENABLE_SLEEP_WORKAROUND 0
 /**  @} */
 
 #endif

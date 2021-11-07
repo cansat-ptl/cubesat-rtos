@@ -33,7 +33,6 @@
 					              "cli                       \n\t"\
 					              "push __tmp_reg__"            ::)
 #define arch_exitCriticalSection() 	asm volatile ("pop __tmp_reg__           \n\t"\
-					              "sei                       \n\t"\
 					              "sts __SREG__, __tmp_reg__"   ::)
 
 #define arch_RET() asm volatile ("ret \n\t" ::)

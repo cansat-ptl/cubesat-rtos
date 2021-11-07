@@ -17,7 +17,7 @@
 
 static volatile uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
-kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-1];
+kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-2];
 
 void arch_platformInit()
 {

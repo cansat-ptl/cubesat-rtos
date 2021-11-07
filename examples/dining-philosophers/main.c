@@ -2,12 +2,8 @@
 /* https://medium.com/@narayan.1979/dining-philosophers-implemented-in-freertos-989354ce993e */
 /* https://gist.github.com/narayananclover/4c170f968ef4c41d3762d12e2f255bc2 */
 #include <kernel/kernel.h>
-#include <kernel/arch/arch.h>
-#include <util/delay.h>
-#include <stdio.h>
-#include <util/atomic.h>
 
-#define NUM_OF_PHILOSOPHERS (7)
+#define NUM_OF_PHILOSOPHERS (5)
 #define MAX_NUMBER_ALLOWED (NUM_OF_PHILOSOPHERS - 1)
 
 kMutex_t forks[NUM_OF_PHILOSOPHERS];
@@ -17,33 +13,18 @@ kTask_t *philosophers[NUM_OF_PHILOSOPHERS];
 #define left(i) (i)
 #define right(i) ((i + 1) % NUM_OF_PHILOSOPHERS)
 
-static int uart_putchar(char c, FILE *stream);
-
-static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
- 
-static int uart_putchar(char c, FILE *stream)
-{
-	uart_putc(c);
-	return 0;
-}
- 
 void take_fork(int i) 
 {
 	ipc_mutexLock(&(forks[left(i)]));
 	ipc_mutexLock(&(forks[right(i)]));
-	
-	arch_enterCriticalSection();
-	printf("Philosopher %d got the fork %d and %d\r\n", i, left(i), right(i));
-	arch_exitCriticalSection();
+	debug_printk("Philosopher %d got the fork %d and %d\n", i, left(i), right(i));
 }
 
 void put_fork(int i) 
 {
-	arch_enterCriticalSection();
-	printf("Philosopher %d Gave up the fork %d and %d\r\n", i, left(i), right(i));
-	arch_exitCriticalSection();
 	ipc_mutexUnlock(&(forks[left(i)]));
 	ipc_mutexUnlock(&(forks[right(i)]));
+	debug_printk("Philosopher %d Gave up the fork %d and %d\n", i, left(i), right(i));
 }
 
 void philosophers_task(void *param) 
@@ -55,12 +36,11 @@ void philosophers_task(void *param)
 
 		take_fork(i);
 
-		arch_enterCriticalSection();
-		printf("Philosopher %d is eating\r\n", i);
-		arch_exitCriticalSection();
+		debug_printk("Philosopher %d is eating\n", i);
 
-		tasks_sleep(10);
 		// Add a Delay to eat. Not Required but be practical.
+    		tasks_sleep(10);
+
 		put_fork(i);
 
 		ipc_semaphoreSignal(&entry_sem);
@@ -74,8 +54,6 @@ int main()
 {
 	int i;
 	int param[NUM_OF_PHILOSOPHERS];
-
-	stdout = &mystdout;
 
 	kernel_init();
 
@@ -95,7 +73,7 @@ int main()
 		// Ofcourse, you can just pass i as every thread needs it's own
 		// address to store the parameter.
 		param[i] = i;
-		philosophers[i] = tasks_createTaskDynamic(128, philosophers_task, &(param[i]), 5, KTASK_NORMAL, "task");
+		tasks_createTaskDynamic(200, philosophers_task, &(param[i]), 2, KTASK_NORMAL, "task");
 	}
 
 	kernel_startScheduler();

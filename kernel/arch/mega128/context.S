@@ -66,10 +66,9 @@
 	pop r4
 	pop r3
 	pop r2
-	pop r1
-	sei							; Simulator bug workaround, TODO: remove this
+	pop r1						; Simulator bug workaround, TODO: remove this
 	pop r0						; load previously saved SREG to r0
-	sts SREG, r0
+	out _SFR_IO_ADDR(SREG), r0
 	pop r0						; load the actual r0 register
 ;-----------------------------------------------------
 .endm
@@ -77,7 +76,7 @@
 .macro _arch_save_context_m
 ;--------------------Context-Save---------------------
 	push r0						; do everything from _arch_restore_context
-	lds r0, SREG				; but in reverse
+	in r0, _SFR_IO_ADDR(SREG)				; but in reverse
 	cli
 	push r0
 	push r1

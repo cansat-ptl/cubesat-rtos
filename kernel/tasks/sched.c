@@ -14,6 +14,7 @@
 #include <kernel/common/lists.h>
 #include <kernel/debug/printk.h>
 #include <kernel/panic.h>
+#include <util/atomic.h>
 
 volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
 
@@ -65,7 +66,7 @@ void tasks_scheduleTask(kTask_t *task, kTaskState_t state)
 			common_listAddBack((kLinkedList_t *)&kSchedCPUState.readyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
 		case KSTATE_UNINIT:
-			kernel_panic("Uninitialized task scheduled");
+			//kernel_panic("Uninitialized task scheduled");
 			break;
 		default:
 			/* Do nothing */
@@ -87,7 +88,7 @@ void tasks_unscheduleTask(kTask_t *task)
 	}
 }
 
-static inline void tasks_tickTasks()
+static void tasks_tickSleeping()
 {
 	kLinkedListItem_t *head = kSchedCPUState.sleepingTaskList.head;
 
@@ -124,7 +125,7 @@ static inline void tasks_search()
 	}
 }
 
-static inline void tasks_switchContext()
+static void tasks_switchContext()
 {	
 	kTask_t *task = kSchedCPUState.currentTask;
 
@@ -132,6 +133,7 @@ static inline void tasks_switchContext()
 		|| tasks_checkStackBounds(task) != KRESULT_SUCCESS) \
 		&& task->pid != 0) {
 		kernel_panic("Task stack corruption");
+		debug_printk("Errored task handle: %x\r\n", task);
 	}
 
 	if (kSchedCPUState.nextTask == NULL) {
@@ -142,10 +144,10 @@ static inline void tasks_switchContext()
 }
 
 /* Note: must not be static, called in arch module */
-inline void tasks_switchTask()
+void tasks_switchTask()
 {
 	if (!kSchedCPUState.quantumTicksLeft) {
-		tasks_tickTasks();
+		tasks_tickSleeping();
 		kSchedCPUState.quantumTicksLeft = CFG_TICKRATE_MS;
 		if (kSchedCPUState.taskQuantumLeft) {
 			kSchedCPUState.taskQuantumLeft--;
@@ -159,23 +161,36 @@ inline void tasks_switchTask()
 		tasks_search();
 	}
 
-	if (kSchedCPUState.nextTask != kSchedCPUState.currentTask) tasks_switchContext();
+	if (kSchedCPUState.nextTask != kSchedCPUState.currentTask) {
+		tasks_switchContext();
+	} 
 }
 
 /* Note: must not be static, called in arch module */
-inline void tasks_tick()
-{
+void tasks_tick()
+{	
 	kTicks++;
 	tasks_switchTask();
 }
 
 void tasks_sleep(kTaskTicks_t sleep)
 {
+	arch_enterCriticalSection();
+
+	kTask_t *task = kSchedCPUState.currentTask;
 	kSchedCPUState.taskQuantumLeft = 0;
+	kSchedCPUState.quantumTicksLeft = 0;
 
 	if (sleep != 0) {
-		tasks_setTaskState(kSchedCPUState.currentTask, KSTATE_SLEEPING);
-		kSchedCPUState.currentTask->sleepTime = sleep;
+		task->sleepTime = sleep;
+		tasks_setTaskState(task, KSTATE_SLEEPING);
 	}
-	arch_yield();
+	#if CFG_ENABLE_SLEEP_WORKAROUND == 0
+		arch_yield();
+		arch_exitCriticalSection();
+	#else
+		arch_exitCriticalSection();
+		arch_ENABLE_INTERRUPTS();
+		while(task->state == KSTATE_SLEEPING);
+	#endif
 }
