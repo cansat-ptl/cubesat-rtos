@@ -34,16 +34,16 @@ void arch_startScheduler()
 void arch_spinlockAcquire(kSpinlock_t *spinlock)
 {
 	while(1) {
+		arch_enterCriticalSection();
 		asm volatile("": : :"memory");
 		if(*spinlock == 0) {
-			arch_enterCriticalSection();
 			if(*spinlock == 0) {
 				*spinlock = 1;
 				arch_exitCriticalSection();
 				return;
 			}
-			arch_exitCriticalSection();
 		}
+		arch_exitCriticalSection();
 	}
 }
 

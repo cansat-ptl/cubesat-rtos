@@ -11,6 +11,7 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
+#include <kernel/arch/mega128/arch.h>
 #include <kernel/arch/mega128/stack.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
@@ -100,10 +101,11 @@ kReturnValue_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stac
 
 void arch_taskReturnHook()
 {
-    kTask_t *currentTask = tasks_getCurrentTask();
+    	kTask_t *currentTask = tasks_getCurrentTask();
 
 	tasks_deleteTask(currentTask);
 
+	arch_ENABLE_INTERRUPTS();
 	while (1) {
 		; /* Do nothing */
 	}

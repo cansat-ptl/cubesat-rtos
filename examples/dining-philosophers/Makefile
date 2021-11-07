@@ -30,7 +30,7 @@ COPY_CMD := C:/Tools/Coreutils/bin/cp.exe
 # Compiler & linker flags
 CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
 ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra
-LDFLAGS := -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra
+LDFLAGS := -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra -Wl,-u,SYSTICK_ISR
 
 # AVR-specific tool flags
 OBJCOPY_HEX_FLAGS := -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures
@@ -97,7 +97,7 @@ endif
 
 # Compile test target
 $(TARG): $(OBJS)
-	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) $(LDFLAGS) -mmcu=$(mcu) -L$(LIBRTOS_PATH) -lrtos
+	$(CC) -o $(TARGDIR)/$@.elf $(OBJS) -L$(LIBRTOS_PATH) -lrtos $(LDFLAGS) -mmcu=$(mcu)
 	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).hex"
 	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TARG).elf" "$(TARGDIR)/$(TARG).eep" || exit 0
 	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TARG).elf" > "$(TARGDIR)/$(TARG).lss"

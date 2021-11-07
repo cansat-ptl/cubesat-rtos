@@ -33,8 +33,8 @@ VERSION_GIT_HASH := $(shell git rev-parse --short HEAD)
 VERSION_GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
  
 # Compiler & linker flags
-CFLAGS := -x c -DDEBUG $(INCLUDES) -Og -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
-ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Og -g2 -mrelax -Wall -Wextra
+CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra
+ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra
 LDFLAGS := -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra
 
 # AVR-specific tool flags

@@ -33,7 +33,7 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 
 	if (semaphore != NULL) {
 		while (1) {
-			arch_spinlockAcquire(&semaphore->spinlock);
+			arch_enterCriticalSection();
 
 			if (semaphore->lockCount != 0) {
 				semaphore->lockCount--;
@@ -43,7 +43,7 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 					semaphore->basePriority = tasks_getTaskPriority(semaphore->lockOwner);
 				}
 
-				arch_spinlockRelease(&semaphore->spinlock);
+				arch_exitCriticalSection();
 				break;
 			}
 			else {
@@ -56,7 +56,7 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 				}
 
 				tasks_blockTask(currentTask, (kLinkedList_t *)&(semaphore->blockedTasks));
-				arch_spinlockRelease(&semaphore->spinlock);
+				arch_exitCriticalSection();
 				tasks_sleep(0);
 			}
 		}
@@ -71,7 +71,7 @@ void ipc_semaphoreSignal(kSemaphore_t *semaphore)
 	kLinkedListItem_t *head = NULL;
 	
 	if (semaphore != NULL) {
-		arch_spinlockAcquire(&semaphore->spinlock);
+		arch_enterCriticalSection();
 
 		head = semaphore->blockedTasks.head;
 
@@ -92,7 +92,7 @@ void ipc_semaphoreSignal(kSemaphore_t *semaphore)
 			head = head->next;
 		}
 
-		arch_spinlockRelease(&semaphore->spinlock);
+		arch_exitCriticalSection();
 	}
 
 	return;

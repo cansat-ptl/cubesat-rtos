@@ -13,7 +13,7 @@ typedef volatile int kSpinlock_t;
 
 typedef volatile int* kStackPtr_t;
 
-typedef int kSysTicks_t;
+typedef unsigned int kSysTicks_t;
 
 typedef int kBaseType_t;
 

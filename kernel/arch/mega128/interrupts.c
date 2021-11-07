@@ -14,6 +14,9 @@
 #include <avr/iom128.h>
 #include <kernel/arch/mega128/arch.h>
 
+/* Linker workaround */
+volatile uint8_t SYSTICK_ISR;
+
 void __attribute__ (( naked, noinline )) arch_tick();
 
 ISR(TIMER0_COMP_vect, ISR_NAKED) 

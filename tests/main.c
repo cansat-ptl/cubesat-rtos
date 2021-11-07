@@ -1,104 +1,104 @@
-/* Original author: narayananclover */
-/* https://medium.com/@narayan.1979/dining-philosophers-implemented-in-freertos-989354ce993e */
-/* https://gist.github.com/narayananclover/4c170f968ef4c41d3762d12e2f255bc2 */
+/*
+ * cubesat-rtos.c
+ *
+ * Created: 22.11.2020 20:06:27
+ * Author : ThePetrovich
+ */
+
+#define F_CPU 16000000L
+
+#include <avr/io.h>
+#include <util/delay.h>
 #include <kernel/kernel.h>
 #include <kernel/arch/arch.h>
-#include <util/delay.h>
-#include <stdio.h>
-#include <util/atomic.h>
+#include <string.h>
 
-#define NUM_OF_PHILOSOPHERS (7)
-#define MAX_NUMBER_ALLOWED (NUM_OF_PHILOSOPHERS - 1)
+kTask_t *test;
+kTask_t *test2;
+kTask_t *test3;
+kTask_t *test4;
+kTask_t *test5;
+kTask_t *test6;
+kTask_t *test7;
 
-kMutex_t forks[NUM_OF_PHILOSOPHERS];
-kSemaphore_t entry_sem;
-kTask_t *philosophers[NUM_OF_PHILOSOPHERS];
+kFIFO_t fifo;
+kMutex_t mutex;
 
-#define left(i) (i)
-#define right(i) ((i + 1) % NUM_OF_PHILOSOPHERS)
+byte fifoBuffer[50];
 
-static int uart_putchar(char c, FILE *stream);
-
-static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
- 
-static int uart_putchar(char c, FILE *stream)
+void test_task3() 
 {
-	uart_putc(c);
-	return 0;
-}
- 
-void take_fork(int i) 
-{
-	ipc_mutexLock(&(forks[left(i)]));
-	ipc_mutexLock(&(forks[right(i)]));
-	
-	arch_enterCriticalSection();
-	printf("Philosopher %d got the fork %d and %d\r\n", i, left(i), right(i));
-	arch_exitCriticalSection();
-}
+	debug_printk("task3: Start\r\n");
+	while (1)
+	{
+		char receiveBuffer[32] = "";
+		uint8_t receiveBufferIndex = 0;
 
-void put_fork(int i) 
-{
-	arch_enterCriticalSection();
-	printf("Philosopher %d Gave up the fork %d and %d\r\n", i, left(i), right(i));
-	arch_exitCriticalSection();
-	ipc_mutexUnlock(&(forks[left(i)]));
-	ipc_mutexUnlock(&(forks[right(i)]));
-}
+		debug_printk("task3: Reading FIFO\r\n");
 
-void philosophers_task(void *param) 
-{
-	int i = *(int *)param;
+		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
-	while (1) {
-		ipc_semaphoreWait(&entry_sem);
+		receiveBuffer[31] = 0;
 
-		take_fork(i);
-
-		arch_enterCriticalSection();
-		printf("Philosopher %d is eating\r\n", i);
-		arch_exitCriticalSection();
-
-		tasks_sleep(10);
-		// Add a Delay to eat. Not Required but be practical.
-		put_fork(i);
-
-		ipc_semaphoreSignal(&entry_sem);
-    
-    		// This is not required. But practical
-		tasks_sleep(10);
+		debug_printk("task3: FIFO contents: %s\r\n", receiveBuffer);
 	}
 }
 
-int main() 
+void test_task2() 
 {
-	int i;
-	int param[NUM_OF_PHILOSOPHERS];
+	debug_printk("Test\r\n");
+	while (1)
+	{
+		char receiveBuffer[32] = "";
+		uint8_t receiveBufferIndex = 0;
 
-	stdout = &mystdout;
+		debug_printk("task2: Reading FIFO\r\n");
 
+		ipc_fifoRead(&fifo, (void*)receiveBuffer);
+
+		debug_printk("task2: FIFO contents: %s\r\n", receiveBuffer);
+
+		break;
+	}
+}
+
+void test_task() 
+{
+	char asd[] = "10 symbols";
+	debug_printk("task1: Start\r\n");
+	while (1)
+	{
+		debug_printk("task1: Writing FIFO\r\n");
+		ipc_fifoWrite(&fifo, (void*)asd);
+	}
+}
+
+void test_task123() 
+{
+	char asd[] = "10 symbols";
+	debug_printk("task123: Start\r\n");
+	while (1)
+	{
+		debug_printk("task123: Writing FIFO\r\n");
+		ipc_fifoWrite(&fifo, (void*)asd);
+		_delay_ms(10);
+		break;
+	}
+}
+
+
+int main(void)
+{
 	kernel_init();
-
-	// Create Five Semaphores for the five shared resources. 
-	// Which is the fork in this case.
-	for (i = 0; i < NUM_OF_PHILOSOPHERS; i++) {
-		ipc_mutexInit(&(forks[i]));
-	}
-
-	// This is the critical piece to avoid deadlock.
-	// If one less philosopher is allowed to act then there will no deadlock.
-	// As one philosopher will always get two forks and so it will go on.
-
-	ipc_semaphoreInit(&entry_sem, MAX_NUMBER_ALLOWED);
-
-	for (i = 0; i < NUM_OF_PHILOSOPHERS; i++) {
-		// Ofcourse, you can just pass i as every thread needs it's own
-		// address to store the parameter.
-		param[i] = i;
-		philosophers[i] = tasks_createTaskDynamic(128, philosophers_task, &(param[i]), 5, KTASK_NORMAL, "task");
-	}
-
+	ipc_fifoInit(&fifo, fifoBuffer, 31, 11);
+	test = tasks_createTaskDynamic(150, test_task, NULL, 1, KTASK_NORMAL, "test1");
+	test2 = tasks_createTaskDynamic(150, test_task2, NULL, 1, KTASK_NORMAL, "test2");
+	test3 = tasks_createTaskDynamic(150, test_task3, NULL, 1, KTASK_NORMAL, "test3");
+	test4 = tasks_createTaskDynamic(150, test_task123, NULL, 1, KTASK_NORMAL, "test123");
 	kernel_startScheduler();
-
-	while(1);
+	while (1)
+	{
+		asm volatile("nop"::);
+		//debug_printk("Idling in mah main\r\n");
+	}
 }
