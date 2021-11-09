@@ -149,7 +149,7 @@ void tasks_deleteTask(kTask_t *task)
 {	
 	kLinkedListItem_t *head = NULL;
 	
-	if (task != NULL) {
+	if (task != NULL && task->mutexCount == 0) {
 		arch_enterCriticalSection();
 
 		tasks_setTaskState(task, KSTATE_UNINIT);
@@ -194,21 +194,6 @@ kBaseType_t tasks_getTaskPriority(kTask_t *task)
 	return priority;
 }
 
-void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority)
-{
-	if (task != NULL) {
-		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
-			arch_enterCriticalSection();
-
-			tasks_unscheduleTask(task);
-			task->priority = priority;
-			tasks_scheduleTask(task, task->state);
-
-			arch_exitCriticalSection();
-		}
-	}
-}
-
 kTaskState_t tasks_getTaskState(kTask_t *task) 
 {
 	kTaskState_t state = KSTATE_UNINIT;
@@ -222,18 +207,6 @@ kTaskState_t tasks_getTaskState(kTask_t *task)
 	}
 
 	return state;
-}
-
-void tasks_setTaskState(kTask_t *task, kTaskState_t state)
-{
-	if (task != NULL) {
-		arch_enterCriticalSection();
-
-		tasks_scheduleTask(task, state);
-		task->state = state;
-
-		arch_exitCriticalSection();
-	}
 }
 
 kTaskType_t tasks_getTaskType(kTask_t *task)
@@ -262,6 +235,59 @@ kLinkedList_t *tasks_getTaskAllocList(kTask_t *task)
 	}
 
 	return allocList;
+}
+
+kBaseType_t tasks_getHeldMutexCount(kTask_t *task)
+{
+	kBaseType_t mutexCount = 0;
+
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		mutexCount = task->mutexCount;
+
+		arch_exitCriticalSection();
+	}
+
+	return mutexCount;
+}
+
+void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority)
+{
+	if (task != NULL) {
+		if (priority <= CFG_NUMBER_OF_PRIORITIES) {
+			arch_enterCriticalSection();
+
+			tasks_unscheduleTask(task);
+			task->priority = priority;
+			tasks_scheduleTask(task, task->state);
+
+			arch_exitCriticalSection();
+		}
+	}
+}
+
+void tasks_setTaskState(kTask_t *task, kTaskState_t state)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		tasks_scheduleTask(task, state);
+		task->state = state;
+
+		arch_exitCriticalSection();
+	}
+}
+
+void tasks_setHeldMutexCount(kTask_t *task, kBaseType_t mutexCount)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		task->mutexCount = mutexCount;
+
+		arch_exitCriticalSection();
+	}
 }
 
 void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList)

@@ -50,6 +50,7 @@ struct kTaskStruct_t
 	kTaskTicks_t sleepTime;			/**< Time to sleep in ticks, used when state is KSTATE_SLEEPING. */
 	kTaskType_t type;			/**< Task type, KTASK_NORMAL or KTASK_CRITICAL.*/
 	kBaseType_t priority;			/**< Task scheduling priority; 0 is reserved. */
+	kBaseType_t mutexCount;		
 	byte flags;				/**< Status flags, for now only KTASKFLAG_DYNAMIC. */
 	kPid_t pid;				/**< Task ID. */
 	char* name;				/**< Task display name. */
@@ -137,27 +138,6 @@ void tasks_deleteTask(kTask_t *task);
 
 /**
  * @ingroup tasks
- * @brief Sets task state.
- * 
- * @param task Task handle.
- * @param state New task state. Allowed values are KSTATE_SUSPENDED, 
- * KSTATE_READY, KSTATE_SLEEPING.\n 
- * @note Use tasks_blockTask if you want to set state to KSTATE_BLOCKED.
- */
-void tasks_setTaskState(kTask_t *task, kTaskState_t state);
-
-/**
- * @ingroup tasks
- * @brief Sets task priority.
- * 
- * @param task Task handle.
- * @param priority New task priority. Value must be between 1 and 
- * CFG_NUMBER_OF_PRIORITIES - 1. 0 is reserved for idle task.
- */
-void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority);
-
-/**
- * @ingroup tasks
  * @brief Returns task state.
  * 
  * @param task Task handle.
@@ -197,6 +177,31 @@ kTaskType_t tasks_getTaskType(kTask_t *task);
  * Returns NULL on failure.
  */
 kLinkedList_t *tasks_getTaskAllocList(kTask_t *task);
+
+kBaseType_t tasks_getHeldMutexCount(kTask_t *task);
+
+/**
+ * @ingroup tasks
+ * @brief Sets task state.
+ * 
+ * @param task Task handle.
+ * @param state New task state. Allowed values are KSTATE_SUSPENDED, 
+ * KSTATE_READY, KSTATE_SLEEPING.\n 
+ * @note Use tasks_blockTask if you want to set state to KSTATE_BLOCKED.
+ */
+void tasks_setTaskState(kTask_t *task, kTaskState_t state);
+
+/**
+ * @ingroup tasks
+ * @brief Sets task priority.
+ * 
+ * @param task Task handle.
+ * @param priority New task priority. Value must be between 1 and 
+ * CFG_NUMBER_OF_PRIORITIES - 1. 0 is reserved for idle task.
+ */
+void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority);
+
+void tasks_setHeldMutexCount(kTask_t *task, kBaseType_t mutexCount);
 
 /**
  * @ingroup tasks

@@ -35,12 +35,15 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 		while (1) {
 			arch_enterCriticalSection();
 
-			if (semaphore->lockCount != 0) {
+			if (semaphore->lockCount > 0) {
 				semaphore->lockCount--;
 
 				if (semaphore->type == KLOCK_MUTEX) {
 					semaphore->lockOwner = tasks_getCurrentTask();
 					semaphore->basePriority = tasks_getTaskPriority(semaphore->lockOwner);
+
+					kBaseType_t mutexCount = tasks_getHeldMutexCount(semaphore->lockOwner);
+					tasks_setHeldMutexCount(semaphore->lockOwner, mutexCount + 1);
 				}
 
 				arch_exitCriticalSection();
@@ -50,8 +53,16 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 				currentTask = tasks_getCurrentTask();
 
 				if (semaphore->type == KLOCK_MUTEX) {
-					if (tasks_getTaskPriority(semaphore->lockOwner) < tasks_getTaskPriority(currentTask)) {
-						tasks_setTaskPriority(semaphore->lockOwner, tasks_getTaskPriority(currentTask));
+					if (semaphore->lockOwner  == NULL || tasks_getTaskState(semaphore->lockOwner) == KSTATE_UNINIT) {
+						if(semaphore->blockedTasks.head != NULL) {
+							tasks_unblockTask((kTask_t *)semaphore->blockedTasks.head->data);
+						}
+						semaphore->lockCount = 1;
+					}
+					else {						
+						if (tasks_getTaskPriority(semaphore->lockOwner) < tasks_getTaskPriority(currentTask)) {
+							tasks_setTaskPriority(semaphore->lockOwner, tasks_getTaskPriority(currentTask));
+						}
 					}
 				}
 
@@ -73,23 +84,31 @@ void ipc_semaphoreSignal(kSemaphore_t *semaphore)
 	if (semaphore != NULL) {
 		arch_enterCriticalSection();
 
+		kTask_t *currentTask = tasks_getCurrentTask();
 		head = semaphore->blockedTasks.head;
 
 		if (semaphore->type == KLOCK_MUTEX) {
-			if (tasks_getTaskPriority(semaphore->lockOwner) != semaphore->basePriority) {
-				tasks_setTaskPriority(semaphore->lockOwner, semaphore->basePriority);
-				semaphore->lockOwner = NULL;
-				semaphore->basePriority = 0;
+			if (currentTask == semaphore->lockOwner) {
+				kBaseType_t mutexCount = tasks_getHeldMutexCount(currentTask);
+				if (mutexCount > 0) {
+					tasks_setHeldMutexCount(currentTask, mutexCount - 1);
+				}
+
+				if (tasks_getTaskPriority(semaphore->lockOwner) != semaphore->basePriority) {
+					tasks_setTaskPriority(semaphore->lockOwner, semaphore->basePriority);
+					semaphore->lockOwner = NULL;
+					semaphore->basePriority = 0;
+				}
+
+				semaphore->lockCount = 1;
 			}
-			semaphore->lockCount = 1;
 		}
 		else {
 			semaphore->lockCount++;
 		}
 
-		while(head != NULL) {
+		if(head != NULL) {
 			tasks_unblockTask((kTask_t *)head->data);
-			head = head->next;
 		}
 
 		arch_exitCriticalSection();

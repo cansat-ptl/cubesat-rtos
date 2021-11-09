@@ -11,6 +11,7 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
+#include <kernel/panic.h>
 #include <kernel/arch/mega128/arch.h>
 #include <kernel/arch/mega128/stack.h>
 #include <kernel/tasks/tasks.h>
@@ -102,6 +103,10 @@ kReturnValue_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stac
 void arch_taskReturnHook()
 {
     	kTask_t *currentTask = tasks_getCurrentTask();
+
+	if (tasks_getHeldMutexCount(currentTask) != 0) {
+		kernel_panic("Task with mutexes returned");
+	}
 
 	tasks_deleteTask(currentTask);
 
