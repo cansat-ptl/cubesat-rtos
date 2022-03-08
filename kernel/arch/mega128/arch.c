@@ -40,6 +40,7 @@ void arch_enterCriticalSection()
 	}
 	arch_exitAtomicSection();
 }
+
 void arch_exitCriticalSection()
 {
 	arch_enterAtomicSection();

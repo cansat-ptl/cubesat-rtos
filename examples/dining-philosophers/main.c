@@ -55,8 +55,6 @@ void philosophers_task(void *param)
 	kTaskTicks_t eatTime = 0;
 
 	while (1) {
-		starveTime = tasks_getSysTickCount() - eatTime;
-
 		if (starveTime > 95) {
 			ipc_mutexLock(&print_mutex);
 			printf("--------> Philosopher %d starved to death, time: %d\r\n", i, starveTime);
@@ -71,10 +69,10 @@ void philosophers_task(void *param)
 		ipc_semaphoreWait(&entry_sem);
 		take_fork(i);
 
-		tasks_sleep(5);
-		eatTime = tasks_getSysTickCount();
-
+		starveTime = tasks_getSysTickCount() - eatTime;
+		tasks_sleep(25);
 		put_fork(i);
+		eatTime = tasks_getSysTickCount();
 
 		ipc_semaphoreSignal(&entry_sem);
     

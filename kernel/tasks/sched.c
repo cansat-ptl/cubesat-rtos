@@ -159,7 +159,7 @@ void tasks_switchTask()
 	}
 
 	if (kCriticalNesting == 0) {
-		if (!kSchedCPUState.quantumTicksLeft) {
+		if (!kSchedCPUState.taskQuantumLeft) {
 			tasks_search();
 		}
 
@@ -187,8 +187,8 @@ void tasks_sleep(kTaskTicks_t sleep)
 		tasks_setTaskState(task, KSTATE_SLEEPING);
 	}
 	#if CFG_ENABLE_SLEEP_WORKAROUND == 0
-		arch_yield();
 		arch_exitCriticalSection();
+		arch_yield();
 	#else
 		arch_exitCriticalSection();
 		arch_ENABLE_INTERRUPTS();

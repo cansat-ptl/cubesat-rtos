@@ -48,7 +48,7 @@ OBJDUMP_LSS_FLAGS := -h -S
 rwildcard = $(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
 
 # Automatically find all source files
-SRCS := $(call rwildcard, $(SRCDIR)/,*.c)
+SRCS := $(call rwildcard, $(SRCDIR)/,*.c) main.c
 ASM_SRCS := $(call rwildcard, $(SRCDIR)/,*.S)
 
 # Generate build directory structure
