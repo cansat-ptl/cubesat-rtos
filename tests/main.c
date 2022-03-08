@@ -56,9 +56,9 @@ void test_task2()
 
 		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
-		debug_printk("task2: FIFO contents: %s\r\n", receiveBuffer);
+		receiveBuffer[31] = 0;
 
-		break;
+		debug_printk("task2: FIFO contents: %s\r\n", receiveBuffer);
 	}
 }
 
@@ -81,7 +81,6 @@ void test_task123()
 	{
 		debug_printk("task123: Writing FIFO\r\n");
 		ipc_fifoWrite(&fifo, (void*)asd);
-		_delay_ms(10);
 		break;
 	}
 }

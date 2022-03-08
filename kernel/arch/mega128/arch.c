@@ -15,7 +15,8 @@
 #include <kernel/arch/mega128/arch.h>
 #include <avr/wdt.h>
 
-static volatile uint8_t mcusr_mirror __attribute__ ((section (".noinit")));
+static volatile kRegister_t mcusr_mirror __attribute__ ((section (".noinit")));
+extern volatile kBaseType_t kCriticalNesting;
 volatile byte kReservedMemory[CFG_KERNEL_RESERVED_MEMORY];
 kStackPtr_t kStackPointer = &kReservedMemory[CFG_KERNEL_RESERVED_MEMORY-2];
 
@@ -31,17 +32,36 @@ void arch_startScheduler()
 	arch_ENABLE_INTERRUPTS();
 }
 
+void arch_enterCriticalSection()
+{
+	arch_enterAtomicSection();
+	if (kCriticalNesting <= 254) {
+		kCriticalNesting++;
+	}
+	arch_exitAtomicSection();
+}
+void arch_exitCriticalSection()
+{
+	arch_enterAtomicSection();
+	if (kCriticalNesting > 0) {
+		kCriticalNesting--;
+	}
+	arch_exitAtomicSection();
+}
+
 void arch_spinlockAcquire(kSpinlock_t *spinlock)
 {
 	while(1) {
-		arch_enterCriticalSection();
+		arch_enterAtomicSection();
 		asm volatile("": : :"memory");
 		if(*spinlock == 0) {
+			arch_enterAtomicSection();
 			if(*spinlock == 0) {
 				*spinlock = 1;
-				arch_exitCriticalSection();
+				arch_exitAtomicSection();
 				return;
 			}
+			arch_exitAtomicSection();
 		}
 		arch_exitCriticalSection();
 	}
@@ -49,9 +69,9 @@ void arch_spinlockAcquire(kSpinlock_t *spinlock)
 
 void arch_spinlockRelease(kSpinlock_t *spinlock)
 {
-	arch_enterCriticalSection();
+	arch_enterAtomicSection();
 	*spinlock = 0;
-	arch_exitCriticalSection();
+	arch_exitAtomicSection();
 }
 
 void arch_setupSystickTimer()

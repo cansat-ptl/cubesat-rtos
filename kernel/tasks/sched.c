@@ -16,7 +16,8 @@
 #include <kernel/panic.h>
 #include <util/atomic.h>
 
-volatile struct kSchedCPUStateStruct_t kSchedCPUState; /* Must not be static - also used by arch/../context.S */
+volatile kBaseType_t kCriticalNesting = 0;		/* Must not be static - also used by arch/../arch.c */
+volatile struct kSchedCPUStateStruct_t kSchedCPUState;	/* Must not be static - also used by arch/../context.S */
 
 static volatile kSysTicks_t kTicks = 0;
 
@@ -157,13 +158,13 @@ void tasks_switchTask()
 		kSchedCPUState.quantumTicksLeft--;
 	}
 
-	if (!kSchedCPUState.taskQuantumLeft) {
-		tasks_search();
-	}
+	if (kCriticalNesting == 0) {
+		if (!kSchedCPUState.quantumTicksLeft) {
+			tasks_search();
+		}
 
-	if (kSchedCPUState.nextTask != kSchedCPUState.currentTask) {
-		tasks_switchContext();
-	} 
+		if (kSchedCPUState.nextTask != kSchedCPUState.currentTask) tasks_switchContext();
+	}
 }
 
 /* Note: must not be static, called in arch module */

@@ -67,7 +67,6 @@
 	pop r3
 	pop r2
 	pop r1
-	sei						; Simulator bug workaround, TODO: remove this
 	pop r0						; load previously saved SREG to r0
 	out _SFR_IO_ADDR(SREG), r0
 	pop r0						; load the actual r0 register
