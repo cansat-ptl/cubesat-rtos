@@ -148,6 +148,7 @@ kTask_t *tasks_createTaskDynamic(size_t stackSize,
 void tasks_deleteTask(kTask_t *task) 
 {	
 	kLinkedListItem_t *head = NULL;
+	kLinkedListItem_t *next = NULL;
 	
 	if (task != NULL && task->mutexCount == 0) {
 		arch_enterCriticalSection();
@@ -155,12 +156,13 @@ void tasks_deleteTask(kTask_t *task)
 		tasks_setTaskState(task, KSTATE_UNINIT);
 
 		head = task->childTaskList.head;
-
+		
 		while (head != NULL) {
+			next = head->next;
 			tasks_deleteTask((kTask_t *)(head->data));
-			head = head->next;
+			head = next;
 		}
-
+		
 		head = task->allocList.head;
 		
 		while(head != NULL) {
