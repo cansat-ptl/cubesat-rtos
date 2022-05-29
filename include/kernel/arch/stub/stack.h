@@ -15,10 +15,25 @@
 extern "C" {
 #endif
 
-kStackPtr_t arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args);
+kStackPtr_t __attribute__((weak)) arch_prepareStackFrame(kStackPtr_t stackPointer, kStackSize_t stackSize, void (*entry)(void), void *args)
+{
+	return stackPointer;
+}
 
-kStackPtr_t arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize);
-kReturnValue_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize);
+kStackPtr_t __attribute__((weak)) arch_prepareProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
+{
+	return basePtr;
+}
+
+kReturnValue_t __attribute__((weak)) arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stackSize, kStackSize_t regionSize)
+{
+	return 0;
+}
+
+void __attribute__((weak)) arch_taskReturnHook()
+{
+    	return;
+}
 
 #ifdef __cplusplus
 }

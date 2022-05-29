@@ -20,11 +20,11 @@
 		#include "./stub/types.h"
 		#warning "Unsupported/unknown AVR MCU, using stub types"
 	#endif
-#else
-	/* workaround to make IntelliSense happy */
-	/* makes you REALLY contemplate directory structure choices */
+#elif defined KERNEL_ARCH_stub
 	#include "./stub/types.h"
-	#warning "Unsupported/unknown architecture, using stub types"
+#else
+	#include "./stub/types.h"
+	#warning "Unsupported/unknown AVR MCU, using stub types"
 #endif
 
 #endif /* KERNEL_ARCHTYPES_H_ */

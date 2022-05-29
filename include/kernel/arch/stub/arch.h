@@ -37,24 +37,80 @@ extern "C" {
 
 void __attribute__ (( naked, noinline )) arch_yield(void);
 
-void arch_enterCriticalSection();
-void arch_exitCriticalSection();
+void __attribute__((weak)) arch_platformInit()
+{
+	return;
+}
 
-void arch_setupSystickTimer();
-void arch_startSystickTimer();
-void arch_stopSystickTimer();
+void __attribute__((weak)) arch_startScheduler()
+{
+	return;
+}
 
-void arch_platformInit();
-void arch_startScheduler();
+void __attribute__((weak)) arch_enterCriticalSection()
+{
+	return;
+}
 
-void arch_halt();
-void arch_reboot();
+void __attribute__((weak)) arch_exitCriticalSection()
+{
+	return;
+}
 
-kStatusRegister_t arch_enterCriticalSectionSafe();
-void arch_exitCriticalSectionSafe(kStatusRegister_t sreg);
+void __attribute__((weak)) arch_spinlockAcquire(kSpinlock_t *spinlock)
+{
+	return;
+}
 
-void arch_spinlockAcquire(kSpinlock_t *spinlock);
-void arch_spinlockRelease(kSpinlock_t *spinlock);
+void __attribute__((weak)) arch_spinlockRelease(kSpinlock_t *spinlock)
+{
+	return;
+}
+
+void __attribute__((weak)) arch_setupSystickTimer()
+{
+	return;
+}
+
+void __attribute__((weak)) arch_startSystickTimer()
+{
+	return;
+}
+
+void __attribute__((weak)) arch_stopSystickTimer()
+{
+	return;
+}
+
+kStatusRegister_t __attribute__((weak)) arch_enterCriticalSectionSafe()
+{
+	return 0;
+}
+
+void __attribute__((weak)) arch_exitCriticalSectionSafe(kStatusRegister_t sreg)
+{
+	return;
+} 
+
+void __attribute__((weak)) arch_halt()
+{	
+	return;
+}
+
+void __attribute__((weak)) arch_reboot()
+{
+	return;
+}
+
+void __attribute__((weak)) arch_yield()
+{
+	return;
+}
+
+void __attribute__((weak)) arch_tick()
+{
+	return;
+}
 
 #ifdef __cplusplus
 }

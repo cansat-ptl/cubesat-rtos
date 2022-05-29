@@ -44,8 +44,8 @@ ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 
 LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra -mmcu=$(mcu)
 
 TEST_CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -c -std=gnu99 -Wall -Wextra
-TEST_CPPFLAGS := -x c++ -DDEBUG $(INCLUDES) -Os -g2 -c -std=c++11 -Wall -Wextra
-TEST_LDFLAGS :=  -lm -Wall -Wextra
+TEST_CPPFLAGS := -x c++ -DDEBUG $(INCLUDES) -Os -g2 -c -std=c++11 -Wall -Wextra 
+TEST_LDFLAGS :=  -lm -Wall -Wextra -Wl,-undefined,dynamic_lookup
 
 # CppUTest settings
 CPPUTEST_HOME := "C:\Development\Sources\C\cpputest-3.8\cpputest_build"
@@ -106,7 +106,7 @@ ifeq ($(strip $(mcu)),)
 endif
 endif
  
-all: dirs $(TARG) $(TEST_TARG)
+all: dirs $(TARG)
 
 # Create build directories
 dirs:
@@ -134,7 +134,7 @@ test_setup:
 	$(eval ASMFLAGS := )
 
 test: dirs test_setup $(TARG) $(TEST_OBJS)
-	$(CPP) -o $(TARGDIR)/$@.elf $(TEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -L. -l$(TARG)
+	$(CPP) $(TEST_OBJS) -L. -l$(TARG) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -o $(TARGDIR)/$@.elf 
 
 # Compile main target
 $(TARG): $(OBJS)
@@ -142,15 +142,15 @@ $(TARG): $(OBJS)
 	$(COPY_CMD) "$(TARGDIR)/lib$(TARG).a" "./lib$(TARG).a"
 
 # Compile test target
-$(TEST_TARG): $(TARG) $(TEST_OBJS)
-	$(CPP) -o $(TARGDIR)/$@.elf $(TEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L. -l$(TARG)
-	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).hex"
-	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).eep" || exit 0
-	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" > "$(TARGDIR)/$(TEST_TARG).lss"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).srec"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).usersignatures" || exit 0
-	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TEST_TARG).elf"
-	$(COPY_CMD) "$(TARGDIR)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
+#$(TEST_TARG): $(TARG) $(TEST_OBJS)
+#	$(CPP) -o $(TARGDIR)/$@.elf $(TEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L. -l$(TARG)
+#	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).hex"
+#	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).eep" || exit 0
+#	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" > "$(TARGDIR)/$(TEST_TARG).lss"
+#	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).srec"
+#	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(TEST_TARG).elf" "$(TARGDIR)/$(TEST_TARG).usersignatures" || exit 0
+#	$(AVR_SIZE_CMD) "$(TARGDIR)/$(TEST_TARG).elf"
+#	$(COPY_CMD) "$(TARGDIR)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
 
 # Compile objects
 $(BUILDDIR)/%.o: %.c

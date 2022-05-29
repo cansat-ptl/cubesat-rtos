@@ -8,16 +8,20 @@
 
 #include <CppUTest/TestHarness.h>
 
-TEST_GROUP(TestBuild) {
-	void setup() {
+TEST_GROUP(TestBuild) 
+{
+	void setup() 
+	{
 		// This gets run before every test
 	}
 
-	void teardown() {
+	void teardown() 
+	{
 		// This gets run after every test
 	}
 };
 
-TEST(TestBuild, Test_BuildBasic) {
+TEST(TestBuild, Test_BuildBasic) 
+{
 	LONGS_EQUAL(1, 1);
 }
