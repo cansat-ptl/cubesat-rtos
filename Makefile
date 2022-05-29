@@ -133,6 +133,9 @@ test_setup:
 	$(eval LDFLAGS := $(TEST_LDFLAGS))
 	$(eval ASMFLAGS := )
 
+	$(eval CFLAGS += -MMD -MP)
+	$(eval CPPFLAGS += -MMD -MP)
+
 test: dirs test_setup $(TARG) $(TEST_OBJS)
 	$(CPP) $(TEST_OBJS) -L. -l$(TARG) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -o $(TARGDIR)/$@.elf 
 
