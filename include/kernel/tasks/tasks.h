@@ -57,7 +57,9 @@ struct kTaskStruct_t
 
 	volatile struct kEventStruct_t event;	/**< Struct for event system. */
 
-	kLinkedList_t allocList;		/**< Heap allocated memory list. */
+	#if CFG_HEAP_ALLOCATION_TRACKING == 1
+		kLinkedList_t allocList;		/**< Heap allocated memory list. */
+	#endif
 
 	kLinkedListItem_t activeTaskListItem;	/**< List item used for task scheduling and runqueues. */
 	kLinkedListItem_t globalTaskListItem;	/**< List item for global task list. */

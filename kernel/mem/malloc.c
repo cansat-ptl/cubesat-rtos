@@ -14,12 +14,15 @@
 
 void *mem_malloc(size_t size) 
 {
-	kTask_t *currentTask = tasks_getCurrentTask();
 	kLinkedList_t *allocList = NULL;
 
-	if (currentTask != NULL) {
-		allocList = tasks_getTaskAllocList(currentTask);
-	}
+	#if CFG_HEAP_ALLOCATION_TRACKING == 1
+		kTask_t *currentTask = tasks_getCurrentTask();
+
+		if (currentTask != NULL) {
+			allocList = tasks_getTaskAllocList(currentTask);
+		}
+	#endif
 
 	return mem_heapAlloc(size, allocList);
 }

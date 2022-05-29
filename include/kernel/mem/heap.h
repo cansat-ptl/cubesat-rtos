@@ -23,7 +23,9 @@ struct kMemoryBlockStruct_t
 
 	uint8_t magic2;
 
-	kLinkedListItem_t allocListItem;
+	#if CFG_HEAP_ALLOCATION_TRACKING == 1
+		kLinkedListItem_t allocListItem;
+	#endif
 };
 
 #define mem_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) \ 

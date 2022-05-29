@@ -71,6 +71,8 @@
 	/** Minimum heap allocation block size. */
 	#define CFG_MIN_BLOCK_SIZE 4
 
+	#define CFG_HEAP_ALLOCATION_TRACKING 1
+
 	/** Systick interrupts per 1 kernel tick. */
 	#define CFG_TICKRATE_MS 1
 	

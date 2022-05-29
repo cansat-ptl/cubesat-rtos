@@ -165,14 +165,16 @@ void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 			}
 
 			block->next = NULL;
-
-			if (allocList != NULL) {
-				common_listAddBack(allocList, &(block->allocListItem));
-				block->allocListItem.data = returnAddress;
-			}
-			else {
-				block->allocListItem.data = NULL;
-			}
+			
+			#if CFG_HEAP_ALLOCATION_TRACKING == 1
+				if (allocList != NULL) {
+					common_listAddBack(allocList, &(block->allocListItem));
+					block->allocListItem.data = returnAddress;
+				}
+				else {
+					block->allocListItem.data = NULL;
+				}
+			#endif
 
 			block->magic2 = HEAP_SIGNATURE_LAST;
 		}
@@ -198,10 +200,12 @@ void mem_heapFree(void *pointer)
 			block->magic1 = 0;
 			
 			if (block->next == NULL) {
-				if (block->allocListItem.data != NULL) {
-					common_listDeleteAny(block->allocListItem.list, &(block->allocListItem));
-					block->allocListItem.data = NULL;
-				}
+				#if CFG_HEAP_ALLOCATION_TRACKING == 1
+					if (block->allocListItem.data != NULL) {
+						common_listDeleteAny(block->allocListItem.list, &(block->allocListItem));
+						block->allocListItem.data = NULL;
+					}
+				#endif
 
 				kFreeMemory += block->blockSize;
 				mem_insertFreeBlock((struct kMemoryBlockStruct_t *)block);

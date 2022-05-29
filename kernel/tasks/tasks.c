@@ -163,12 +163,14 @@ void tasks_deleteTask(kTask_t *task)
 			head = next;
 		}
 		
-		head = task->allocList.head;
-		
-		while(head != NULL) {
-			mem_heapFree(head->data);
-			head = head->next;
-		}
+		#if CFG_HEAP_ALLOCATION_TRACKING == 1
+			head = task->allocList.head;
+			
+			while(head != NULL) {
+				mem_heapFree(head->data);
+				head = head->next;
+			}
+		#endif
 
 		common_listDeleteAny(&kGlobalTaskList, &(task->globalTaskListItem));
 		common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
@@ -228,13 +230,16 @@ kTaskType_t tasks_getTaskType(kTask_t *task)
 kLinkedList_t *tasks_getTaskAllocList(kTask_t *task)
 {	
 	kLinkedList_t *allocList = NULL;
-	if (task != NULL) {
-		arch_enterCriticalSection();
 
-		allocList = &(task->allocList);
+	#if CFG_HEAP_ALLOCATION_TRACKING == 1
+		if (task != NULL) {
+			arch_enterCriticalSection();
 
-		arch_exitCriticalSection();
-	}
+			allocList = &(task->allocList);
+
+			arch_exitCriticalSection();
+		}
+	#endif
 
 	return allocList;
 }
