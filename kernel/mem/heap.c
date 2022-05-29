@@ -12,8 +12,8 @@
 #include <kernel/mem/heap.h>
 #include <kernel/common/lists.h>
 
-#define HEAP_SIGNATURE_FIRST16 0x4845
-#define HEAP_SIGNATURE_LAST16 0x4150
+#define HEAP_SIGNATURE_FIRST 0xBA
+#define HEAP_SIGNATURE_LAST 0xDD
 
 static byte kHeapRegion[CFG_HEAP_SIZE];
 
@@ -35,21 +35,9 @@ size_t mem_getFreeHeapMin()
 	return kMinimumFreeMemory;
 }
 
-static inline void mem_prepareBlockMagic(struct kMemoryBlockStruct_t *block) 
-{
-	block->magic1 = HEAP_SIGNATURE_FIRST16;
-	block->magic2 = HEAP_SIGNATURE_LAST16;
-}
-
 static inline uint8_t mem_checkBlockValid(struct kMemoryBlockStruct_t *block) 
 {
-	uint8_t result = 0;
-
-	if (block->magic1 == HEAP_SIGNATURE_FIRST16 && block->magic2 == HEAP_SIGNATURE_LAST16) {
-		result = 1;
-	}
-
-	return result;
+	return (uint8_t)(block->magic1 == HEAP_SIGNATURE_FIRST && block->magic2 == HEAP_SIGNATURE_LAST);
 }
 
 void mem_heapInit()
@@ -71,23 +59,24 @@ void mem_heapInit()
 
 	kHeapStart.next = (void *)heapAligned;
 	kHeapStart.blockSize = (size_t)0;
-	kHeapStart.state = 0;
+	kHeapStart.magic1 = 0;
+	kHeapStart.magic2 = 0;
 
 	heapAddress = ((size_t)heapAligned) + heapSize;
-	heapAddress -= COMMON_HEAP_STRUCT_SIZE;
+	heapAddress -= mem_HEAP_STRUCT_SIZE;
 	heapAddress &= ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK);
 
 	kHeapEnd = (void *)heapAddress;
 	kHeapEnd->blockSize = 0;
 	kHeapEnd->next = NULL;
-	kHeapEnd->state = 0;
+	kHeapEnd->magic1 = 0;
+	kHeapEnd->magic2 = 0;
 
 	firstFreeBlock = (void *)heapAligned;
 	firstFreeBlock->blockSize = heapAddress - (size_t)firstFreeBlock;
 	firstFreeBlock->next = kHeapEnd;
-	firstFreeBlock->state = 0;
-
-	mem_prepareBlockMagic(firstFreeBlock);
+	firstFreeBlock->magic1 = HEAP_SIGNATURE_FIRST;
+	firstFreeBlock->magic2 = HEAP_SIGNATURE_LAST;
 
 	kMinimumFreeMemory = firstFreeBlock->blockSize;
 	kFreeMemory = firstFreeBlock->blockSize;
@@ -142,7 +131,7 @@ void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 		size += (CFG_PLATFORM_BYTE_ALIGNMENT - (size & CFG_PLATFORM_BYTE_ALIGNMENT_MASK));
 	}
 
-	if (size > 0) size += COMMON_HEAP_STRUCT_SIZE;
+	if (size > 0) size += mem_HEAP_STRUCT_SIZE;
 
 	if (size > 0 && size <= kFreeMemory) {
 		previousBlock = &kHeapStart;
@@ -154,7 +143,9 @@ void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 		}
 
 		if (block != kHeapEnd) {
-			returnAddress = (void *)(((byte *)previousBlock->next) + COMMON_HEAP_STRUCT_SIZE);
+			returnAddress = (void *)(((byte *)previousBlock->next) + mem_HEAP_STRUCT_SIZE);
+
+			block->magic1 = HEAP_SIGNATURE_FIRST;
 
 			previousBlock->next = block->next;
 
@@ -173,7 +164,6 @@ void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 				kMinimumFreeMemory = kFreeMemory;
 			}
 
-			block->state = 1;
 			block->next = NULL;
 
 			if (allocList != NULL) {
@@ -184,7 +174,7 @@ void* mem_heapAlloc(size_t size, kLinkedList_t *allocList)
 				block->allocListItem.data = NULL;
 			}
 
-			mem_prepareBlockMagic(block);
+			block->magic2 = HEAP_SIGNATURE_LAST;
 		}
 	}
 
@@ -200,25 +190,24 @@ void mem_heapFree(void *pointer)
 	arch_enterCriticalSection();
 
 	if (mem_heapPointerSanityCheck(pointer) == KRESULT_SUCCESS) {
-		pointer_casted -= COMMON_HEAP_STRUCT_SIZE;
+		pointer_casted -= mem_HEAP_STRUCT_SIZE;
 
 		block = (void *)pointer_casted;
 
 		if (mem_checkBlockValid(block)) {
 			block->magic1 = 0;
-			block->magic2 = 0;
-
-			if (block->state != 0) {
-				if (block->next == NULL) {
-					if (block->allocListItem.data != NULL) {
-						common_listDeleteAny(block->allocListItem.list, &(block->allocListItem));
-						block->allocListItem.data = NULL;
-					}
-					block->state = 0;
-					kFreeMemory += block->blockSize;
-					mem_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
+			
+			if (block->next == NULL) {
+				if (block->allocListItem.data != NULL) {
+					common_listDeleteAny(block->allocListItem.list, &(block->allocListItem));
+					block->allocListItem.data = NULL;
 				}
+
+				kFreeMemory += block->blockSize;
+				mem_insertFreeBlock((struct kMemoryBlockStruct_t *)block);
 			}
+
+			block->magic2 = 0;
 		}
 	}
 

@@ -13,9 +13,20 @@
 extern "C" {
 #endif
 
-void uart_init();
-void uart_putc(char c);
-void uart_puts(char *msg);
+void __attribute__((weak)) uart_init()
+{
+	return;
+}
+
+void __attribute__((weak)) uart_putc(char c)
+{
+	return;
+}
+
+void __attribute__((weak)) uart_puts(char *msg)
+{
+	return;
+}
 
 #ifdef __cplusplus
 }

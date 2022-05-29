@@ -17,17 +17,18 @@ struct kMemoryBlockStruct_t
 {
 	struct kMemoryBlockStruct_t *next;
 
-	uint16_t magic1;
+	uint8_t magic1;
 
 	size_t blockSize;
-	kBaseType_t state;
 
-	uint16_t magic2;
+	uint8_t magic2;
 
 	kLinkedListItem_t allocListItem;
 };
 
-#define COMMON_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) + ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) & ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
+#define mem_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) \ 
+				+ ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) \
+				& ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 
 #ifdef __cplusplus
 extern "C" {

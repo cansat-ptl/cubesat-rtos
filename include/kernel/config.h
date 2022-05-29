@@ -63,10 +63,10 @@
 	#define CFG_HEAP_SIZE 2500
 
 	/** Archiecture byte alignment. Leave 1 for AVR. */
-	#define CFG_PLATFORM_BYTE_ALIGNMENT 1
+	#define CFG_PLATFORM_BYTE_ALIGNMENT 8
 
 	/** Architecture byte alignment mask. Leave 0 for AVR. */
-	#define CFG_PLATFORM_BYTE_ALIGNMENT_MASK 0x0000
+	#define CFG_PLATFORM_BYTE_ALIGNMENT_MASK 0x0007
 
 	/** Minimum heap allocation block size. */
 	#define CFG_MIN_BLOCK_SIZE 4
