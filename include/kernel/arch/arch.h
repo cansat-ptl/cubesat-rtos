@@ -24,6 +24,12 @@
 	#else
 		#error "Unsupported/unknown AVR MCU"
 	#endif
+#elif defined KERNEL_ARCH_stub
+	#define KERNEL_ARCH "stub"
+	#define KERNEL_MCU "generic"
+	#include "./stub/arch.h"
+	#include "./stub/uart.h"
+	#include "./stub/stack.h"
 #else
 	#error "Unsupported/unknown architecture"
 #endif

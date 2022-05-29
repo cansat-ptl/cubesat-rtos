@@ -10,6 +10,10 @@
 #ifndef KERNEL_INIT_H_
 #define KERNEL_INIT_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @ingroup kernel
  * @brief Initializes internal kernel structures.
@@ -23,5 +27,9 @@ void kernel_init();
  * kernel_init().
  */
 void kernel_startScheduler();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

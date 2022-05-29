@@ -10,6 +10,10 @@
 #ifndef KERNEL_PANIC_H_
 #define KERNEL_PANIC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @ingroup kernel
  * @brief Displays error message and stops the kernel. 
@@ -18,5 +22,9 @@
  * @param msg Error message.
  */
 void kernel_panic(char *msg);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

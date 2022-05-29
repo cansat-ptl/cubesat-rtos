@@ -14,7 +14,6 @@
 #include <kernel/common/lists.h>
 #include <kernel/debug/printk.h>
 #include <kernel/panic.h>
-#include <util/atomic.h>
 
 volatile kBaseType_t kCriticalNesting = 0;		/* Must not be static - also used by arch/../arch.c */
 volatile struct kSchedCPUStateStruct_t kSchedCPUState;	/* Must not be static - also used by arch/../context.S */
