@@ -12,6 +12,8 @@ INCLUDES := -I"./include"
 # Project directories
 SRCDIR := kernel
 TESTDIR := tests
+UNITTESTDIR := unit
+HWTESTDIR := platform
 BUILDDIR := build
 TARGDIR := bin
 
@@ -89,27 +91,30 @@ endif
 # https://stackoverflow.com/a/12959764
 rwildcard = $(wildcard $(addsuffix $2, $1)) $(foreach d,$(wildcard $(addsuffix *, $1)),$(call rwildcard,$d/,$2))
 
-# Automatically find all source files
-C_SRCS := $(call rwildcard, $(SRCDIR)/,*.c)
-CPP_SRCS := $(call rwildcard, $(SRCDIR)/,*.cpp) 
-TEST_SRCS := $(call rwildcard, $(TESTDIR)/,*.cpp)
-ASM_SRCS := $(call rwildcard, $(SRCDIR)/,*.S)
-
 TARG_BUILDDIR := $(BUILDDIR)/$(arch)/$(mcu)
 TEST_BUILDDIR := $(BUILDDIR)/$(ARCH_TEST)/$(MCU_TEST)
 
+# Automatically find all source files
+C_SRCS := $(call rwildcard, $(SRCDIR)/,*.c)
+CPP_SRCS := $(call rwildcard, $(SRCDIR)/,*.cpp) 
+ASM_SRCS := $(call rwildcard, $(SRCDIR)/,*.S)
+
+UNITTEST_CPP_SRCS := $(call rwildcard, $(TESTDIR)/$(UNITTESTDIR)/,*.cpp)
+HWTEST_CPP_SRCS :=  $(call rwildcard, $(TESTDIR)/$(HWTESTDIR)/,*.cpp) 
+
 # Generate build directory structure
 TARG_OBJDIRS := $(addprefix $(TARG_BUILDDIR)/,$(dir $(C_SRCS))) $(addprefix $(TARG_BUILDDIR)/,$(dir $(CPP_SRCS)))
-TEST_TARG_OBJDIRS := $(addprefix $(TEST_BUILDDIR)/,$(dir $(C_SRCS))) $(addprefix $(TEST_BUILDDIR)/,$(dir $(CPP_SRCS)))
-TEST_OBJDIRS := $(addprefix $(TEST_BUILDDIR)/,$(dir $(TEST_SRCS)))
+HWTEST_OBJDIRS :=  $(addprefix $(TARG_BUILDDIR)/,$(dir $(HWTEST_CPP_SRCS)))
+UNITTEST_OBJDIRS := $(addprefix $(TEST_BUILDDIR)/,$(dir $(UNITTEST_CPP_SRCS))) $(addprefix $(TEST_BUILDDIR)/,$(dir $(C_SRCS))) $(addprefix $(TEST_BUILDDIR)/,$(dir $(CPP_SRCS)))
 
 # Generate list of objects
 TARG_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TARG_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TARG_BUILDDIR)/,$(ASM_SRCS:.S=.o))
-TEST_TARG_OBJS := $(addprefix $(TEST_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TEST_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TEST_BUILDDIR)/,$(ASM_SRCS:.S=.o))
-TEST_OBJS := $(addprefix $(TEST_BUILDDIR)/,$(TEST_SRCS:.cpp=.o)) 
+HWTEST_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(HWTEST_CPP_SRCS:.cpp=.o))
+UNITTEST_OBJS := $(addprefix $(TEST_BUILDDIR)/,$(UNITTEST_CPP_SRCS:.cpp=.o)) 
+UNITTEST_OBJS += $(addprefix $(TEST_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TEST_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TEST_BUILDDIR)/,$(ASM_SRCS:.S=.o))
 
 # Generate dependencies
-DEPS := $(TARG_OBJS:.o=.d) $(TEST_TARG_OBJS:.o=.d) $(TEST_OBJS:.o=.d)
+DEPS := $(TARG_OBJS:.o=.d) $(HWTEST_OBJS:.o=.d) $(UNITTEST_OBJS:.o=.d)
 CFLAGS += -MMD -MP
 CPPFLAGS += -MMD -MP
 TEST_CFLAGS += -MMD -MP
@@ -117,29 +122,42 @@ TEST_CPPFLAGS += -MMD -MP
 
 VERSION_STRING := $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
 
-all: dirs $(TARG)
+all: dirs $(TARG) $(TEST_TARG)
 
 # Create build directories
 dirs:
 	$(MKDIR_CMD) $(BUILDDIR)
-	$(MKDIR_CMD) $(TARGDIR)
+	$(MKDIR_CMD) $(TARGDIR)/$(arch)/$(mcu)
+	$(MKDIR_CMD) $(TARGDIR)/$(ARCH_TEST)/$(MCU_TEST)
 ifneq ($(strip $(TARG_OBJDIRS)),)
 	$(MKDIR_CMD) $(TARG_OBJDIRS)
 endif
-ifneq ($(strip $(TEST_TARG_OBJDIRS)),)
-	$(MKDIR_CMD) $(TEST_TARG_OBJDIRS)
+ifneq ($(strip $(HWTEST_OBJDIRS)),)
+	$(MKDIR_CMD) $(HWTEST_OBJDIRS)
 endif
-ifneq ($(strip $(TEST_OBJDIRS)),)
-	$(MKDIR_CMD) $(TEST_OBJDIRS)
+ifneq ($(strip $(UNITTEST_OBJDIRS)),)
+	$(MKDIR_CMD) $(UNITTEST_OBJDIRS)
 endif
 
-test: dirs $(TARG) $(TEST_TARG_OBJS) $(TEST_OBJS)
-	$(TEST_CPP) $(TEST_TARG_OBJS) $(TEST_OBJS) $(TEST_LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -o $(TARGDIR)/$@
+test: dirs $(TARG) $(UNITTEST_OBJS)
+	$(TEST_CPP) $(UNITTEST_OBJS) $(TEST_LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -o $(TARGDIR)/$(ARCH_TEST)/$(MCU_TEST)/$@
 
 # Compile main target
 $(TARG): $(TARG_OBJS)
-	$(AR) rcs "$(TARGDIR)/lib$(TARG).a" $(TARG_OBJS)
-	$(COPY_CMD) "$(TARGDIR)/lib$(TARG).a" "./lib$(TARG).a"
+	$(AR) rcs "$(TARGDIR)/$(arch)/$(mcu)/lib$(TARG).a" $(TARG_OBJS)
+	$(COPY_CMD) "$(TARGDIR)/$(arch)/$(mcu)/lib$(TARG).a" "./lib$(TARG).a"
+
+# Compile test target
+$(TEST_TARG): $(TARG) $(HWTEST_OBJS)
+	$(CPP) -o $(TARGDIR)/$(arch)/$(mcu)/$@.elf $(TARG_OBJS) $(HWTEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L./$(TARGDIR)/$(arch)/$(mcu) -l$(TARG)
+	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).hex"
+	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).eep" || exit 0
+	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" > "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).lss"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).srec"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).usersignatures" || exit 0
+	$(AVR_SIZE_CMD) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf"
+	$(COPY_CMD) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
+
 
 # Compile objects
 $(TARG_BUILDDIR)/%.o: %.c
@@ -165,7 +183,7 @@ cleandirs:
 	$(RM_CMD) $(TARGDIR) $(BUILDDIR)
 
 cleanobjs:
-	$(RM_CMD) $(TARG_OBJS) $(DEPS) $(TEST_TARG_OBJS) $(TEST_OBJS)
+	$(RM_CMD) $(TARG_OBJS) $(DEPS) $(HWTEST_OBJS) $(UNITTEST_OBJS)
 
 cleanmisc:
 	$(RM_CMD) $(TARGDIR)/$(TEST_TARG).map $(TARGDIR)/$(TEST_TARG).usersignatures $(TARGDIR)/$(TEST_TARG).srec $(TARGDIR)/$(TEST_TARG).lss $(TARGDIR)/$(TEST_TARG).eep
