@@ -16,6 +16,7 @@
 #include <stdio.h>
 
  //extern bool verbose_;
+extern int testCriticalLevel;
 
 TEST_GROUP(TestAlloc) 
 {
@@ -39,6 +40,7 @@ TEST(TestAlloc, Test_AllocZero)
 
 	/* Check if nothing was allocated */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocOne) 
@@ -57,6 +59,7 @@ TEST(TestAlloc, Test_AllocOne)
 
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocTooMuch) 
@@ -68,6 +71,7 @@ TEST(TestAlloc, Test_AllocTooMuch)
 
 	/* Check if nothing was allocated */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocAlmostTooMuch) 
@@ -86,6 +90,7 @@ TEST(TestAlloc, Test_AllocAlmostTooMuch)
 
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocHalfTwiceFree) 
@@ -102,6 +107,7 @@ TEST(TestAlloc, Test_AllocHalfTwiceFree)
 
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocHalfFreeRealloc) 
@@ -120,6 +126,7 @@ TEST(TestAlloc, Test_AllocHalfFreeRealloc)
 
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocDoubleFreeRealloc) 
@@ -141,6 +148,7 @@ TEST(TestAlloc, Test_AllocDoubleFreeRealloc)
 	
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
 
 TEST(TestAlloc, Test_AllocFreeDefragmentation) 
@@ -194,4 +202,5 @@ TEST(TestAlloc, Test_AllocFreeDefragmentation)
 
 	/* Check if everything was freed */
 	CHECK_EQUAL(freeHeapPre, mem_getFreeHeap());
+	CHECK_EQUAL(0, testCriticalLevel);
 }
