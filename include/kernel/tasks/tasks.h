@@ -16,6 +16,7 @@
 
 #include <stddef.h>
 #include <kernel/types.h>
+#include <kernel/config.h>
 #include <kernel/common/lists.h>
 
 #define KTASKFLAG_DYNAMIC ((byte)(0x01))
@@ -63,9 +64,11 @@ struct kTaskStruct_t
 
 	kLinkedListItem_t activeTaskListItem;	/**< List item used for task scheduling and runqueues. */
 	kLinkedListItem_t globalTaskListItem;	/**< List item for global task list. */
-	kLinkedListItem_t childTaskListItem;	/**< List item used for child/parent relationship. */
 
-	kLinkedList_t childTaskList;		/**< Child task list. */
+	#if CFG_ENABLE_CHILD_TASK_TRACKING == 1
+		kLinkedListItem_t childTaskListItem;	/**< List item used for child/parent relationship. */
+		kLinkedList_t childTaskList;		/**< Child task list. */
+	#endif
 };
 
 /**

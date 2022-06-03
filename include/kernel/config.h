@@ -36,6 +36,8 @@
 	 * memory protection region in bytes. */
 	#define CFG_STACK_SAFETY_MARGIN 8
 
+	#define CFG_ENABLE_CHILD_TASK_TRACKING 1
+
 	/** Memory reserved for kernel operations (ISRs, syscalls, etc.). */
 	#define CFG_KERNEL_RESERVED_MEMORY 200
 
@@ -62,11 +64,15 @@
 	 * See mem module for more info. */
 	#define CFG_HEAP_SIZE 2500
 
-	/** Archiecture byte alignment. Leave 1 for AVR. */
-	#define CFG_PLATFORM_BYTE_ALIGNMENT 8
-
-	/** Architecture byte alignment mask. Leave 0 for AVR. */
-	#define CFG_PLATFORM_BYTE_ALIGNMENT_MASK 0x0007
+	#ifdef __AVR__
+		/** Archiecture byte alignment. Leave 1 for AVR. */
+		#define CFG_PLATFORM_BYTE_ALIGNMENT 1
+		/** Architecture byte alignment mask. Leave 0 for AVR. */
+		#define CFG_PLATFORM_BYTE_ALIGNMENT_MASK 0x0000
+	#else
+		#define CFG_PLATFORM_BYTE_ALIGNMENT 8
+		#define CFG_PLATFORM_BYTE_ALIGNMENT_MASK 0x0007
+	#endif
 
 	/** Minimum heap allocation block size. */
 	#define CFG_MIN_BLOCK_SIZE 4

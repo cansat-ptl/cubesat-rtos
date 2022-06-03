@@ -1,7 +1,7 @@
 /*
- * test_build.cpp
+ * test_fifo.cpp
  * 
- * Created: 29.05.2022 06:25:08
+ * Created: 31.05.2022 11:29:22
  * Author: ThePetrovich
  */
 
@@ -11,8 +11,11 @@
 #endif
 
 #include <CppUTest/TestHarness.h>
+#include <kernel/kernel.h>
+#include <kernel/ipc/ipc.h>
+#include <stdio.h>
 
-TEST_GROUP(TestBuild) 
+TEST_GROUP(TestFifo) 
 {
 	void setup() 
 	{
@@ -24,8 +27,3 @@ TEST_GROUP(TestBuild)
 		// This gets run after every test
 	}
 };
-
-TEST(TestBuild, Test_BuildBasic) 
-{
-	LONGS_EQUAL(1, 1);
-}

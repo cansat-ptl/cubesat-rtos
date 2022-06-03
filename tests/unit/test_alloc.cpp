@@ -6,6 +6,10 @@
  */
 
 
+#ifdef __INTELLISENSE__
+	#pragma diag_suppress 384
+#endif
+
 #include <CppUTest/TestHarness.h>
 #include <kernel/kernel.h>
 #include <kernel/mem/heap.h>

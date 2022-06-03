@@ -113,6 +113,8 @@ HWTEST_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(HWTEST_CPP_SRCS:.cpp=.o))
 UNITTEST_OBJS := $(addprefix $(TEST_BUILDDIR)/,$(UNITTEST_CPP_SRCS:.cpp=.o)) 
 UNITTEST_OBJS += $(addprefix $(TEST_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TEST_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TEST_BUILDDIR)/,$(ASM_SRCS:.S=.o))
 
+HWTEST_TARG := $(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG)
+
 # Generate dependencies
 DEPS := $(TARG_OBJS:.o=.d) $(HWTEST_OBJS:.o=.d) $(UNITTEST_OBJS:.o=.d)
 CFLAGS += -MMD -MP
@@ -121,6 +123,8 @@ TEST_CFLAGS += -MMD -MP
 TEST_CPPFLAGS += -MMD -MP
 
 VERSION_STRING := $(VERSION_SEMANTIC)-git-$(VERSION_GIT_BRANCH)-$(VERSION_GIT_HASH)
+VERSION_FLAGS := -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu)
+TEST_VERSION_FLAGS := -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(ARCH_TEST) -DKERNEL_MCU_$(MCU_TEST)
 
 all: dirs $(TARG) $(TEST_TARG)
 
@@ -140,7 +144,7 @@ ifneq ($(strip $(UNITTEST_OBJDIRS)),)
 endif
 
 test: dirs $(TARG) $(UNITTEST_OBJS)
-	$(TEST_CPP) $(UNITTEST_OBJS) $(TEST_LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -o $(TARGDIR)/$(ARCH_TEST)/$(MCU_TEST)/$@
+	$(TEST_CPP) $(UNITTEST_OBJS) $(TEST_LDFLAGS) $(VERSION_FLAGS) -o $(TARGDIR)/$(ARCH_TEST)/$(MCU_TEST)/$@
 
 # Compile main target
 $(TARG): $(TARG_OBJS)
@@ -149,34 +153,34 @@ $(TARG): $(TARG_OBJS)
 
 # Compile test target
 $(TEST_TARG): $(TARG) $(HWTEST_OBJS)
-	$(CPP) -o $(TARGDIR)/$(arch)/$(mcu)/$@.elf $(TARG_OBJS) $(HWTEST_OBJS) $(LDFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -mmcu=$(mcu) -L./$(TARGDIR)/$(arch)/$(mcu) -l$(TARG)
-	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).hex"
-	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).eep" || exit 0
-	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" > "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).lss"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).srec"
-	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).usersignatures" || exit 0
-	$(AVR_SIZE_CMD) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf"
-	$(COPY_CMD) "$(TARGDIR)/$(arch)/$(mcu)/$(TEST_TARG).elf" "./$(TEST_TARG).elf"
+	$(CPP) -o $(HWTEST_TARG).elf $(TARG_OBJS) $(HWTEST_OBJS) $(LDFLAGS) $(VERSION_FLAGS) -mmcu=$(mcu) -L./$(TARGDIR)/$(arch)/$(mcu) -l$(TARG)
+	$(OBJCOPY_CMD)  $(OBJCOPY_HEX_FLAGS) "$(HWTEST_TARG).elf" "$(HWTEST_TARG).hex"
+	$(OBJCOPY_CMD)  $(OBJCOPY_EEP_FLAGS) "$(HWTEST_TARG).elf" "$(HWTEST_TARG).eep" || exit 0
+	$(OBJDUMP_CMD)  $(OBJDUMP_LSS_FLAGS) "$(HWTEST_TARG).elf" > "$(HWTEST_TARG).lss"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SREC_FLAGS) "$(HWTEST_TARG).elf" "$(HWTEST_TARG).srec"
+	$(OBJCOPY_CMD)  $(OBJCOPY_SIGN_FLAGS) "$(HWTEST_TARG).elf" "$(HWTEST_TARG).usersignatures" || exit 0
+	$(AVR_SIZE_CMD) "$(HWTEST_TARG).elf"
+	$(COPY_CMD) "$(HWTEST_TARG).elf" "./$(TEST_TARG).elf"
 
 
 # Compile objects
 $(TARG_BUILDDIR)/%.o: %.c
-	$(CC) $(CFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -c -o $@ $<
+	$(CC) $(CFLAGS) $(VERSION_FLAGS) -c -o $@ $<
 
 $(TARG_BUILDDIR)/%.o: %.cpp
-	$(CPP) $(CPPFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -c -o $@ $<
+	$(CPP) $(CPPFLAGS) $(VERSION_FLAGS) -c -o $@ $<
 
 $(TARG_BUILDDIR)/%.o: %.S
-	$(ASM) $(ASMFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(arch) -DKERNEL_MCU_$(mcu) -c -o $@ $<
+	$(ASM) $(ASMFLAGS) $(VERSION_FLAGS) -c -o $@ $<
 
 $(TEST_BUILDDIR)/%.o: %.c
-	$(TEST_CC) $(TEST_CFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(ARCH_TEST) -DKERNEL_MCU_$(MCU_TEST) -c -o $@ $<
+	$(TEST_CC) $(TEST_CFLAGS) $(TEST_VERSION_FLAGS) -c -o $@ $<
 
 $(TEST_BUILDDIR)/%.o: %.cpp
-	$(TEST_CPP) $(TEST_CPPFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(ARCH_TEST) -DKERNEL_MCU_$(MCU_TEST) -c -o $@ $<
+	$(TEST_CPP) $(TEST_CPPFLAGS) $(TEST_VERSION_FLAGS) -c -o $@ $<
 
 $(TEST_BUILDDIR)/%.o: %.S
-	$(TEST_ASM) $(TEST_ASMFLAGS) -DVERSION_STRING="\"$(VERSION_STRING)\"" -DKERNEL_ARCH_$(ARCH_TEST) -DKERNEL_MCU_$(MCU_TEST) -c -o $@ $<
+	$(TEST_ASM) $(TEST_ASMFLAGS) $(TEST_VERSION_FLAGS) -c -o $@ $<
 
 # Clean
 cleandirs:

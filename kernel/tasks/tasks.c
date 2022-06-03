@@ -55,7 +55,6 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
 				char *name)
 {
 	kTask_t *returnHandle = NULL;
-	kTask_t *currentTask = NULL;
 	void *baseStackPtr = NULL;
 	size_t stackSize = 0;
 
@@ -84,7 +83,6 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
 			returnHandle->name = name;
 
 			returnHandle->activeTaskListItem.data = (void *)returnHandle;
-			returnHandle->childTaskListItem.data = (void *)returnHandle;
 			returnHandle->globalTaskListItem.data = (void *)returnHandle;
 
 			if (priority < CFG_NUMBER_OF_PRIORITIES) {
@@ -96,10 +94,14 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
 
 			common_listAddBack(&kGlobalTaskList, &(returnHandle->globalTaskListItem));
 
-			currentTask = tasks_getCurrentTask();
-			if (currentTask != NULL) {
-				common_listAddBack(&(currentTask->childTaskList), &(returnHandle->childTaskListItem));
-			}
+			#if CFG_ENABLE_CHILD_TASK_TRACKING == 1
+				returnHandle->childTaskListItem.data = (void *)returnHandle;
+
+				kTask_t *currentTask = tasks_getCurrentTask();
+				if (currentTask != NULL) {
+					common_listAddBack(&(currentTask->childTaskList), &(returnHandle->childTaskListItem));
+				}
+			#endif
 
 			tasks_setTaskState(returnHandle, KSTATE_READY);
 
@@ -155,13 +157,15 @@ void tasks_deleteTask(kTask_t *task)
 
 		tasks_setTaskState(task, KSTATE_UNINIT);
 
-		head = task->childTaskList.head;
-		
-		while (head != NULL) {
-			next = head->next;
-			tasks_deleteTask((kTask_t *)(head->data));
-			head = next;
-		}
+		#if CFG_ENABLE_CHILD_TASK_TRACKING == 1
+			head = task->childTaskList.head;
+			
+			while (head != NULL) {
+				next = head->next;
+				tasks_deleteTask((kTask_t *)(head->data));
+				head = next;
+			}
+		#endif
 		
 		#if CFG_HEAP_ALLOCATION_TRACKING == 1
 			head = task->allocList.head;
@@ -173,7 +177,10 @@ void tasks_deleteTask(kTask_t *task)
 		#endif
 
 		common_listDeleteAny(&kGlobalTaskList, &(task->globalTaskListItem));
-		common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
+
+		#if CFG_ENABLE_CHILD_TASK_TRACKING == 1
+			common_listDeleteAny(&(task->childTaskList), &(task->childTaskListItem));
+		#endif
 
 		if (task->flags & KTASKFLAG_DYNAMIC) {
 			mem_heapFree((void *)task);
