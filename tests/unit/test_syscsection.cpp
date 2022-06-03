@@ -18,28 +18,28 @@
 int testCriticalLevel = 0;
 
 extern "C" {
-        void arch_enterCriticalSection()
-        {
-                testCriticalLevel++;
-        }
+	void arch_enterCriticalSection()
+	{
+		testCriticalLevel++;
+	}
 
-        void arch_exitCriticalSection()
-        {
-                testCriticalLevel--;
-        }
+	void arch_exitCriticalSection()
+	{
+		testCriticalLevel--;
+	}
 }
 
 TEST_GROUP(TestCriticalSection) 
 {
 	void setup() 
 	{
-                testCriticalLevel = 0;
+		testCriticalLevel = 0;
 		// This gets run before every test
 	}
 
 	void teardown() 
 	{
-                testCriticalLevel = 0;
+		testCriticalLevel = 0;
 		// This gets run after every test
 	}
 };

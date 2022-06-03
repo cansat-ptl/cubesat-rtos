@@ -40,6 +40,7 @@ void common_listAddFront(kLinkedList_t *list, kLinkedListItem_t *item);
 void common_listDropBack(kLinkedList_t *list);
 void common_listDropFront(kLinkedList_t *list);
 void common_listDeleteAny(kLinkedList_t *list, kLinkedListItem_t *item);
+kLinkedListItem_t *common_listGetNthElement(kLinkedList_t *list, int n);
 
 #ifdef __cplusplus
 }

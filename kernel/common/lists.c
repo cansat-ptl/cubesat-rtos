@@ -122,3 +122,25 @@ void common_listDeleteAny(kLinkedList_t *list, kLinkedListItem_t *item)
 
 	return;
 }
+
+kLinkedListItem_t *common_listGetNthElement(kLinkedList_t *list, int n)
+{
+	int i = 0;
+	kLinkedListItem_t *head = NULL;
+
+	if (list != NULL) {
+		head = list->head;
+
+		while (head != NULL && i < n) {
+			head = head->next;
+
+			i++;
+		}
+
+		if (i != n) {
+			head = NULL;
+		}
+	}
+
+	return head;
+}
