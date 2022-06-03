@@ -77,6 +77,7 @@ size_t ipc_fifoPeek(kFIFO_t *fifo, void *output)
 	if (fifo != NULL) {
 		if (ipc_fifoAvailable(fifo) != 0) {
 			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+			bytesRead = fifo->itemSize;
 		}
 	}
 
@@ -89,7 +90,7 @@ size_t ipc_fifoFreeSpace(kFIFO_t *fifo)
 		return 0;
 	}		
 	else {
-		return 1;
+		return (fifo->bufferSize - fifo->currentPosition);
 	}
 }
 

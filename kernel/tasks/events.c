@@ -15,6 +15,7 @@
 kBaseType_t tasks_eventWait()
 {
 	kBaseType_t returnValue = 0;
+
 	while (1) {
 		arch_enterCriticalSection();
 		kTask_t *currentTask = tasks_getCurrentTask();
@@ -31,6 +32,7 @@ kBaseType_t tasks_eventWait()
 			tasks_sleep(0);
 		}
 	}
+	
 	return returnValue;
 }
 
