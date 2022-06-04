@@ -30,6 +30,23 @@ int common_strlen(char *str)
 	#endif
 }
 
+int common_strcmp(char *s1, char *s2)
+{
+	#if CFG_USE_PLATFORM_LIBC_IN_KERNEL == 1
+		return strcmp(s1, s2);
+	#else
+		while (*s1 == *s2)
+		{
+			if (!*s1)
+				return (0);
+			s1++;
+			s2++;
+		}
+
+		return ((*(unsigned char *)s1 < *(unsigned char *)s2) ? -1 : +1);
+	#endif
+}
+
 int common_isdigit(char c)
 {	
 	if (c >= '0' && c <= '9') {
