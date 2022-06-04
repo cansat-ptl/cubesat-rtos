@@ -266,6 +266,86 @@ kBaseType_t tasks_getHeldMutexCount(kTask_t *task)
 	return mutexCount;
 }
 
+const char *tasks_getTaskName(kTask_t *task)
+{
+	const char *name = NULL;
+
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		name = task->name;
+
+		arch_exitCriticalSection();
+	}
+
+	return name;
+}
+
+kPid_t tasks_getTaskPid(kTask_t *task)
+{
+	kPid_t pid = 0;
+
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		pid = task->pid;
+
+		arch_exitCriticalSection();
+	}
+
+	return pid;
+}
+
+kTask_t *tasks_getTaskByPid(kPid_t pid)
+{
+	kTask_t *task = NULL;
+	kLinkedListItem_t *head = kGlobalTaskList.head;
+
+	arch_enterCriticalSection();
+
+	while (head != NULL) {
+		if (head->data != NULL) {
+			if (((kTask_t *)head->data)->pid == pid) {
+				task = (kTask_t *)head->data;
+			}
+		}
+		else {
+			kernel_panic("tasks_getTaskByPid: head->data = NULL");
+		}
+
+		head = head->next;
+	}
+
+	arch_exitCriticalSection();
+
+	return task;
+}
+
+kTask_t *tasks_getTaskByName(const char *name)
+{
+	kTask_t *task = NULL;
+	kLinkedListItem_t *head = kGlobalTaskList.head;
+
+	arch_enterCriticalSection();
+	
+	while (head != NULL) {
+		if (head->data != NULL) {
+			if (!common_strcmp(((kTask_t *)head->data)->name, name)) {
+				task = (kTask_t *)head->data;
+			}
+		}
+		else {
+			kernel_panic("tasks_getTaskByName: head->data = NULL");
+		}
+
+		head = head->next;
+	}
+
+	arch_exitCriticalSection();
+
+	return task;
+}
+
 void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority)
 {
 	if (task != NULL) {

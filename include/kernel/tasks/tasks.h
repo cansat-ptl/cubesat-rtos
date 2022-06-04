@@ -185,6 +185,14 @@ kLinkedList_t *tasks_getTaskAllocList(kTask_t *task);
 
 kBaseType_t tasks_getHeldMutexCount(kTask_t *task);
 
+const char *tasks_getTaskName(kTask_t *task);
+
+kPid_t tasks_getTaskPid(kTask_t *task);
+
+kTask_t *tasks_getTaskByPid(kPid_t pid);
+
+kTask_t *tasks_getTaskByName(const char *name);
+
 /**
  * @ingroup tasks
  * @brief Sets task state.
