@@ -6,8 +6,10 @@
  */
 
 
-#ifndef STUB_TYPES_H_
-#define STUB_TYPES_H_
+#ifndef ARCHSTUB_TYPES_H_
+#define ARCHSTUB_TYPES_H_
+
+#define ROMSTR(x) (x)
 
 typedef volatile int kSpinlock_t;
 
@@ -28,4 +30,4 @@ typedef int kStackSize_t;
 typedef int kTaskTicks_t;
 typedef int kPid_t;
 
-#endif /* STUB_TYPES_H_ */
+#endif /* ARCHSTUB_TYPES_H_ */

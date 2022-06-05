@@ -105,7 +105,7 @@ void arch_taskReturnHook()
     	kTask_t *currentTask = tasks_getCurrentTask();
 
 	if (tasks_getHeldMutexCount(currentTask) != 0) {
-		kernel_panic("Task with mutexes returned");
+		kernel_panic_p(ROMSTR("Task with mutexes returned"));
 	}
 
 	tasks_deleteTask(currentTask);

@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_UART_H_
-#define KERNEL_UART_H_
+#ifndef AVRM128_UART_H_
+#define AVRM128_UART_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,4 +21,4 @@ void uart_puts(char *msg);
 }
 #endif
 
-#endif /* KERNEL_UART_H_ */
+#endif /* AVRM128_UART_H_ */

@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_STUB_STACK_H_
-#define KERNEL_STUB_STACK_H_
+#ifndef ARCHSTUB_STACK_H_
+#define ARCHSTUB_STACK_H_
 
 #include "types.h"
 
@@ -39,4 +39,4 @@ void __attribute__((weak)) arch_taskReturnHook()
 }
 #endif
 
-#endif /* KERNEL_STUB_STACK_H_ */
+#endif /* ARCHSTUB_STACK_H_ */

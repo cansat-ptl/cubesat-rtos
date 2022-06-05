@@ -10,6 +10,8 @@
 #ifndef KERNEL_PANIC_H_
 #define KERNEL_PANIC_H_
 
+#include <kernel/types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -22,6 +24,8 @@ extern "C" {
  * @param msg Error message.
  */
 void kernel_panic(char *msg);
+void kernel_panic_p(const char *msg);
+
 
 #ifdef __cplusplus
 }

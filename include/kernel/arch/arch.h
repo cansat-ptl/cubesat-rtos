@@ -16,6 +16,7 @@
 		#include "./mega128/arch.h"
 		#include "./mega128/uart.h"
 		#include "./mega128/stack.h"
+		#include "./mega128/flash.h"
 	#elif defined KERNEL_MCU_atmega2560
 		#define KERNEL_MCU "atmega2560"
 		#include "./mega2560/arch.h"
@@ -29,6 +30,7 @@
 	#define KERNEL_MCU "generic"
 	#include "./stub/arch.h"
 	#include "./stub/uart.h"
+	#include "./stub/flash.h"
 	#include "./stub/stack.h"
 #else
 	#error "Unsupported/unknown architecture"

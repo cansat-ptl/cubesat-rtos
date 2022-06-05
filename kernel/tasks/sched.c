@@ -12,6 +12,7 @@
 #include <kernel/tasks/sched.h>
 #include <kernel/arch/arch.h>
 #include <kernel/common/lists.h>
+#include <kernel/common/string.h>
 #include <kernel/debug/printk.h>
 #include <kernel/panic.h>
 
@@ -66,7 +67,7 @@ void tasks_scheduleTask(kTask_t *task, kTaskState_t state)
 			common_listAddBack((kLinkedList_t *)&kSchedCPUState.readyTaskList[task->priority], &(task->activeTaskListItem));
 			break;
 		case KSTATE_UNINIT:
-			//kernel_panic("Uninitialized task scheduled");
+			/* Do nothing */
 			break;
 		default:
 			/* Do nothing */
@@ -103,7 +104,7 @@ static void tasks_tickSleeping()
 			head = head->next;
 		}
 		else {
-			kernel_panic("tickTasks: head->data = NULL");
+			kernel_panic_p(ROMSTR("tickTasks: head->data = NULL"));
 		}
 	}
 }
@@ -132,12 +133,12 @@ static void tasks_switchContext()
 	if ((arch_checkProtectionRegion(task->stackBegin, task->stackSize, CFG_STACK_SAFETY_MARGIN) != KRESULT_SUCCESS \
 		|| tasks_checkStackBounds(task) != KRESULT_SUCCESS) \
 		&& task->pid != 0) {
-		kernel_panic("Task stack corruption");
-		debug_printk("Errored task handle: %x\r\n", task);
+		kernel_panic_p(ROMSTR("Task stack corruption"));
+		debug_printk_p(ROMSTR("Errored task handle: %x\r\n"), task);
 	}
 
 	if (kSchedCPUState.nextTask == NULL) {
-		kernel_panic("kNextTask is NULL");
+		kernel_panic_p(ROMSTR("kNextTask is NULL"));
 	}
 
 	kSchedCPUState.currentTask = kSchedCPUState.nextTask;

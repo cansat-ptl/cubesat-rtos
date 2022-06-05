@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_STACK_H_
-#define KERNEL_STACK_H_
+#ifndef AVRM128_STACK_H_
+#define AVRM128_STACK_H_
 
 #include <avr/io.h>
 #include <avr/iom128.h>
@@ -26,4 +26,4 @@ kReturnValue_t arch_checkProtectionRegion(kStackPtr_t basePtr, kStackSize_t stac
 }
 #endif
 
-#endif /* KERNEL_STACK_H_ */
+#endif /* AVRM128_STACK_H_ */

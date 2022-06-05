@@ -48,9 +48,9 @@ CPPFLAGS = -x c++ -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-section
 ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra -mmcu=$(mcu)
 LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra -mmcu=$(mcu)
 
-TEST_CFLAGS := -x c -DDEBUG $(INCLUDES) -Os -g2 -c -std=gnu99 -Wall -Wextra
-TEST_CPPFLAGS := -x c++ -DDEBUG $(INCLUDES) -Os -g2 -c -std=c++11 -Wall -Wextra 
-TEST_ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -Wall -Wextra
+TEST_CFLAGS := -x c -DDEBUG $(INCLUDES) -Og -g3 -c -std=gnu99 -Wall -Wextra
+TEST_CPPFLAGS := -x c++ -DDEBUG $(INCLUDES) -Og -g3 -c -std=c++11 -Wall -Wextra 
+TEST_ASMFLAGS := -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Og -g3 -Wall -Wextra
 TEST_LDFLAGS :=  -lm -Wall -Wextra -Wl,-undefined,dynamic_lookup
 
 # CppUTest settings
@@ -101,15 +101,16 @@ ASM_SRCS := $(call rwildcard, $(SRCDIR)/,*.S)
 
 UNITTEST_CPP_SRCS := $(call rwildcard, $(TESTDIR)/$(UNITTESTDIR)/,*.cpp)
 HWTEST_CPP_SRCS :=  $(call rwildcard, $(TESTDIR)/$(HWTESTDIR)/,*.cpp) 
+HWTEST_C_SRCS :=  $(call rwildcard, $(TESTDIR)/$(HWTESTDIR)/,*.c) 
 
 # Generate build directory structure
 TARG_OBJDIRS := $(addprefix $(TARG_BUILDDIR)/,$(dir $(C_SRCS))) $(addprefix $(TARG_BUILDDIR)/,$(dir $(CPP_SRCS)))
-HWTEST_OBJDIRS :=  $(addprefix $(TARG_BUILDDIR)/,$(dir $(HWTEST_CPP_SRCS)))
+HWTEST_OBJDIRS :=  $(addprefix $(TARG_BUILDDIR)/,$(dir $(HWTEST_CPP_SRCS))) $(addprefix $(TARG_BUILDDIR)/,$(dir $(HWTEST_C_SRCS)))
 UNITTEST_OBJDIRS := $(addprefix $(TEST_BUILDDIR)/,$(dir $(UNITTEST_CPP_SRCS))) $(addprefix $(TEST_BUILDDIR)/,$(dir $(C_SRCS))) $(addprefix $(TEST_BUILDDIR)/,$(dir $(CPP_SRCS)))
 
 # Generate list of objects
 TARG_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TARG_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TARG_BUILDDIR)/,$(ASM_SRCS:.S=.o))
-HWTEST_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(HWTEST_CPP_SRCS:.cpp=.o))
+HWTEST_OBJS := $(addprefix $(TARG_BUILDDIR)/,$(HWTEST_CPP_SRCS:.cpp=.o)) $(addprefix $(TARG_BUILDDIR)/,$(HWTEST_C_SRCS:.c=.o))
 UNITTEST_OBJS := $(addprefix $(TEST_BUILDDIR)/,$(UNITTEST_CPP_SRCS:.cpp=.o)) 
 UNITTEST_OBJS += $(addprefix $(TEST_BUILDDIR)/,$(C_SRCS:.c=.o)) $(addprefix $(TEST_BUILDDIR)/,$(CPP_SRCS:.cpp=.o)) $(addprefix $(TEST_BUILDDIR)/,$(ASM_SRCS:.S=.o))
 

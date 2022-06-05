@@ -10,6 +10,7 @@
 #define KENREL_PRINTK_H_
 
 #include <stdarg.h>
+#include <kernel/types.h>
 
 #define MAX_NBR_LEN 16
 
@@ -18,6 +19,7 @@ extern "C" {
 #endif
 
 int debug_printk(char *format, ...);
+int debug_printk_p(const char *format, ...);
 
 #ifdef __cplusplus
 }

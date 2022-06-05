@@ -67,8 +67,8 @@ TEST(TestString, TEST_StringMemcmp)
 {
 	CHECK_EQUAL(0, common_memcmp((void *)"", (void *)"", 0));
 	CHECK_EQUAL(0, common_memcmp((void *)"aaa", (void *)"aaa", 3));
-	CHECK_EQUAL('\0' - 'a', common_memcmp((void *)"aa\0", (void *)"aaa", 3));
-	CHECK_EQUAL('a' - '\0', common_memcmp((void *)"aaa", (void *)"aa\0", 3));
+	CHECK_TRUE(common_memcmp((void *)"aa\0", (void *)"aaa", 3) < 0);
+	CHECK_TRUE(common_memcmp((void *)"aaa", (void *)"aa\0", 3) > 0);
 }
 
 TEST(TestString, TEST_StringMemset) 

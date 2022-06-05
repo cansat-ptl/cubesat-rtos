@@ -28,7 +28,7 @@ struct kMemoryBlockStruct_t
 	#endif
 };
 
-#define mem_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) \ 
+#define mem_HEAP_STRUCT_SIZE ((sizeof(struct kMemoryBlockStruct_t) \
 				+ ((size_t)(CFG_PLATFORM_BYTE_ALIGNMENT - 1))) \
 				& ~((size_t)CFG_PLATFORM_BYTE_ALIGNMENT_MASK))
 

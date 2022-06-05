@@ -26,60 +26,60 @@ kMutex_t mutex;
 
 byte fifoBuffer[50];
 
-void test_task3(void*) 
+void test_task3(void* args) 
 {
-	debug_printk("task3: Start\r\n");
+	debug_printk_p(ROMSTR("task3: Start\r\n"));
 	while (1)
 	{
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		debug_printk("task3: Reading FIFO\r\n");
+		debug_printk_p(ROMSTR("task3: Reading FIFO\r\n"));
 
 		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
 
-		debug_printk("task3: FIFO contents: %s\r\n", receiveBuffer);
+		debug_printk_p(ROMSTR("task3: FIFO contents: %s\r\n"), receiveBuffer);
 	}
 }
 
-void test_task2(void*) 
+void test_task2(void* args) 
 {
-	debug_printk("Test\r\n");
+	debug_printk_p(ROMSTR("Test\r\n"));
 	while (1)
 	{
 		char receiveBuffer[32] = "";
 		uint8_t receiveBufferIndex = 0;
 
-		debug_printk("task2: Reading FIFO\r\n");
+		debug_printk_p(ROMSTR("task2: Reading FIFO\r\n"));
 
 		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
 
-		debug_printk("task2: FIFO contents: %s\r\n", receiveBuffer);
+		debug_printk_p(ROMSTR("task2: FIFO contents: %s\r\n"), receiveBuffer);
 	}
 }
 
-void test_task(void*) 
+void test_task(void* args) 
 {
 	char asd[] = "10 symbols";
-	debug_printk("task1: Start\r\n");
+	debug_printk_p(ROMSTR("task1: Start\r\n"));
 	while (1)
 	{
-		debug_printk("task1: Writing FIFO\r\n");
+		debug_printk_p(ROMSTR("task1: Writing FIFO\r\n"));
 		ipc_fifoWrite(&fifo, (void*)asd);
 	}
 }
 
-void test_task123(void*) 
+void test_task123(void* args) 
 {
 	char asd[] = "10 symbols";
-	debug_printk("task123: Start\r\n");
+	debug_printk_p(ROMSTR("task123: Start\r\n"));
 	while (1)
 	{
-		debug_printk("task123: Writing FIFO\r\n");
+		debug_printk_p(ROMSTR("task123: Writing FIFO\r\n"));
 		ipc_fifoWrite(&fifo, (void*)asd);
 		break;
 	}
@@ -98,6 +98,6 @@ int main(void)
 	while (1)
 	{
 		asm volatile("nop"::);
-		//debug_printk("Idling in mah main\r\n");
+		//debug_printk_p(ROMSTR("Idling in mah main\r\n");
 	}
 }

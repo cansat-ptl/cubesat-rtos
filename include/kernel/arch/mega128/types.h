@@ -10,6 +10,9 @@
 #define AVRM128_TYPES_H_
 
 #include <stdint.h>
+#include <avr/pgmspace.h>
+
+#define ROMSTR(x) PSTR(x)
 
 typedef volatile uint8_t kSpinlock_t;
 

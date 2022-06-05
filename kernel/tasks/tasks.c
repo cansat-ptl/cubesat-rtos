@@ -40,7 +40,7 @@ void tasks_init()
 					KTASK_CRITICAL,
 					"idle");
 	if (idleTask == NULL) {
-		kernel_panic("Failed to create idle task");
+		kernel_panic_p(ROMSTR("Failed to create idle task"));
 		while(1);
 	}
 	tasks_initScheduler(idleTask);
@@ -310,7 +310,7 @@ kTask_t *tasks_getTaskByPid(kPid_t pid)
 			}
 		}
 		else {
-			kernel_panic("tasks_getTaskByPid: head->data = NULL");
+			kernel_panic_p(ROMSTR("tasks_getTaskByPid: head->data = NULL"));
 		}
 
 		head = head->next;
@@ -335,7 +335,7 @@ kTask_t *tasks_getTaskByName(const char *name)
 			}
 		}
 		else {
-			kernel_panic("tasks_getTaskByName: head->data = NULL");
+			kernel_panic_p(ROMSTR("tasks_getTaskByName: head->data = NULL"));
 		}
 
 		head = head->next;

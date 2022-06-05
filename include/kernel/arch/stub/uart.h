@@ -6,8 +6,8 @@
  */
 
 
-#ifndef KERNEL_STUB_UART_H_
-#define KERNEL_STUB_UART_H_
+#ifndef ARCHSTUB_UART_H_
+#define ARCHSTUB_UART_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,4 +32,4 @@ void __attribute__((weak)) uart_puts(char *msg)
 }
 #endif
 
-#endif /* KERNEL_STUB_UART_H_ */
+#endif /* ARCHSTUB_UART_H_ */
