@@ -10,10 +10,18 @@
 #define KERNEL_FIFO_H_
 
 #include <kernel/types.h>
-#include <kernel/ipc/ipc.h>
-#include <kernel/ipc/mutex.h>
 
-typedef volatile struct kIPCStruct_t kFIFO_t;
+typedef volatile struct kFIFOStruct_t
+{
+	void *pointer;
+
+	size_t itemSize;
+	size_t bufferSize;
+
+	size_t inputPosition;
+	size_t outputPosition;
+	size_t currentPosition;
+} kFIFO_t;
 
 #ifdef __cplusplus
 extern "C" {

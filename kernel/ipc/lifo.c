@@ -8,7 +8,6 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
-#include <kernel/ipc/ipc.h>
 #include <kernel/ipc/lifo.h>
 #include <kernel/ipc/fifo.h>
 #include <kernel/ipc/mutex.h>

@@ -10,15 +10,24 @@
 #define KERNEL_SEMAPHORE_H_
 
 #include <kernel/types.h>
-#include <kernel/ipc/ipc.h>
+#include <kernel/common/lists.h>
 
-typedef volatile struct kLockStruct_t kSemaphore_t;
+typedef volatile struct kSemaphoreStruct_t
+{	
+	kLockType_t type;
+
+	kBaseType_t lockCount;
+
+	kLinkedList_t blockedTasks;
+
+	kSpinlock_t spinlock;
+} kSemaphore_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ipc_semaphoreInit(kSemaphore_t *semaphore, kBaseType_t resourceAmount);
+void ipc_semaphoreInit(kSemaphore_t *semaphore, kLockType_t type, kBaseType_t resourceAmount);
 void ipc_semaphoreWait(kSemaphore_t *semaphore);
 void ipc_semaphoreSignal(kSemaphore_t *semaphore);
 

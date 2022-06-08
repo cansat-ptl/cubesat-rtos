@@ -10,15 +10,27 @@
 #define KERNEL_MUTEX_H_
 
 #include <kernel/types.h>
-#include <kernel/ipc/ipc.h>
+#include <kernel/common/lists.h>
 
-typedef volatile struct kLockStruct_t kMutex_t;
+typedef volatile struct kMutexStruct_t
+{	
+	kLockType_t type;
+
+	kBaseType_t lockCount;
+	kBaseType_t basePriority;
+
+	kTask_t *lockOwner;
+
+	kLinkedList_t blockedTasks;
+
+	kSpinlock_t spinlock;
+} kMutex_t;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void ipc_mutexInit(kMutex_t *mutex);
+void ipc_mutexInit(kMutex_t *mutex, kLockType_t type);
 void ipc_mutexLock(kMutex_t *mutex);
 void ipc_mutexUnlock(kMutex_t *mutex);
 

@@ -10,10 +10,18 @@
 #define KERNEL_LIFO_H_
 
 #include <kernel/types.h>
-#include <kernel/ipc/ipc.h>
-#include <kernel/ipc/mutex.h>
 
-typedef volatile struct kIPCStruct_t kLIFO_t;
+typedef volatile struct kLIFOStruct_t
+{
+	void *pointer;
+
+	size_t itemSize;
+	size_t bufferSize;
+
+	size_t inputPosition;
+	size_t outputPosition;
+	size_t currentPosition;
+} kLIFO_t;
 
 #ifdef __cplusplus
 extern "C" {

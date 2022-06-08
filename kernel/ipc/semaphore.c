@@ -8,21 +8,18 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
-#include <kernel/ipc/ipc.h>
 #include <kernel/ipc/semaphore.h>
 #include <kernel/arch/arch.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
 
-void ipc_semaphoreInit(kSemaphore_t *semaphore, kBaseType_t resourceAmount)
+void ipc_semaphoreInit(kSemaphore_t *semaphore, kLockType_t type, kBaseType_t resourceAmount)
 {
 	if (semaphore != NULL) {
 		semaphore->type = KLOCK_SEMAPHORE;
 		semaphore->lockCount = resourceAmount;
-		semaphore->basePriority = 0;
 		semaphore->blockedTasks.head = NULL;
 		semaphore->blockedTasks.tail = NULL;
-		semaphore->lockOwner = NULL;
 		semaphore->spinlock = 0;
 	}
 }

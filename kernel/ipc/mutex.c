@@ -8,14 +8,20 @@
 
 #include <kernel/types.h>
 #include <kernel/config.h>
-#include <kernel/ipc/ipc.h>
 #include <kernel/ipc/mutex.h>
+#include <kernel/arch/arch.h>
+#include <kernel/tasks/tasks.h>
+#include <kernel/tasks/sched.h>
 
-void ipc_mutexInit(kMutex_t *mutex)
+void ipc_mutexInit(kMutex_t *mutex, kLockType_t type)
 {
 	if (mutex != NULL) {
-		mutex->type = KLOCK_MUTEX;
-		mutex->lockCount = 1;
+		if (mutex->type == KLOCK_MUTEX) {
+			mutex->lockCount = 1;
+		} else if (mutex->type == KLOCK_MUTEX_RECURSIVE) {
+			mutex->lockCount = 0;
+		}
+		
 		mutex->basePriority = 0;
 		mutex->blockedTasks.head = NULL;
 		mutex->blockedTasks.tail = NULL;

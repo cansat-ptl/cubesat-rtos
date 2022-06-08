@@ -34,7 +34,7 @@ typedef uint8_t byte;
 typedef enum {KSTATE_UNINIT, KSTATE_SUSPENDED, KSTATE_BLOCKED, KSTATE_READY, KSTATE_SLEEPING} kTaskState_t;
 typedef enum {KEVENT_UNINIT, KEVENT_NONE, KEVENT_FIRED} kEventState_t;
 typedef enum {KTASK_UNINIT, KTASK_NORMAL, KTASK_CRITICAL} kTaskType_t;
-typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_MUTEX} kLockType_t;
+typedef enum {KLOCK_UNINIT, KLOCK_SEMAPHORE, KLOCK_SEMAPHORE_BINARY, KLOCK_MUTEX, KLOCK_MUTEX_RECURSIVE} kLockType_t;
 
 typedef struct kTaskStruct_t kTask_t;
 typedef struct kLockStruct_t kLock_t;

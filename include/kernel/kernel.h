@@ -27,7 +27,6 @@
 
 #include <kernel/mem/malloc.h>
 
-#include <kernel/ipc/ipc.h>
 #include <kernel/ipc/mutex.h>
 #include <kernel/ipc/semaphore.h>
 #include <kernel/ipc/fifo.h>
