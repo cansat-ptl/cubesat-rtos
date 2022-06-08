@@ -17,7 +17,7 @@
 
 kLinkedList_t kGlobalTaskList;
 
-byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY];
+byte kIdleMem[CFG_KERNEL_IDLE_TASK_MEMORY + tasks_TASK_STRUCT_SIZE + CFG_STACK_SAFETY_MARGIN];
 
 static kPid_t kGlobalPid = 0;
 
@@ -33,7 +33,7 @@ void tasks_init()
 	kTask_t *idleTask = NULL;
 
 	idleTask = tasks_createTaskStatic((void *)kIdleMem,
-					(sizeof(kTask_t) + 100 + CFG_STACK_SAFETY_MARGIN),
+					(CFG_KERNEL_IDLE_TASK_MEMORY + tasks_TASK_STRUCT_SIZE + CFG_STACK_SAFETY_MARGIN),
 					idle0,
 					NULL,
 					0,

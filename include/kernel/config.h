@@ -39,10 +39,10 @@
 	#define CFG_ENABLE_CHILD_TASK_TRACKING 1
 
 	/** Memory reserved for kernel operations (ISRs, syscalls, etc.). */
-	#define CFG_KERNEL_RESERVED_MEMORY 200
+	#define CFG_KERNEL_RESERVED_MEMORY 60
 
 	/** Idle task memory size. Must not be less than CFG_MIN_TASK_STACK_SIZE. */
-	#define CFG_KERNEL_IDLE_TASK_MEMORY 200
+	#define CFG_KERNEL_IDLE_TASK_MEMORY 60
 
 	/** Stack growth direction for selected architecture. Do not change unless you
 	 * know what you are doing. -1 is towards lower addresses, 1 towards higher. */
