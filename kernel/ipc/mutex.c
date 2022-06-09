@@ -12,41 +12,47 @@
 #include <kernel/arch/arch.h>
 #include <kernel/tasks/tasks.h>
 #include <kernel/tasks/sched.h>
+#include <kernel/panic.h>
 
 void ipc_mutexInit(kMutex_t *mutex, kLockType_t type)
 {
 	if (mutex != NULL) {
-		if (mutex->type == KLOCK_MUTEX) {
-			mutex->lockCount = 1;
-		} else if (mutex->type == KLOCK_MUTEX_RECURSIVE) {
-			mutex->lockCount = 0;
-		}
-		
-		mutex->basePriority = 0;
+		mutex->type = type;
+		mutex->lockCount = 0;
 		mutex->blockedTasks.head = NULL;
 		mutex->blockedTasks.tail = NULL;
 		mutex->lockOwner = NULL;
 		mutex->spinlock = 0;
+		
+		#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE == 1
+			mutex->basePriority = 0;
+		#endif
 	}
 }
 
 void ipc_mutexLock(kMutex_t *mutex)
 {
 	kTask_t *currentTask = NULL;
+	kBaseType_t priority = 0;
 
-	if (mutex != NULL && mutex->type == KLOCK_MUTEX) {
+	if (mutex != NULL && (mutex->type == KLOCK_MUTEX || mutex->type == KLOCK_MUTEX_RECURSIVE)) {
 		while (1) {
 			arch_enterCriticalSection();
 
-			if (mutex->lockCount > 0) {
-				mutex->lockCount--;
-
+			if (mutex->lockCount == 0) {
+				mutex->lockCount++;
 				mutex->lockOwner = tasks_getCurrentTask();
-				mutex->basePriority = tasks_getTaskPriority(mutex->lockOwner);
 
-				kBaseType_t mutexCount = tasks_getHeldMutexCount(mutex->lockOwner);
-				tasks_setHeldMutexCount(mutex->lockOwner, mutexCount + 1);
+				#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE == 1
+					priority = tasks_getTaskPriority(mutex->lockOwner);
 
+					if (priority >= mutex->basePriority) {
+						mutex->basePriority = priority;
+					}
+				#endif
+
+				kBaseType_t mutexCount = tasks_getTaskHeldMutexCount(mutex->lockOwner);
+				tasks_setTaskHeldMutexCount(mutex->lockOwner, mutexCount + 1);
 
 				arch_exitCriticalSection();
 				break;
@@ -54,16 +60,27 @@ void ipc_mutexLock(kMutex_t *mutex)
 			else {
 				currentTask = tasks_getCurrentTask();
 
-				if (mutex->lockOwner  == NULL || tasks_getTaskState(mutex->lockOwner) == KSTATE_UNINIT) {
-					if(mutex->blockedTasks.head != NULL) {
-						tasks_unblockTask((kTask_t *)mutex->blockedTasks.head->data);
+				if (mutex->type == KLOCK_MUTEX_RECURSIVE) {
+					if (currentTask == mutex->lockOwner) {
+						mutex->lockCount++;
+
+						arch_exitCriticalSection();
+						break;
 					}
-					mutex->lockCount = 1;
 				}
-				else {						
-					if (tasks_getTaskPriority(mutex->lockOwner) < tasks_getTaskPriority(currentTask)) {
-						tasks_setTaskPriority(mutex->lockOwner, tasks_getTaskPriority(currentTask));
-					}
+				
+				if (mutex->lockOwner  == NULL || tasks_getTaskState(mutex->lockOwner) == KSTATE_UNINIT) {
+					kernel_panic_p(ROMSTR("ipc_mutexLock: mutex locked with no owner"));
+				}
+				else {	
+					#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE == 1
+						priority = tasks_getTaskPriority(mutex->lockOwner);	
+
+						if (mutex->basePriority < priority) {
+							mutex->basePriority = priority;
+							tasks_raiseTaskPriority(mutex->lockOwner, mutex->basePriority);
+						}
+					#endif
 				}
 
 				tasks_blockTask(currentTask, (kLinkedList_t *)&(mutex->blockedTasks));
@@ -78,31 +95,36 @@ void ipc_mutexLock(kMutex_t *mutex)
 
 void ipc_mutexUnlock(kMutex_t *mutex)
 {
-		kLinkedListItem_t *head = NULL;
-	
-	if (mutex != NULL && mutex->type == KLOCK_MUTEX) {
+	if (mutex != NULL && (mutex->type == KLOCK_MUTEX || mutex->type == KLOCK_MUTEX_RECURSIVE)) {
 		arch_enterCriticalSection();
 
 		kTask_t *currentTask = tasks_getCurrentTask();
-		head = mutex->blockedTasks.head;
 
 		if (currentTask == mutex->lockOwner) {
-			kBaseType_t mutexCount = tasks_getHeldMutexCount(currentTask);
-			if (mutexCount > 0) {
-				tasks_setHeldMutexCount(currentTask, mutexCount - 1);
-			}
+			if (mutex->lockCount == 0) {
+				kBaseType_t mutexCount = tasks_getTaskHeldMutexCount(mutex->lockOwner);
 
-			if (tasks_getTaskPriority(mutex->lockOwner) != mutex->basePriority) {
-				tasks_setTaskPriority(mutex->lockOwner, mutex->basePriority);
+				if (mutexCount > 0) {
+					tasks_setTaskHeldMutexCount(mutex->lockOwner, mutexCount - 1);
+				}
+
+				#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE == 1
+					tasks_restoreTaskPriority(mutex->lockOwner);
+					mutex->basePriority = 0;
+				#endif
+
 				mutex->lockOwner = NULL;
-				mutex->basePriority = 0;
+			} else {
+				if (mutex->lockCount > 0) {
+					mutex->lockCount--;
+				} else {
+					kernel_panic_p(ROMSTR("ipc_mutexUnlock: mutex->lockCount < 0"));
+				}
 			}
-
-			mutex->lockCount = 1;
 		}
 
-		if(head != NULL) {
-			tasks_unblockTask((kTask_t *)head->data);
+		if(mutex->blockedTasks.head != NULL) {
+			tasks_unblockTask((kTask_t *)mutex->blockedTasks.head->data);
 		}
 
 		arch_exitCriticalSection();

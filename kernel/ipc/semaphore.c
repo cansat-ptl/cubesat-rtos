@@ -16,7 +16,7 @@
 void ipc_semaphoreInit(kSemaphore_t *semaphore, kLockType_t type, kBaseType_t resourceAmount)
 {
 	if (semaphore != NULL) {
-		semaphore->type = KLOCK_SEMAPHORE;
+		semaphore->type = type;
 		semaphore->lockCount = resourceAmount;
 		semaphore->blockedTasks.head = NULL;
 		semaphore->blockedTasks.tail = NULL;
@@ -53,19 +53,14 @@ void ipc_semaphoreWait(kSemaphore_t *semaphore)
 
 /* TODO: lock tracking */
 void ipc_semaphoreSignal(kSemaphore_t *semaphore)
-{	
-	kLinkedListItem_t *head = NULL;
-	
+{		
 	if (semaphore != NULL && semaphore->type == KLOCK_SEMAPHORE) {
 		arch_enterCriticalSection();
 
-		kTask_t *currentTask = tasks_getCurrentTask();
-		head = semaphore->blockedTasks.head;
-
 		semaphore->lockCount++;
 
-		if(head != NULL) {
-			tasks_unblockTask((kTask_t *)head->data);
+		if(semaphore->blockedTasks.head != NULL) {
+			tasks_unblockTask((kTask_t *)semaphore->blockedTasks.head->data);
 		}
 
 		arch_exitCriticalSection();

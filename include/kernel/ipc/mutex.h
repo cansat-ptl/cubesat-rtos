@@ -17,7 +17,10 @@ typedef volatile struct kMutexStruct_t
 	kLockType_t type;
 
 	kBaseType_t lockCount;
-	kBaseType_t basePriority;
+
+        #if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE == 1
+	        kBaseType_t basePriority;
+        #endif
 
 	kTask_t *lockOwner;
 

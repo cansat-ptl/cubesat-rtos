@@ -60,6 +60,8 @@
 	 * @param 1 Delete exited task, panic if the task was KTASK_CRITICAL. */
 	#define CFG_TASK_RETURN_ACTION 1
 
+	#define CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE 1
+
 	/** Kernel heap size. Used to dynamically allocate tasks and kernel objects.
 	 * See mem module for more info. */
 	#define CFG_HEAP_SIZE 2500

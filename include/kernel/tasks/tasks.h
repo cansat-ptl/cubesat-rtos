@@ -58,6 +58,10 @@ struct kTaskStruct_t
 
 	volatile struct kEventStruct_t event;	/**< Struct for event system. */
 
+	#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE
+		kBaseType_t basePriority;
+	#endif
+
 	#if CFG_HEAP_ALLOCATION_TRACKING == 1
 		kLinkedList_t allocList;		/**< Heap allocated memory list. */
 	#endif
@@ -183,7 +187,7 @@ kTaskType_t tasks_getTaskType(kTask_t *task);
  */
 kLinkedList_t *tasks_getTaskAllocList(kTask_t *task);
 
-kBaseType_t tasks_getHeldMutexCount(kTask_t *task);
+kBaseType_t tasks_getTaskHeldMutexCount(kTask_t *task);
 
 const char *tasks_getTaskName(kTask_t *task);
 
@@ -214,7 +218,7 @@ void tasks_setTaskState(kTask_t *task, kTaskState_t state);
  */
 void tasks_setTaskPriority(kTask_t *task, kBaseType_t priority);
 
-void tasks_setHeldMutexCount(kTask_t *task, kBaseType_t mutexCount);
+void tasks_setTaskHeldMutexCount(kTask_t *task, kBaseType_t mutexCount);
 
 /**
  * @ingroup tasks
@@ -232,6 +236,10 @@ void tasks_blockTask(kTask_t *task, kLinkedList_t *blockList);
  * @param task Task handle.
  */
 void tasks_unblockTask(kTask_t *task);
+
+void tasks_raiseTaskPriority(kTask_t *task, kBaseType_t priority);
+
+void tasks_restoreTaskPriority(kTask_t *task);
 
 /**
  * @ingroup tasks

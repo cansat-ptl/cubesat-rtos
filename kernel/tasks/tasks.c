@@ -14,6 +14,7 @@
 #include <kernel/mem/heap.h>
 #include <kernel/common/lists.h>
 #include <kernel/arch/arch.h>
+#include <kernel/common/string.h>
 
 kLinkedList_t kGlobalTaskList;
 
@@ -91,6 +92,10 @@ kTask_t *tasks_createTaskStatic(void *taskMemory,
 			else {
 				returnHandle->priority = CFG_NUMBER_OF_PRIORITIES-1;
 			}
+
+			#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE
+				returnHandle->basePriority = returnHandle->priority;
+			#endif
 
 			common_listAddBack(&kGlobalTaskList, &(returnHandle->globalTaskListItem));
 
@@ -234,11 +239,12 @@ kTaskType_t tasks_getTaskType(kTask_t *task)
 	return type;
 }
 
+#if CFG_HEAP_ALLOCATION_TRACKING == 1
 kLinkedList_t *tasks_getTaskAllocList(kTask_t *task)
 {	
 	kLinkedList_t *allocList = NULL;
 
-	#if CFG_HEAP_ALLOCATION_TRACKING == 1
+	
 		if (task != NULL) {
 			arch_enterCriticalSection();
 
@@ -246,12 +252,12 @@ kLinkedList_t *tasks_getTaskAllocList(kTask_t *task)
 
 			arch_exitCriticalSection();
 		}
-	#endif
-
+	
 	return allocList;
 }
+#endif
 
-kBaseType_t tasks_getHeldMutexCount(kTask_t *task)
+kBaseType_t tasks_getTaskHeldMutexCount(kTask_t *task)
 {
 	kBaseType_t mutexCount = 0;
 
@@ -373,7 +379,7 @@ void tasks_setTaskState(kTask_t *task, kTaskState_t state)
 	}
 }
 
-void tasks_setHeldMutexCount(kTask_t *task, kBaseType_t mutexCount)
+void tasks_setTaskHeldMutexCount(kTask_t *task, kBaseType_t mutexCount)
 {
 	if (task != NULL) {
 		arch_enterCriticalSection();
@@ -402,6 +408,38 @@ void tasks_unblockTask(kTask_t *task)
 {
 	tasks_setTaskState(task, KSTATE_READY);
 }
+
+#if CFG_ENABLE_MUTEX_PRIORITY_INHERITANCE
+void tasks_raiseTaskPriority(kTask_t *task, kBaseType_t priority)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		if (task->basePriority == 0) {
+			task->basePriority = task->priority;
+		}
+
+		tasks_setTaskPriority(task, priority);
+
+		arch_exitCriticalSection();
+	}
+}
+
+void tasks_restoreTaskPriority(kTask_t *task)
+{
+	if (task != NULL) {
+		arch_enterCriticalSection();
+
+		if (task->basePriority != 0) {
+			tasks_setTaskPriority(task, task->basePriority);
+
+			task->basePriority = 0;
+		}
+
+		arch_exitCriticalSection();
+	}
+}
+#endif
 
 kReturnValue_t tasks_checkStackBounds(kTask_t *task) 
 {
