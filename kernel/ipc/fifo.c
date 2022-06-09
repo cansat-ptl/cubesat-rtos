@@ -12,6 +12,7 @@
 #include <kernel/ipc/mutex.h>
 #include <kernel/tasks/sched.h>
 #include <kernel/common/string.h>
+#include <kernel/arch/arch.h>
 
 void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t itemSize)
 {
@@ -28,10 +29,13 @@ void ipc_fifoInit(kFIFO_t *fifo, void *fifoBuffer, size_t bufferSize, size_t ite
 size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 {
 	size_t bytesWritten = 0;
+	size_t inputPositionPrev = 0;
 
 	if (fifo != NULL) {
 		if (ipc_fifoFreeSpace(fifo)) {
-			common_memcpy(fifo->pointer + fifo->inputPosition, input, fifo->itemSize);
+			arch_enterAtomicSection();
+			
+			inputPositionPrev = fifo->inputPosition;
 
 			fifo->inputPosition += fifo->itemSize;
 
@@ -41,6 +45,10 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 
 			fifo->currentPosition += fifo->itemSize;
 			bytesWritten += fifo->itemSize;
+
+			arch_exitAtomicSection();
+
+			common_memcpy(fifo->pointer + inputPositionPrev, input, fifo->itemSize);
 		}
 	}
 
@@ -50,10 +58,13 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 {
 	size_t bytesRead = 0;
+	size_t outputPositionPrev = 0;
 
 	if (fifo != NULL) {
 		if (ipc_fifoAvailable(fifo) != 0) {
-			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+			arch_enterAtomicSection();
+			
+			outputPositionPrev = fifo->outputPosition;
 
 			fifo->outputPosition += fifo->itemSize;
 
@@ -63,6 +74,10 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 
 			fifo->currentPosition -= fifo->itemSize;
 			bytesRead += fifo->itemSize;
+
+			arch_exitAtomicSection();
+
+			common_memcpy(output, fifo->pointer + outputPositionPrev, fifo->itemSize);
 		}
 	}
 	
@@ -72,11 +87,18 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 size_t ipc_fifoPeek(kFIFO_t *fifo, void *output)
 {
 	size_t bytesRead = 0;
+	size_t outputPositionPrev = 0;
 
 	if (fifo != NULL) {
 		if (ipc_fifoAvailable(fifo) != 0) {
-			common_memcpy(output, fifo->pointer + fifo->outputPosition, fifo->itemSize);
+			arch_enterAtomicSection();
+
+			outputPositionPrev = fifo->outputPosition;
 			bytesRead = fifo->itemSize;
+
+			arch_exitAtomicSection();
+
+			common_memcpy(output, fifo->pointer + outputPositionPrev, fifo->itemSize);
 		}
 	}
 
@@ -85,16 +107,33 @@ size_t ipc_fifoPeek(kFIFO_t *fifo, void *output)
 
 size_t ipc_fifoFreeSpace(kFIFO_t *fifo)
 {
-	if (fifo->bufferSize - fifo->currentPosition < fifo->itemSize) {
-		return 0;
-	}		
-	else {
-		return (fifo->bufferSize - fifo->currentPosition);
+	size_t freeSpace = 0;
+
+	if (fifo != NULL) {
+		arch_enterAtomicSection();
+
+		if (fifo->bufferSize - fifo->currentPosition >= fifo->itemSize) {
+			freeSpace = (fifo->bufferSize - fifo->currentPosition);
+		}
+
+		arch_exitAtomicSection();
 	}
+
+	return freeSpace;
 }
 
 
 size_t ipc_fifoAvailable(kFIFO_t *fifo)
 {
-	return fifo->currentPosition;
+	size_t currentPosition = 0;
+
+	if (fifo != NULL) {
+		arch_enterAtomicSection();
+
+		currentPosition = fifo->currentPosition;
+
+		arch_exitAtomicSection();
+	}
+
+	return currentPosition;
 }

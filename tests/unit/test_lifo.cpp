@@ -12,7 +12,6 @@
 
 #include <CppUTest/TestHarness.h>
 #include <kernel/kernel.h>
-#include <kernel/ipc/ipc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
