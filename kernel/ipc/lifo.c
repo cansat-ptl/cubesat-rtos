@@ -29,21 +29,31 @@ void ipc_lifoInit(kLIFO_t *lifo, void *lifoBuffer, size_t bufferSize, size_t ite
 size_t ipc_lifoWrite(kLIFO_t *lifo, void *input)
 {
 	size_t bytesWritten = 0;
-	size_t currentPositionPrev = 0;
+	size_t outputPositionPrev = 0;
 
 	if (lifo != NULL) {
-		if (ipc_lifoFreeSpace(lifo) != 0) {
+		do {
 			arch_enterAtomicSection();
 
-			currentPositionPrev = lifo->currentPosition;
+			if (!ipc_lifoFreeSpace(lifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
 
-			lifo->currentPosition += lifo->itemSize;
-			bytesWritten += lifo->itemSize;
-
+			outputPositionPrev = lifo->outputPosition;
+			lifo->outputPosition += lifo->itemSize;
+			
 			arch_exitAtomicSection();
 
-			common_memcpy(lifo->pointer + currentPositionPrev, input, lifo->itemSize);
-		}
+			common_memcpy(lifo->pointer + outputPositionPrev, input, lifo->itemSize);
+			bytesWritten += lifo->itemSize;
+
+			arch_enterAtomicSection();
+
+			lifo->currentPosition += lifo->itemSize;
+
+			arch_exitAtomicSection();
+		} while (0);
 	}
 
 	return bytesWritten;
@@ -52,21 +62,31 @@ size_t ipc_lifoWrite(kLIFO_t *lifo, void *input)
 size_t ipc_lifoRead(kLIFO_t *lifo, void *output)
 {
 	size_t bytesRead = 0;
-	size_t currentPositionPrev = 0;
+	size_t outputPositionPrev = 0;
 
 	if (lifo != NULL) {
-		if (ipc_lifoAvailable(lifo) != 0) {
+		do {
 			arch_enterAtomicSection();
 
-			currentPositionPrev = lifo->currentPosition;
+			if (!ipc_lifoAvailable(lifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
 
-			lifo->currentPosition -= lifo->itemSize;
-			bytesRead += lifo->itemSize;
+			outputPositionPrev = lifo->outputPosition;
+			lifo->outputPosition -= lifo->itemSize;
 
 			arch_exitAtomicSection();
 			
-			common_memcpy(output, lifo->pointer + currentPositionPrev - lifo->itemSize, lifo->itemSize);
-		}
+			common_memcpy(output, lifo->pointer + outputPositionPrev - lifo->itemSize, lifo->itemSize);
+			bytesRead += lifo->itemSize;
+
+			arch_enterAtomicSection();
+
+			lifo->currentPosition -= lifo->itemSize;
+
+			arch_exitAtomicSection();
+		} while (0);
 	}
 
 	return bytesRead;
@@ -78,16 +98,21 @@ size_t ipc_lifoPeek(kLIFO_t *lifo, void *output)
 	size_t currentPositionPrev = 0;
 
 	if (lifo != NULL) {
-		if (ipc_lifoAvailable(lifo) != 0) {
+		do {
 			arch_enterAtomicSection();
 
+			if (!ipc_lifoAvailable(lifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
+
 			currentPositionPrev = lifo->currentPosition;
-			bytesRead = lifo->itemSize;
 
 			arch_exitAtomicSection();
 
 			common_memcpy(output, lifo->pointer + currentPositionPrev - lifo->itemSize, lifo->itemSize);
-		}
+			bytesRead = lifo->itemSize;
+		} while (0);
 	}
 
 	return bytesRead;

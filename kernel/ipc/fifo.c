@@ -32,9 +32,14 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 	size_t inputPositionPrev = 0;
 
 	if (fifo != NULL) {
-		if (ipc_fifoFreeSpace(fifo)) {
+		do {
 			arch_enterAtomicSection();
-			
+
+			if (!ipc_fifoFreeSpace(fifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
+
 			inputPositionPrev = fifo->inputPosition;
 
 			fifo->inputPosition += fifo->itemSize;
@@ -43,13 +48,17 @@ size_t ipc_fifoWrite(kFIFO_t *fifo, void *input)
 				fifo->inputPosition = 0;
 			}
 
-			fifo->currentPosition += fifo->itemSize;
-			bytesWritten += fifo->itemSize;
-
 			arch_exitAtomicSection();
 
 			common_memcpy(fifo->pointer + inputPositionPrev, input, fifo->itemSize);
-		}
+			bytesWritten += fifo->itemSize;
+
+			arch_enterAtomicSection();
+				
+			fifo->currentPosition += fifo->itemSize;
+
+			arch_exitAtomicSection();
+		} while (0);
 	}
 
 	return bytesWritten;
@@ -61,8 +70,13 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 	size_t outputPositionPrev = 0;
 
 	if (fifo != NULL) {
-		if (ipc_fifoAvailable(fifo) != 0) {
+		do {
 			arch_enterAtomicSection();
+
+			if (!ipc_fifoAvailable(fifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
 			
 			outputPositionPrev = fifo->outputPosition;
 
@@ -72,13 +86,17 @@ size_t ipc_fifoRead(kFIFO_t *fifo, void *output)
 				fifo->outputPosition = 0;
 			}
 
-			fifo->currentPosition -= fifo->itemSize;
-			bytesRead += fifo->itemSize;
-
 			arch_exitAtomicSection();
 
 			common_memcpy(output, fifo->pointer + outputPositionPrev, fifo->itemSize);
-		}
+			bytesRead += fifo->itemSize;
+
+			arch_enterAtomicSection();
+
+			fifo->currentPosition -= fifo->itemSize;
+
+			arch_exitAtomicSection();
+		} while (0);
 	}
 	
 	return bytesRead;
@@ -90,16 +108,21 @@ size_t ipc_fifoPeek(kFIFO_t *fifo, void *output)
 	size_t outputPositionPrev = 0;
 
 	if (fifo != NULL) {
-		if (ipc_fifoAvailable(fifo) != 0) {
+		do {
 			arch_enterAtomicSection();
 
+			if (!ipc_fifoAvailable(fifo)) {
+				arch_exitAtomicSection();
+				break;
+			}
+				
 			outputPositionPrev = fifo->outputPosition;
-			bytesRead = fifo->itemSize;
 
 			arch_exitAtomicSection();
 
 			common_memcpy(output, fifo->pointer + outputPositionPrev, fifo->itemSize);
-		}
+			bytesRead = fifo->itemSize;
+		} while (0);
 	}
 
 	return bytesRead;

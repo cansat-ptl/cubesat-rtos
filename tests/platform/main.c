@@ -36,6 +36,7 @@ void test_task3(void* args)
 
 		debug_printk_p(ROMSTR("task3: Reading FIFO\r\n"));
 
+		while (!ipc_fifoAvailable(&fifo));
 		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
@@ -54,6 +55,7 @@ void test_task2(void* args)
 
 		debug_printk_p(ROMSTR("task2: Reading FIFO\r\n"));
 
+		while (!ipc_fifoAvailable(&fifo));
 		ipc_fifoRead(&fifo, (void*)receiveBuffer);
 
 		receiveBuffer[31] = 0;
@@ -69,6 +71,7 @@ void test_task(void* args)
 	while (1)
 	{
 		debug_printk_p(ROMSTR("task1: Writing FIFO\r\n"));
+		while (!ipc_fifoFreeSpace(&fifo));
 		ipc_fifoWrite(&fifo, (void*)asd);
 	}
 }
@@ -80,6 +83,7 @@ void test_task123(void* args)
 	while (1)
 	{
 		debug_printk_p(ROMSTR("task123: Writing FIFO\r\n"));
+		while (!ipc_fifoFreeSpace(&fifo));
 		ipc_fifoWrite(&fifo, (void*)asd);
 		break;
 	}
