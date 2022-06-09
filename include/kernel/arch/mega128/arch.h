@@ -29,7 +29,7 @@
 #define arch_ENABLE_INTERRUPTS() asm volatile ("sei"::)
 #define arch_STATUS_REG SREG
 #define arch_NOP() asm volatile ("nop"::)
-#define arch_enterAtomicSection()	asm volatile ("lds __tmp_reg__, __SREG__ \n\t"\
+#define arch_enterAtomicSection()	asm volatile ("in __tmp_reg__, __SREG__ \n\t"\
 					              "cli                       \n\t"\
 					              "push __tmp_reg__"            ::)
 #define arch_exitAtomicSection() 	asm volatile ("pop __tmp_reg__           \n\t"\
