@@ -46,7 +46,7 @@ VERSION_GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
 CFLAGS = -x c -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=gnu99 -Wall -Wextra -mmcu=$(mcu)
 CPPFLAGS = -x c++ -DDEBUG $(INCLUDES) -Os -g2 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -c -std=c++11 -Wall -Wextra -mmcu=$(mcu)
 ASMFLAGS = -Wa,-gdwarf2 -x assembler-with-cpp -c -B -DDEBUG $(INCLUDES) -Os -g2 -mrelax -Wall -Wextra -mmcu=$(mcu)
-LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra -mmcu=$(mcu)
+LDFLAGS = -Wl,-static -Wl,-Map="$(TARGDIR)/$(TARG).map" -Wl,--gc-sections -mrelax -Wl,-section-start=.bootloader=0x3c000 -lm -Wall -Wextra -mmcu=$(mcu) 
 
 TEST_CFLAGS := -x c -DDEBUG $(INCLUDES) -Og -g3 -c -std=gnu99 -Wall -Wextra
 TEST_CPPFLAGS := -x c++ -DDEBUG $(INCLUDES) -Og -g3 -c -std=c++11 -Wall -Wextra 
